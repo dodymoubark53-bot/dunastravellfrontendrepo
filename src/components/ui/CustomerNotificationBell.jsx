@@ -12,11 +12,15 @@ export default function CustomerNotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
 
+  const containerRef = useRef(null);
+  const panelRef = useRef(null);
+  const buttonRef = useRef(null);
   const isInitializedRef = useRef(false);
   const prevUnreadCountRef = useRef(0);
 
@@ -58,6 +62,52 @@ export default function CustomerNotificationBell() {
     };
   }, [user, fetchNotifications]);
 
+  // Close the dropdown when tapping/clicking anywhere outside of it
+  // (works with mouse, touch, pen, trackpad on desktop, laptop, phones and tablets).
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideInteraction = (event) => {
+      // If the interaction is inside the dropdown panel, keep it open
+      if (panelRef.current && panelRef.current.contains(event.target)) {
+        return;
+      }
+      // If the interaction is on the bell toggle button itself, let the button handle it
+      if (buttonRef.current && buttonRef.current.contains(event.target)) {
+        return;
+      }
+      // Any other click/tap outside -> close dropdown
+      setIsOpen(false);
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    // Listen in capture phase for pointerdown, mousedown, and touchstart
+    document.addEventListener('pointerdown', handleOutsideInteraction, true);
+    document.addEventListener('mousedown', handleOutsideInteraction, true);
+    document.addEventListener('touchstart', handleOutsideInteraction, true);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideInteraction, true);
+      document.removeEventListener('mousedown', handleOutsideInteraction, true);
+      document.removeEventListener('touchstart', handleOutsideInteraction, true);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // Close the notification details modal when Escape key is pressed
+  useEffect(() => {
+    if (!selectedNotification) return;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSelectedNotification(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNotification]);
+
   const handleMarkAsRead = async (id, e) => {
     if (e) e.stopPropagation();
     try {
@@ -86,8 +136,6 @@ export default function CustomerNotificationBell() {
     }
   };
 
-  const [selectedNotification, setSelectedNotification] = useState(null);
-
   const handleItemClick = (item) => {
     if (!item.isRead) {
       handleMarkAsRead(item.id);
@@ -108,11 +156,17 @@ export default function CustomerNotificationBell() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        ref={buttonRef}
+        onClick={() => setIsOpen((prev) => !prev)}
         aria-label="Notifications"
-        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-[#F5A623]/40 transition-all duration-300 hover:scale-110 relative"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        type="button"
+        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-[#F5A623]/40 transition-all duration-300 hover:scale-110 relative ${
+          isOpen ? 'z-[999999]' : ''
+        }`}
       >
         <FaBell size={10} className="text-[#F5A623]" />
         {unreadCount > 0 && (
@@ -123,7 +177,26 @@ export default function CustomerNotificationBell() {
       </button>
 
       {isOpen && (
-        <div className={`fixed sm:absolute top-16 sm:top-full ${isRtl ? 'left-3 sm:left-0' : 'right-3 sm:right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[999999] overflow-hidden text-gray-900 dark:text-white transition-all`}>
+        <>
+          {/* Full-screen backdrop to capture outside clicks/taps on mobile, laptop, and tablet */}
+          <div
+            data-testid="notification-backdrop"
+            className="fixed inset-0 z-[999998] cursor-default bg-black/25 sm:bg-transparent"
+            aria-hidden="true"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
+          />
+
+          <div
+            ref={panelRef}
+            className={`fixed sm:absolute top-16 sm:top-full ${isRtl ? 'left-3 sm:left-0' : 'right-3 sm:right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm bg-white dark:bg-obsidian-900 border border-gray-200 dark:border-obsidian-700 rounded-2xl shadow-2xl z-[999999] overflow-hidden text-gray-900 dark:text-white transition-all`}
+          >
           <div className="p-3 border-b border-gray-100 dark:border-obsidian-800 flex items-center justify-between bg-gray-50 dark:bg-obsidian-800/50">
             <span className="font-bold text-xs">
               {isRtl ? 'الإشعارات' : 'Notifications'} {unreadCount > 0 && `(${unreadCount})`}
@@ -184,7 +257,8 @@ export default function CustomerNotificationBell() {
             )}
           </div>
         </div>
-      )}
+      </>
+    )}
 
       {/* NOTIFICATION DETAILS MODAL / MOBILE BOTTOM SHEET (PORTAL TO DOCUMENT.BODY) */}
       {selectedNotification && typeof document !== 'undefined' && createPortal(

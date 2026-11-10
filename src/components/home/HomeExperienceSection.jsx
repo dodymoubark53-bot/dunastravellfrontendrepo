@@ -11,6 +11,7 @@ const VideoShowcaseCarousel = lazy(() => import("./VideoShowcaseCarousel"));
 import { useDestinations } from "../../hooks/useDestinations";
 import { useServices } from "../../hooks/useServices";
 import { transportation as fallbackTransportation } from "../../data/transportation";
+import fallbackToursDatabase from "../../data/database/unified_52_tours.json";
 const AnimatedCounter = lazy(() => import("../common/AnimatedCounter"));
 import HomeHeroSection from "./HomeHeroSection";
 import useInViewport from "../../hooks/useInViewport";
@@ -402,20 +403,26 @@ const HomeExperienceSection = () => {
     tours: allLiveToursRaw,
     loading: toursLoading,
     error: toursError,
-  } = useTours({ limit: 24 });
+  } = useTours({ limit: 100 });
   const allLiveTours = useMemo(() => {
-    if (Array.isArray(allLiveToursRaw) && allLiveToursRaw.length > 0) {
-      return allLiveToursRaw;
-    }
-    const embedded = [];
-    const seen = new Set();
+    const tourMap = new Map();
+
+    // 1. Catalog tours from unified database (59 tours across Egypt, Turkey, Dubai, Jordan, Multi-Country, etc.)
+    const catalogTours = fallbackToursDatabase?.tours || [];
+    catalogTours.forEach((tour) => {
+      const key = tour.slug || tour.id;
+      if (key) {
+        tourMap.set(key, tour);
+      }
+    });
+
+    // 2. Add embedded tours from liveDestinationsRaw
     (liveDestinationsRaw || []).forEach((dest) => {
       const destSlug = dest?.slug || dest?.id || 'egypt';
       (dest?.tours || []).forEach((tItem) => {
         const key = tItem?.id || tItem?.slug;
-        if (key && !seen.has(key)) {
-          seen.add(key);
-          embedded.push({
+        if (key) {
+          tourMap.set(key, {
             ...tItem,
             destination: tItem.destination || destSlug,
             price: Number(tItem.basePriceUsd ?? tItem.price ?? 0),
@@ -423,7 +430,18 @@ const HomeExperienceSection = () => {
         }
       });
     });
-    return embedded;
+
+    // 3. Overlay any live tours fetched from backend API
+    if (Array.isArray(allLiveToursRaw) && allLiveToursRaw.length > 0) {
+      allLiveToursRaw.forEach((tour) => {
+        const key = tour.slug || tour.id;
+        if (key) {
+          tourMap.set(key, { ...tourMap.get(key), ...tour });
+        }
+      });
+    }
+
+    return Array.from(tourMap.values());
   }, [allLiveToursRaw, liveDestinationsRaw]);
   const { services: rawTransportation = [], loading: transportLoading } = useServices('transportation', {
     enabled: isTransportSectionVisible,
@@ -667,6 +685,21 @@ const HomeExperienceSection = () => {
     'emirates': 'dubai',
     'holy land': 'holyland',
     'holy-land': 'holyland',
+    'turkey': 'turkey',
+    'turquia': 'turkey',
+    'turquía': 'turkey',
+    'jordan': 'jordan',
+    'jordania': 'jordan',
+    'egypt': 'egypt',
+    'egipto': 'egypt',
+    'egito': 'egypt',
+    'morocco': 'morocco',
+    'marruecos': 'morocco',
+    'tunisia': 'tunisia',
+    'túnez': 'tunisia',
+    'tunez': 'tunisia',
+    'greece': 'greece',
+    'grecia': 'greece',
   }), []);
 
   const normalizeDest = (d) => {
@@ -696,17 +729,20 @@ const HomeExperienceSection = () => {
       if (destName === 'dubai') baseUrl = '/programs/dubai';
       else if (destName === 'turkey') baseUrl = '/programs/turkey';
       else if (destName === 'jordan') baseUrl = '/programs/jordan';
+      else if (destName === 'multi-country' || destName === 'multicountry') baseUrl = '/programs/multi-country';
 
       result.push({
-        id: `tour-${slugStr}`,
+        id: tour.id || `tour-${slugStr}`,
+        slug: slugStr,
         label: titleStr,
         url: `${baseUrl}/${slugStr}`,
+        destination: destName,
       });
     };
 
     const targetDest = normalizeDest(destId);
 
-    if (targetDest === "all") {
+    if (targetDest === "all" || !targetDest) {
       (allLiveTours || []).forEach((tour) => addTourItem(tour, "/tours"));
       return result;
     }
@@ -721,16 +757,40 @@ const HomeExperienceSection = () => {
     return result;
   };
 
-  const destTours = searchDest ? getToursForDest(searchDest) : [];
+  const destTours = useMemo(() => {
+    return searchDest && searchDest !== "all" ? getToursForDest(searchDest) : [];
+  }, [searchDest, allLiveTours, lang]);
+
+  const allDestTours = useMemo(() => {
+    return getToursForDest("all");
+  }, [allLiveTours, lang]);
+
+  const destinationGroups = useMemo(() => {
+    const groups = [];
+    (destinations || []).forEach((dest) => {
+      const tours = getToursForDest(dest.id);
+      if (tours && tours.length > 0) {
+        groups.push({
+          destId: dest.id,
+          destName: dest.label,
+          tours,
+        });
+      }
+    });
+    return groups;
+  }, [destinations, allLiveTours, lang]);
 
   const handleSearch = () => {
     if (searchTour) {
-      const found = destTours.find((tour) => tour.id === searchTour);
-      if (found) { navigate(found.url); return; }
+      const allAvailable = searchDest && searchDest !== "all" ? destTours : allDestTours;
+      const found = allAvailable.find((tour) => tour.id === searchTour);
+      if (found?.url) { navigate(found.url); return; }
     }
     if (searchDest && searchDest !== "all") {
       navigate(`/destinations/${searchDest}`);
+      return;
     }
+    navigate('/programs');
   };
 
   // Transportation State
@@ -882,7 +942,20 @@ const HomeExperienceSection = () => {
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-5 items-end">
                 {/* Destination */}
                 <div className="col-span-1 md:col-span-2">
-                  <label htmlFor="search-dest-input" className="flex items-center gap-2 text-xs sm:text-sm text-amber-300 uppercase tracking-widest mb-2 font-extrabold drop-shadow-md">
+                  <label
+                    htmlFor="search-dest-input"
+                    onClick={() => {
+                      const el = document.getElementById('search-dest-input');
+                      if (el) {
+                        if (typeof el.showPicker === 'function') {
+                          try { el.showPicker(); } catch { el.focus(); }
+                        } else {
+                          el.focus();
+                        }
+                      }
+                    }}
+                    className="flex items-center gap-2 text-xs sm:text-sm text-amber-300 uppercase tracking-widest mb-2 font-extrabold drop-shadow-md cursor-pointer hover:text-amber-200 transition-colors"
+                  >
                     <FaMapMarkerAlt className="text-amber-400 text-xs animate-bounce" style={{ animationDuration: '2.5s' }} />
                     {t('home.searchDest', 'Destination')}
                   </label>
@@ -909,9 +982,22 @@ const HomeExperienceSection = () => {
                   </div>
                 </div>
 
-                {/* Tour */}
+                {/* Tour / Program */}
                 <div className="col-span-1 md:col-span-2">
-                  <label htmlFor="search-tour-input" className="flex items-center gap-2 text-xs sm:text-sm text-amber-300 uppercase tracking-widest mb-2 font-extrabold drop-shadow-md">
+                  <label
+                    htmlFor="search-tour-input"
+                    onClick={() => {
+                      const el = document.getElementById('search-tour-input');
+                      if (el) {
+                        if (typeof el.showPicker === 'function') {
+                          try { el.showPicker(); } catch { el.focus(); }
+                        } else {
+                          el.focus();
+                        }
+                      }
+                    }}
+                    className="flex items-center gap-2 text-xs sm:text-sm text-amber-300 uppercase tracking-widest mb-2 font-extrabold drop-shadow-md cursor-pointer hover:text-amber-200 transition-colors"
+                  >
                     <FaSuitcase className="text-amber-400 text-xs" />
                     {t('home.searchTour', 'Tour / Program')}
                   </label>
@@ -923,24 +1009,47 @@ const HomeExperienceSection = () => {
                         const selectedVal = e.target.value;
                         setSearchTour(selectedVal);
                         if (selectedVal) {
-                          const found = destTours.find((tour) => tour.id === selectedVal);
+                          const allAvailable = searchDest && searchDest !== "all" ? destTours : allDestTours;
+                          const found = allAvailable.find((tour) => tour.id === selectedVal);
+                          if (found?.destination && searchDest === "all") {
+                            setSearchDest(found.destination);
+                          }
                           if (found?.url) {
                             navigate(found.url);
                           }
                         }
                       }}
-                      disabled={!searchDest || searchDest === "all"}
-                      className="w-full px-4 py-3.5 rounded-2xl border border-white/30 bg-black/50 backdrop-blur-md text-white font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 appearance-none cursor-pointer pr-10 rtl:pr-4 rtl:pl-10 shadow-inner transition-all hover:border-amber-400/80 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3.5 rounded-2xl border border-white/30 bg-black/50 backdrop-blur-md text-white font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 appearance-none cursor-pointer pr-10 rtl:pr-4 rtl:pl-10 shadow-inner transition-all hover:border-amber-400/80 hover:bg-black/70"
                       style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)', color: '#FFFFFF' }}
                     >
                       <option value="" style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}>
-                        {searchDest === "all" ? t('home.selectDestFirst', 'Select a destination first') : t('home.searchAllTours', 'All Tours')}
+                        {t('home.searchAllTours', isRtl ? 'جميع الرحلات والبرامج' : 'All Tours & Programs')}
                       </option>
-                      {searchDest && searchDest !== "all" && destTours.map((item) => (
-                        <option key={item.id} value={item.id} style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}>
-                          {item.label}
-                        </option>
-                      ))}
+                      {searchDest && searchDest !== "all" ? (
+                        destTours.map((item) => (
+                          <option key={item.id} value={item.id} style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}>
+                            {item.label}
+                          </option>
+                        ))
+                      ) : (
+                        destinationGroups.map((group) => (
+                          <optgroup
+                            key={group.destId}
+                            label={group.destName}
+                            style={{ backgroundColor: '#0B132B', color: '#F5A623', fontWeight: 'bold' }}
+                          >
+                            {group.tours.map((item) => (
+                              <option
+                                key={item.id}
+                                value={item.id}
+                                style={{ backgroundColor: '#060D1F', color: '#FFFFFF', fontWeight: 'normal' }}
+                              >
+                                {item.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))
+                      )}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 flex items-center px-3.5 text-amber-400">
                       <FaChevronDown className="text-xs transition-transform duration-300" />

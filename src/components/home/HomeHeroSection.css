@@ -956,7 +956,7 @@
 [dir="rtl"] .slider-section .hero_content h1 {
   font-family: "Cairo", "Tajawal", "Montserrat", sans-serif;
   font-weight: 700;
-  font-size: 135px;
+  font-size: 126px;
   line-height: 1.144em;
 }
 
@@ -986,6 +986,8 @@
   font-family: "Cairo", "Tajawal", "Montserrat", sans-serif;
   font-weight: 700;
   letter-spacing: normal;
+  /* Raised two 8px steps compared with the LTR button spacing. */
+  margin-top: 20px;
 }
 
 .rtl .defult-btn a svg,
@@ -1023,12 +1025,12 @@
   }
 }
 
-/* Arabic keeps the exact LTR type scale at every breakpoint. */
+/* Arabic runs one type step smaller than the LTR scale at every breakpoint. */
 @media only screen and (max-width: 1600px) {
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 115px;
+    font-size: 107px;
   }
 }
 
@@ -1036,7 +1038,7 @@
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 95px;
+    font-size: 88px;
   }
 }
 
@@ -1044,7 +1046,7 @@
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 78px;
+    font-size: 73px;
   }
 }
 
@@ -1052,7 +1054,7 @@
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 50px;
+    font-size: 47px;
   }
 }
 
@@ -1060,7 +1062,7 @@
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 40px;
+    font-size: 37px;
   }
 }
 
@@ -1068,7 +1070,23 @@
 
   .rtl .slider-section .hero_content h1,
   [dir="rtl"] .slider-section .hero_content h1 {
-    font-size: 34px;
+    font-size: 32px;
+  }
+}
+
+/* Keep the Arabic CTA the same two 8px steps higher than the LTR button
+   at the smaller breakpoints, where the base margin is already reduced. */
+@media only screen and (max-width: 768px) {
+  .rtl .defult-btn a,
+  [dir="rtl"] .defult-btn a {
+    margin-top: 4px;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .rtl .defult-btn a,
+  [dir="rtl"] .defult-btn a {
+    margin-top: 0;
   }
 }
 
@@ -1115,6 +1133,11 @@
     padding-right: 0.22em;
   }
 
+  .rtl .slider-section .hero_content h1,
+  [dir="rtl"] .slider-section .hero_content h1 {
+    font-size: clamp(26px, 8vh, 45px);
+  }
+
   .slider-section .hero_content .slider-contect-des,
   .rtl .slider-section .hero_content .slider-contect-des,
   [dir="rtl"] .slider-section .hero_content .slider-contect-des {
@@ -1131,6 +1154,11 @@
     padding: clamp(8px, 2.2vh, 12px) clamp(20px, 4vw, 32px);
     margin-top: clamp(8px, 2.5vh, 14px);
     letter-spacing: 1.2px;
+  }
+
+  .rtl .defult-btn a,
+  [dir="rtl"] .defult-btn a {
+    margin-top: clamp(2px, 1.5vh, 8px);
   }
 
   .circle__video {
