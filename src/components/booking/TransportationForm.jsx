@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaCheckCircle,
   FaFileInvoiceDollar,
@@ -152,7 +152,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
       <div className="p-5">
         <AnimatePresence mode="wait">
           {status === 'success' ? (
-            <motion.div
+            <m.div
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -186,9 +186,9 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                   <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
                 </button>
               )}
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.form
+            <m.form
               key="form"
               variants={fadeInUp}
               initial="hidden"
@@ -479,7 +479,7 @@ const TransportationForm = ({ preSelectedVehicleId = '' }) => {
                   </>
                 )}
               </button>
-            </motion.form>
+            </m.form>
           )}
         </AnimatePresence>
       </div>

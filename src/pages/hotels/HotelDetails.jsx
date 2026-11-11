@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import SEOHead from '../../components/seo/SEOHead';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaStar,
   FaMapMarkerAlt,
@@ -1067,7 +1067,7 @@ const HotelDetails = () => {
       {/* Lightbox Modal */}
       <AnimatePresence>
         {activeImage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1086,7 +1086,7 @@ const HotelDetails = () => {
               className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
               alt="Gallery preview"
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

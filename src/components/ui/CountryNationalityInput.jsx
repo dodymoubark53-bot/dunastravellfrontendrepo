@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaChevronDown, FaGlobeAmericas } from 'react-icons/fa';
 import CountryDropdown from './CountryDropdown';
 import CountryFlagIcon from './CountryFlagIcon';
+import useCountryLocale from '../../hooks/useCountryLocale';
 import { resolveCountry } from '../../utils/countries';
 
 /**
@@ -28,6 +29,7 @@ const CountryNationalityInput = ({
 }) => {
   const { i18n } = useTranslation();
   const language = languageProp || i18n?.language || 'en';
+  useCountryLocale(language);
   const isLight = theme === 'light';
   const wrapperRef = useRef(null);
   const [open, setOpen] = useState(false);

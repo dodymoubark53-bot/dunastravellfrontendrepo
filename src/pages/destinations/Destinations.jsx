@@ -1,5 +1,5 @@
 import SEOHead from '../../components/seo/SEOHead';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useDestinations } from '../../hooks/useDestinations';
@@ -130,7 +130,7 @@ const Destinations = () => {
               || '/imgs/egyothero.webp';
 
             return (
-              <motion.article 
+              <m.article 
                 key={destination.id} 
                 initial={{ opacity: 0, y: 40 }} 
                 whileInView={{ opacity: 1, y: 0 }} 
@@ -216,7 +216,7 @@ const Destinations = () => {
                     </p>
                   </div>
                 )}
-              </motion.article>
+              </m.article>
             );
           })}
         </div>

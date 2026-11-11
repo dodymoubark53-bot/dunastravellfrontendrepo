@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -192,7 +192,7 @@ export default function PhotoShowcaseCarousel({ photos = [], loading = false }) 
 
       {/* Section Header */}
       <div className="container mx-auto px-6 mb-10 relative z-10 text-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -209,7 +209,7 @@ export default function PhotoShowcaseCarousel({ photos = [], loading = false }) 
             {t("home.galleryHeading", "A Glimpse Into Your Journey")}
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#0CB2DB] to-transparent mx-auto mt-2" />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Gallery Marquee Container with Seamless Top & Bottom Arch Overlays */}
@@ -312,7 +312,7 @@ export default function PhotoShowcaseCarousel({ photos = [], loading = false }) 
       {/* Lightbox Modal */}
       <AnimatePresence>
         {isLightboxOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -337,7 +337,7 @@ export default function PhotoShowcaseCarousel({ photos = [], loading = false }) 
               <FaChevronLeft size={40} />
             </button>
 
-            <motion.img
+            <m.img
               key={activeGalleryIndex}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: zoomScale }}
@@ -392,7 +392,7 @@ export default function PhotoShowcaseCarousel({ photos = [], loading = false }) 
                 {t('mediaGallery.subheading', 'Visual Journey')}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>

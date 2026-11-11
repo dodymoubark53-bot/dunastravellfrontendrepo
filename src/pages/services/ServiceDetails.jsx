@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   FaCheckCircle, FaTimes, FaStar, FaMapMarkerAlt, FaTimesCircle, 
   FaBed, FaClock, FaTag, FaChevronRight, FaHotel, FaMoneyBillWave
@@ -113,14 +113,14 @@ const ServiceDetails = () => {
                 )}
                 <span className="text-ivory-300">{translateData(service.title, service.title)}</span>
               </div>
-              <motion.h1
+              <m.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-display-xl text-ivory-50 mb-6 font-display"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {translateData(service.title, service.title)}
-              </motion.h1>
+              </m.h1>
             </div>
           </section>
 
@@ -138,7 +138,7 @@ const ServiceDetails = () => {
             role="button"
             aria-label={t('tour.clickGallery', 'Click to open gallery')}
           >
-            <motion.img
+            <m.img
               src={serviceImages[0]}
               alt={translateData(service.title, service.title)}
               className="w-full h-full object-contain sm:object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.03] object-center max-h-full"
@@ -173,17 +173,17 @@ const ServiceDetails = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
               <div className="lg:col-span-2">
                 {/* Overview */}
-                <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                   <h2 className="text-display-md text-obsidian-900 mb-6 font-display animate-none text-start" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
                   <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
                     {serviceOverview.map((para, idx) => (
                       <p key={idx}>{translateData(para, para)}</p>
                     ))}
                   </div>
-                </motion.div>
+                </m.div>
 
                 {/* Key Highlights */}
-                <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
+                <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                   <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {serviceHighlights.map((highlight, idx) => (
@@ -193,14 +193,14 @@ const ServiceDetails = () => {
                       </div>
                     ))}
                   </div>
-                </motion.div>
+                </m.div>
 
 
 
                 {/* Itinerary Section */}
                 {service.itinerary && (
                   <>
-                    <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 text-start">
+                    <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 text-start">
                     <div className="mb-10">
                       <span className="text-caption text-gold-500 uppercase tracking-widest font-semibold block mb-2">
                         {t('tour.stepByStep', 'SUA JORNADA PASSO A PASSO')}
@@ -247,7 +247,7 @@ const ServiceDetails = () => {
                         ))}
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                   <Suspense fallback={<div className="h-80 rounded-2xl bg-obsidian-200/40 animate-pulse my-8" />}>
                     <RouteMap itinerary={service.itinerary} routeMap={service.routeMapJsonb || service.routeMap} />
                   </Suspense>
@@ -256,7 +256,7 @@ const ServiceDetails = () => {
 
                 {/* Included / Excluded / Hotels / Pricing summary */}
                 {service.slug === 'egypt-jordan-combined-14d' ? (
-                  <motion.div
+                  <m.div
                     variants={fadeInUp}
                     initial="hidden"
                     whileInView="visible"
@@ -466,9 +466,9 @@ const ServiceDetails = () => {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ) : service.slug === 'siwa-oasis-alexandria' ? (
-                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
+                  <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
                     <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
                       {translateData(service.title, service.title)} — {translateData('tour_siwa_includes_title', 'Package Includes')}
                     </h2>
@@ -480,9 +480,9 @@ const ServiceDetails = () => {
                         </li>
                       ))}
                     </ul>
-                  </motion.div>
+                  </m.div>
                 ) : (
-                  <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
+                  <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-16 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-left">
                 <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-8 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.incExc', "What's Included & Excluded")}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div>
@@ -508,7 +508,7 @@ const ServiceDetails = () => {
                         </ul>
                       </div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </div>
 
@@ -540,24 +540,24 @@ const ServiceDetails = () => {
             <div className="absolute inset-0 bg-obsidian-900/60 bg-gradient-to-t from-obsidian-900 via-obsidian-900/30 to-transparent pointer-events-none"></div>
           </div>
 
-          <motion.div
+          <m.div
             className="relative z-10 container mx-auto px-6 max-w-5xl flex flex-col md:flex-row justify-between items-end"
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
           >
             <div className="mb-6 md:mb-0">
-              <motion.div variants={fadeInUp} className="flex items-center gap-3 mb-4 text-caption text-gold-500 uppercase tracking-widest font-medium">
+              <m.div variants={fadeInUp} className="flex items-center gap-3 mb-4 text-caption text-gold-500 uppercase tracking-widest font-medium">
                 <span>{t(`nav.${category}`, category)}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
                 <span className="flex items-center gap-1"><FaMapMarkerAlt /> {translateData(service.location, service.location)}</span>
-              </motion.div>
-              <motion.h1 variants={fadeInUp} className="text-display-lg md:text-display-xl text-ivory-50 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
+              </m.div>
+              <m.h1 variants={fadeInUp} className="text-display-lg md:text-display-xl text-ivory-50 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>
                 {translateData(service.title, service.title)}
-              </motion.h1>
+              </m.h1>
             </div>
 
-            <motion.div variants={fadeInUp} className="flex flex-col items-start md:items-end bg-obsidian-900/80 backdrop-blur-md p-6 rounded-2xl border border-ivory-50/10">
+            <m.div variants={fadeInUp} className="flex flex-col items-start md:items-end bg-obsidian-900/80 backdrop-blur-md p-6 rounded-2xl border border-ivory-50/10">
               <div className="flex text-gold-500 mb-2">
                 {[...Array(5)].map((_, i) => (
                   <FaStar key={i} className={i < Math.floor(serviceRating) ? "text-gold-500" : "text-obsidian-300"} />
@@ -566,8 +566,8 @@ const ServiceDetails = () => {
               </div>
               <div className="text-[#F5EDD6] text-caption uppercase tracking-wider mb-1">{t('tourCard.startingFrom', 'Starting From')}</div>
               <div className="text-display-md text-ivory-50">{formatPrice(service.price)}</div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </section>
       )}
 
@@ -577,17 +577,17 @@ const ServiceDetails = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
               {/* Overview */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.overview', 'Overview')}</h2>
                 <div className="prose prose-lg prose-p:text-obsidian-500 prose-p:font-body prose-p:mb-6 text-start">
                   {serviceOverview.map((para, idx) => (
                     <p key={idx}>{translateData(para, para)}</p>
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Highlights */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
+              <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.highlights', 'Key Highlights')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {serviceHighlights.map((highlight, idx) => (
@@ -597,10 +597,10 @@ const ServiceDetails = () => {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Inclusions / Exclusions */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-start">
+              <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 bg-ivory-50 dark:bg-[#1a1a30] p-8 rounded-2xl shadow-sm border border-obsidian-900/5 dark:border-gray-700 text-start">
                 <h2 className="text-display-md text-obsidian-900 dark:text-ivory-50 mb-8 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.incExc', "What's Included & Excluded")}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
@@ -626,10 +626,10 @@ const ServiceDetails = () => {
                     </ul>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Photo Gallery */}
-              <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
+              <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-12 text-start">
                 <h2 className="text-display-md text-obsidian-900 mb-6 font-display" style={{ fontFamily: "'Playfair Display', serif" }}>{t('tourDetail.gallery', 'Gallery')}</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {serviceImages.map((img, idx) => (
@@ -652,7 +652,7 @@ const ServiceDetails = () => {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
             </div>
 
             {/* Sidebar - Booking Form */}
@@ -710,7 +710,7 @@ const ServiceDetails = () => {
       {/* Booking Modal */}
       <AnimatePresence>
         {activeForm && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -720,14 +720,14 @@ const ServiceDetails = () => {
             <div onClick={(e) => e.stopPropagation()}>
               {activeForm === 'booking' && <AdvancedBooking onClose={() => setActiveForm(null)} tourTitle={service.title} basePricePerPerson={service.price} bookingRules={service?.bookingRules || null} />}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
       
       {/* Lightbox */}
       <AnimatePresence>
         {activeImage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -738,7 +738,7 @@ const ServiceDetails = () => {
               <FaTimes size={32} />
             </button>
             <img src={activeImage} className="max-w-full max-h-[90vh] object-contain rounded-lg" alt="Gallery preview" />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

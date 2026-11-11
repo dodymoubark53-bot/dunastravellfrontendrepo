@@ -1,7 +1,7 @@
 import SEOHead from '../components/seo/SEOHead';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaChevronDown } from 'react-icons/fa';
 import { staggerContainer, fadeInUp, accordionContent } from '../animations/variants';
 import { useCmsBlock } from '../hooks/useCmsBlock';
@@ -53,7 +53,7 @@ const FAQ = () => {
       <section className="relative min-h-[30vh] pt-32 pb-12 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-obsidian-900"></div>
         <div className="absolute inset-0 bg-hero-overlay"></div>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4"
@@ -64,7 +64,7 @@ const FAQ = () => {
           <h1 className="text-display-xl text-white font-display">
             {cmsData?.heading || t('faq.heading', 'Frequently Asked Questions')}
           </h1>
-        </motion.div>
+        </m.div>
       </section>
 
       {/* FAQ Content */}
@@ -89,7 +89,7 @@ const FAQ = () => {
           </div>
         </div>
 
-        <motion.div
+        <m.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
@@ -100,7 +100,7 @@ const FAQ = () => {
             if (items.length === 0) return null;
 
             return (
-              <motion.div key={cat.id} variants={fadeInUp}>
+              <m.div key={cat.id} variants={fadeInUp}>
                 <h2 id={`cat-${cat.id}`} className="text-display-md text-obsidian-900 font-display mb-8 pb-3 border-b-2 border-gold-500">
                   {cat.title}
                 </h2>
@@ -126,7 +126,7 @@ const FAQ = () => {
                         </button>
                         <AnimatePresence initial={false}>
                           {isOpen && (
-                            <motion.div
+                            <m.div
                               key="content"
                               variants={accordionContent}
                               initial="collapsed"
@@ -136,17 +136,17 @@ const FAQ = () => {
                               <div className="px-5 pb-5 pt-2 border-t border-obsidian-800 text-white text-body-md leading-relaxed">
                                 {item.answer}
                               </div>
-                            </motion.div>
+                            </m.div>
                           )}
                         </AnimatePresence>
                       </div>
                     );
                   })}
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
       </section>
     </div>
   );

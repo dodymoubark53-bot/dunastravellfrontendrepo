@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'rea
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaClock, FaTag, FaUsers, FaChevronRight, FaCheck, FaTimes, FaMapMarkerAlt, FaBed, FaCheckCircle
 } from 'react-icons/fa';
@@ -130,16 +130,16 @@ export default function MultiCountryTourDetails() {
           {/* Main Column */}
           <div className="lg:col-span-2">
             {/* Overview */}
-            <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
               <h2 className="text-display-lg text-obsidian-900 mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
                 {t('tourDetail.overview', 'Overview')}
               </h2>
               <p className="text-body-lg text-obsidian-600 leading-relaxed">{overview}</p>
-            </motion.div>
+            </m.div>
 
             {/* Highlights */}
             {Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -157,12 +157,12 @@ export default function MultiCountryTourDetails() {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Day-by-Day Itinerary */}
             {tour.itinerary && tour.itinerary.length > 0 && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -205,12 +205,12 @@ export default function MultiCountryTourDetails() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Inclusions & Exclusions */}
             {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0) || (tour.includes && tour.includes.length > 0) || (tour.excludes && tour.excludes.length > 0) || (tour.notes && tour.notes.length > 0)) && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -271,7 +271,7 @@ export default function MultiCountryTourDetails() {
                     className="mt-8"
                   />
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* Route Map */}
@@ -347,7 +347,7 @@ export default function MultiCountryTourDetails() {
       {/* Lightbox Modal */}
       <AnimatePresence>
         {isLightboxOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -363,7 +363,7 @@ export default function MultiCountryTourDetails() {
               className="max-w-[90vw] max-h-[90vh] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

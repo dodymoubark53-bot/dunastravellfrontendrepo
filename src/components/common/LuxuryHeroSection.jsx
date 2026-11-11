@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
+import { m, AnimatePresence, useAnimationControls } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaCompass, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
@@ -171,14 +171,14 @@ export default function LuxuryHeroSection({
         className={`absolute inset-0 z-0 overflow-hidden bg-obsidian-950 ${onImageClick ? 'cursor-pointer group' : ''}`}
         onClick={onImageClick || undefined}
       >
-        <motion.div
+        <m.div
           initial={{ scale: 1 }}
           animate={zoomControls}
           className="absolute inset-0 w-full h-full"
         >
           <div className={`absolute inset-0 w-full h-full transition-transform duration-700 ${onImageClick ? 'group-hover:scale-105' : ''}`}>
             <AnimatePresence initial={false}>
-              <motion.img
+              <m.img
                 key={`${safeIndex}-${images[safeIndex]}`}
                 src={images[safeIndex] || FALLBACK_HERO_IMAGE}
                 onError={(e) => {
@@ -198,13 +198,13 @@ export default function LuxuryHeroSection({
               />
             </AnimatePresence>
           </div>
-        </motion.div>
+        </m.div>
       </div>
 
 
 
       {/* Main Content Area */}
-      <motion.div
+      <m.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -212,16 +212,16 @@ export default function LuxuryHeroSection({
       >
         {/* Breadcrumb Slot */}
         {breadcrumbs && (
-          <motion.div variants={itemVariants} className="mb-4 sm:mb-6 flex justify-center">
+          <m.div variants={itemVariants} className="mb-4 sm:mb-6 flex justify-center">
             <div className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-obsidian-950/80 border border-gold-500/30 backdrop-blur-md shadow-lg shadow-black/40">
               {breadcrumbs}
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Eyebrow Glass Badge */}
         {badge && (
-          <motion.div variants={itemVariants} className="inline-block max-w-full mb-4 sm:mb-6 px-2">
+          <m.div variants={itemVariants} className="inline-block max-w-full mb-4 sm:mb-6 px-2">
             <div
               className="inline-flex items-center justify-center gap-2 sm:gap-2.5 max-w-[94vw] sm:max-w-max px-3.5 py-2 xs:px-4.5 xs:py-2.5 sm:px-6 sm:py-3 rounded-full border border-[#F5A623]/60 backdrop-blur-xl shadow-xl shadow-black/50 text-center transition-all duration-300"
               style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
@@ -231,7 +231,7 @@ export default function LuxuryHeroSection({
                 {badge}
               </span>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Headline */}
@@ -243,27 +243,27 @@ export default function LuxuryHeroSection({
 
         {/* Subtitle / English Tagline */}
         {subtitle && (
-          <motion.p
+          <m.p
             variants={itemVariants}
             className="text-sm xs:text-base sm:text-xl md:text-2xl font-black text-gold-400 tracking-widest uppercase mb-4 sm:mb-6 font-sans drop-shadow-[0_4px_16px_rgba(0,0,0,1)] [text-shadow:_0_2px_12px_rgba(245,166,35,0.7),_0_4px_24px_rgba(0,0,0,0.95)]"
           >
             {subtitle}
-          </motion.p>
+          </m.p>
         )}
 
         {/* Detailed Description */}
         {description && (
-          <motion.p
+          <m.p
             variants={itemVariants}
             className="text-xs sm:text-base md:text-xl text-ivory-100 max-w-3xl mx-auto leading-relaxed mb-5 sm:mb-8 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] line-clamp-4 sm:line-clamp-none"
           >
             {description}
-          </motion.p>
+          </m.p>
         )}
 
         {/* Highlight Tags / Quick Badges */}
         {highlights && highlights.length > 0 && (
-          <motion.div
+          <m.div
             variants={itemVariants}
             className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-3 mb-6 sm:mb-10 max-w-4xl mx-auto"
           >
@@ -275,12 +275,12 @@ export default function LuxuryHeroSection({
                 {tag}
               </span>
             ))}
-          </motion.div>
+          </m.div>
         )}
 
         {/* Call to Actions (CTAs) */}
         {(primaryCta || secondaryCta) && (
-        <motion.div
+        <m.div
           variants={itemVariants}
           className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 w-full sm:w-auto"
         >
@@ -331,12 +331,12 @@ export default function LuxuryHeroSection({
               </Link>
             )
           )}
-        </motion.div>
+        </m.div>
         )}
 
         {/* Optional Stats Bar */}
         {stats && stats.length > 0 && (
-          <motion.div
+          <m.div
             variants={itemVariants}
             className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/15 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-3xl mx-auto w-full"
           >
@@ -350,9 +350,9 @@ export default function LuxuryHeroSection({
                 </span>
               </div>
             ))}
-          </motion.div>
+          </m.div>
         )}
-      </motion.div>
+      </m.div>
     </section>
   );
 }

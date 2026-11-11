@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   FaClock,
@@ -252,7 +252,7 @@ export default function TurkeyProgramDetails() {
             
             {/* Overview */}
             {overview && (
-              <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <m.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <div className="flex items-center gap-3.5 mb-5 pb-3.5 border-b-2 border-gold-500/30 dark:border-gold-500/40">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-gold-500 to-amber-600 dark:from-amber-300 dark:via-gold-400 dark:to-amber-500 flex items-center justify-center text-slate-950 shadow-[0_0_20px_rgba(245,166,35,0.45)] shrink-0 font-black">
                     <FaCompass className="text-2xl text-slate-950" />
@@ -269,12 +269,12 @@ export default function TurkeyProgramDetails() {
                 <p className="text-body-lg text-slate-800 dark:text-slate-100 font-semibold leading-relaxed whitespace-pre-line text-base md:text-lg">
                   {overview}
                 </p>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Key Highlights */}
             {Array.isArray(highlights) && highlights.length > 0 && (
-              <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <m.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <div className="flex items-center gap-3.5 mb-6 pb-4 border-b-2 border-gold-500/30 dark:border-gold-500/40">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-gold-500 to-amber-600 dark:from-amber-300 dark:via-gold-400 dark:to-amber-500 flex items-center justify-center text-slate-950 shadow-[0_0_20px_rgba(245,166,35,0.45)] shrink-0 font-black">
                     <FaStar className="text-2xl text-slate-950" />
@@ -299,12 +299,12 @@ export default function TurkeyProgramDetails() {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Itinerary Timeline */}
             {days && days.length > 0 && (
-              <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <m.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                 <div className="mb-10 text-center relative">
                   <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-amber-100/90 dark:bg-gold-500/25 border border-amber-300/70 dark:border-gold-400/50 mb-3 shadow-sm">
                     <FaCalendarAlt className="text-amber-800 dark:text-gold-300 text-xs" />
@@ -354,7 +354,7 @@ export default function TurkeyProgramDetails() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Inclusions & Exclusions */}
@@ -471,7 +471,7 @@ export default function TurkeyProgramDetails() {
       {/* Photo Gallery Lightbox Modal */}
       <AnimatePresence>
         {activeImageIndex !== null && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -523,7 +523,7 @@ export default function TurkeyProgramDetails() {
             <div className="mt-4 text-ivory-300 text-sm font-medium">
               {activeImageIndex + 1} / {images ? images.length : 1}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

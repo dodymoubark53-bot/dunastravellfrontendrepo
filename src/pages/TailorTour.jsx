@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import SEOHead from '../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
 import { supportedLocale } from '../utils/locale';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaPlane, FaWhatsapp, FaPhone, FaFacebookF, FaInstagram, FaCompass } from 'react-icons/fa';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
@@ -1016,13 +1016,13 @@ const TailorTour = () => {
         <div className="absolute inset-0 bg-obsidian-900"></div>
         <div className="absolute inset-0 bg-hero-overlay"></div>
         <div className="relative z-10 text-center">
-          <motion.h1
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-display-lg text-ivory-50 px-4"
           >
             {t('tailor.heading', 'Tailor Your Custom Journey')}
-          </motion.h1>
+          </m.h1>
         </div>
       </section>
 
@@ -1082,7 +1082,7 @@ const TailorTour = () => {
           {/* Form Element */}
           <form onSubmit={handleSubmit} className="mt-8">
             {isDraftRestored && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6 p-4 bg-gradient-to-r from-gold-500/15 via-gold-500/5 to-gold-500/15 border border-gold-500/30 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-xs"
@@ -1100,12 +1100,12 @@ const TailorTour = () => {
                 >
                   {t('tailor.clearDraft', 'مسح والبدء من جديد')}
                 </button>
-              </motion.div>
+              </m.div>
             )}
 
             <AnimatePresence mode="wait">
               {step === 1 && (
-                <motion.div
+                <m.div
                   key="step1"
                   initial={{ opacity: 0, x: isRtl ? 50 : -50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -1123,7 +1123,7 @@ const TailorTour = () => {
                       const tourCount = dest.toursCount;
 
                       return (
-                        <motion.div
+                        <m.div
                           key={dest.id}
                           initial={{ opacity: 0, y: 35 }}
                           whileInView={{ opacity: 1, y: 0 }}
@@ -1198,7 +1198,7 @@ const TailorTour = () => {
                               </span>
                             </div>
                           </div>
-                        </motion.div>
+                        </m.div>
                       );
                     })}
                   </div>
@@ -1227,11 +1227,11 @@ const TailorTour = () => {
                       {t('tailor.next', 'Next Step')}
                     </Button>
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               {step === 2 && (
-                <motion.div
+                <m.div
                   key="step2"
                   initial={{ opacity: 0, x: isRtl ? -50 : 50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -1649,7 +1649,7 @@ const TailorTour = () => {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </form>

@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import SEOHead from '../../components/seo/SEOHead';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { FaCompass, FaHotel, FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
 import TourCard from '../../components/tour/TourCard';
 import DurationSortFilter from '../../components/common/DurationSortFilter';
@@ -473,7 +473,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
         )}
 
         {(displayTours.length > 0 ? displayTours : sortedTours).length > 0 ? (
-          <motion.div
+          <m.div
             className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
             variants={containerVariants}
             initial="hidden"
@@ -493,7 +493,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
                 }}
               />
             ))}
-          </motion.div>
+          </m.div>
         ) : isToursLoading && slug !== 'holy-land' && slug !== 'holyland' ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label={t('common.loading', 'Loading tours...')}>
             {[0, 1, 2].map((skelIdx) => (

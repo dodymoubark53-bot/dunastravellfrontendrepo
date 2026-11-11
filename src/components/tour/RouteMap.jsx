@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { FaMapMarkedAlt } from 'react-icons/fa';
 import { fadeInUp } from '../../animations/variants';
 import useInViewport from '../../hooks/useInViewport';
@@ -934,7 +934,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
   const currentLocation = locations[activeLocationIndex] || locations[0];
 
   return (
-    <motion.div
+    <m.div
       ref={sectionRef}
       variants={fadeInUp}
       initial="hidden"
@@ -1085,7 +1085,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
           </div>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 };
 

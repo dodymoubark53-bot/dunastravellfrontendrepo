@@ -35,12 +35,26 @@
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <link rel="dns-prefetch" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://api.dunas-travel.com">
-  <link rel="preload" as="image" href="/imgs/slider-abu-simbel.webp" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-800.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
+  <link rel="preload" as="image" href="/imgs/slider-abu-simbel.webp" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
   <link rel="preload" as="image" href="/dunas-travel-logo.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=Satisfy&family=Cairo:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=Satisfy&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   </noscript>
+
+  <style>
+    /* First-paint skeleton hero (kept in HTML so it paints before React).
+       Phones use the 800px variant to cut ~65 kB off the LCP request. */
+    .initial-hero {
+      background: #122327 url('/imgs/slider-abu-simbel.webp') center center / cover no-repeat;
+    }
+    @media (max-width: 768px) {
+      .initial-hero {
+        background-image: url('/imgs/slider-abu-simbel-800.webp');
+      }
+    }
+  </style>
 
   <!-- Structured Data: Organization & TravelAgency Schema -->
   <script type="application/ld+json">
@@ -71,7 +85,7 @@
 <body>
   <div id="root">
     <!-- Initial SSR Fallback Skeleton for Instant Paint & Zero LCP Render Delay -->
-    <div style="min-height: 100vh; background: #122327 url('/imgs/slider-abu-simbel.webp') center center / cover no-repeat; color: #ffffff; font-family: sans-serif; display: flex; flex-direction: column;">
+    <div class="initial-hero" style="min-height: 100vh; color: #ffffff; font-family: sans-serif; display: flex; flex-direction: column;">
     <div style="min-height: 100vh; background: linear-gradient(to bottom, rgba(18, 35, 39, 0.45) 0%, rgba(18, 35, 39, 0.85) 100%); display: flex; flex-direction: column;">
       <header style="height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; background: rgba(18, 35, 39, 0.9);">
         <img src="/dunas-travel-logo.webp" alt="DUNAS TRAVEL" width="184" height="90" style="height: 48px; width: auto; aspect-ratio: 184/90; object-fit: contain;" />

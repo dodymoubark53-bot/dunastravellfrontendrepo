@@ -1,7 +1,7 @@
 import React from 'react';
 import SEOHead from '../../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FaSearch,
@@ -145,7 +145,7 @@ export default function ReligiousTours() {
               onFilterChange={setDisplayTours}
               className="mb-8"
             />
-            <motion.div
+            <m.div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               variants={staggerContainer}
               initial="hidden"
@@ -153,14 +153,14 @@ export default function ReligiousTours() {
               viewport={{ once: true, margin: '-50px' }}
             >
               {toursToRender.map((adaptedTour) => (
-                <motion.div key={adaptedTour.id} variants={fadeInUp}>
+                <m.div key={adaptedTour.id} variants={fadeInUp}>
                   <TourCard
                     tour={adaptedTour}
                     linkBase="/services/religious"
                   />
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           </>
         ) : (
           <div className="text-center py-20 bg-ivory-50 rounded-xl border border-gold-500/10 p-8 shadow-card">

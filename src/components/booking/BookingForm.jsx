@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaPlus,
   FaMinus,
@@ -622,7 +622,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
     >
       <AnimatePresence mode="wait">
         {status === 'success' && bookingResult ? (
-          <motion.div
+          <m.div
             key="success-view"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -691,7 +691,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                 </p>
               </div>
             )}
-          </motion.div>
+          </m.div>
         ) : (
           <div key="form-view">
             {/* Header */}

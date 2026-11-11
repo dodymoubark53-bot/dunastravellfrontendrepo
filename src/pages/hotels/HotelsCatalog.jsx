@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   FaStar,
   FaMapMarkerAlt,
@@ -205,7 +205,7 @@ const HotelsCatalog = () => {
 
         {/* Active Seasons Overview Banner */}
         {Array.isArray(seasons) && seasons.length > 0 && (
-          <motion.div
+          <m.div
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
@@ -237,7 +237,7 @@ const HotelsCatalog = () => {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Hotels Grid */}
@@ -294,7 +294,7 @@ const HotelsCatalog = () => {
                   : t('common.onRequest', 'On Request');
 
               return (
-                <motion.article
+                <m.article
                   key={hotel.id || hotel.slug}
                   variants={fadeInUp}
                   initial="hidden"
@@ -404,7 +404,7 @@ const HotelsCatalog = () => {
                       </Button>
                     </Link>
                   </div>
-                </motion.article>
+                </m.article>
               );
             })}
           </div>

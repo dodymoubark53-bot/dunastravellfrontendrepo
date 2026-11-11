@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaWhatsapp, FaFacebookF, FaInstagram, FaPhone, FaEnvelope, FaTimes, FaHeadset } from 'react-icons/fa';
 import { useJaiderChat } from '../../context/JaiderChatContext';
@@ -79,7 +79,7 @@ const FloatingContact = () => {
   return (
     <AnimatePresence>
       {showWidget && (
-        <motion.div
+        <m.div
           key="floating-contact-widget"
           initial={{ opacity: 0, scale: 0.6, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -92,7 +92,7 @@ const FloatingContact = () => {
             {isOpen && options.map((item, idx) => {
               const Icon = item.icon;
               return (
-                <motion.a
+                <m.a
                   key={item.label}
                   href={item.href}
                   target="_blank"
@@ -112,12 +112,12 @@ const FloatingContact = () => {
                   <span className="absolute hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-md bg-slate-950/90 text-ivory-100 border border-gold-500/30 whitespace-nowrap -top-7 shadow-md">
                     {item.label}
                   </span>
-                </motion.a>
+                </m.a>
               );
             })}
           </AnimatePresence>
 
-          <motion.button
+          <m.button
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close contact options" : "Open contact options"}
             aria-expanded={isOpen}
@@ -126,14 +126,14 @@ const FloatingContact = () => {
             whileTap={{ scale: 0.94 }}
             className="relative z-10 w-12 h-12 rounded-full flex items-center justify-center text-gold-300 bg-slate-950/90 backdrop-blur-md border border-gold-500/50 shadow-[0_4px_20px_rgba(0,0,0,0.45)] hover:border-gold-400 hover:text-gold-200 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition-all duration-300 cursor-pointer"
           >
-            <motion.div
+            <m.div
               animate={{ rotate: isOpen ? 90 : 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 18 }}
             >
               {isOpen ? <FaTimes size={18} /> : <FaHeadset size={20} />}
-            </motion.div>
-          </motion.button>
-        </motion.div>
+            </m.div>
+          </m.button>
+        </m.div>
       )}
     </AnimatePresence>
   );

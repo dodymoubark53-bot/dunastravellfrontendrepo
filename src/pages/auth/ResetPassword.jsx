@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaKey, FaLock, FaArrowLeft, FaArrowRight, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import AuthFormField from '../../components/auth/AuthFormField';
@@ -96,7 +96,7 @@ const ResetPassword = () => {
         {/* Error Alert */}
         <AnimatePresence>
           {error && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -105,14 +105,14 @@ const ResetPassword = () => {
             >
               <FaExclamationCircle className="text-red-400 mt-0.5 shrink-0" size={14} />
               <p className="flex-1">{error}</p>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Success Alert */}
         <AnimatePresence>
           {success && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-5 p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs text-center space-y-2"
@@ -124,7 +124,7 @@ const ResetPassword = () => {
                 {t('auth.passwordUpdated', 'Password Updated!')}
               </p>
               <p className="text-ivory-300 leading-relaxed">{success}</p>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 

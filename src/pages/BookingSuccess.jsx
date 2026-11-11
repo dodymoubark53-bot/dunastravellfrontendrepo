@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaCheckCircle, FaFileInvoiceDollar, FaTimesCircle, FaSpinner } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import api from '../utils/api';
 import InvoiceModal from '../components/booking/InvoiceModal';
 
@@ -120,7 +120,7 @@ const BookingSuccess = () => {
 
   return (
     <div className="min-h-screen bg-obsidian-900 flex items-center justify-center p-4 pt-28 font-body" dir={isRtl ? 'rtl' : 'ltr'}>
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-[#121118] border border-[rgba(201,162,39,0.2)] p-8 md:p-12 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-lg w-full text-center"
@@ -186,7 +186,7 @@ const BookingSuccess = () => {
             </div>
           </div>
         )}
-      </motion.div>
+      </m.div>
 
       {showInvoice && (
         <InvoiceModal

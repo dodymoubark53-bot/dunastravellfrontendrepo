@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { formatDayLabel } from '../../utils/titleHelper';
 import {
   FaPaperPlane,
@@ -251,7 +251,7 @@ const JaiderChatWindow = () => {
           aria-modal="true"
           aria-label={t('jaider.title', 'Dunas Travel AI Concierge')}
         >
-          <motion.div
+          <m.div
             ref={chatWindowRef}
             style={{ transformOrigin: isRtl ? 'bottom left' : 'bottom right' }}
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -324,7 +324,7 @@ const JaiderChatWindow = () => {
                   const feedback = feedbackState[msg.id];
 
                   return (
-                    <motion.div
+                    <m.div
                       key={msg.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -614,7 +614,7 @@ const JaiderChatWindow = () => {
 
                               {/* Inline Quick Request Form */}
                               {customTripFormOpenId === msg.id && (
-                                <motion.form
+                                <m.form
                                   initial={{ opacity: 0, height: 0 }}
                                   animate={{ opacity: 1, height: 'auto' }}
                                   exit={{ opacity: 0, height: 0 }}
@@ -720,7 +720,7 @@ const JaiderChatWindow = () => {
                                     )}
                                     <span>{isRtl ? 'تأكيد وإرسال طلب الرحلة' : 'Confirm & Submit Trip Request'}</span>
                                   </button>
-                                </motion.form>
+                                </m.form>
                               )}
                             </div>
                           </div>
@@ -873,13 +873,13 @@ const JaiderChatWindow = () => {
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </AnimatePresence>
 
               {isTyping && !messages.some((m) => m.sender === 'jaider' && m.isStreaming) && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-2.5 max-w-[80%] self-start"
@@ -900,7 +900,7 @@ const JaiderChatWindow = () => {
                       {t('jaider.searching', 'GuideR is searching catalog...')}
                     </span>
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               <div ref={messagesEndRef} />
@@ -1089,7 +1089,7 @@ const JaiderChatWindow = () => {
                 </div>
               )}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

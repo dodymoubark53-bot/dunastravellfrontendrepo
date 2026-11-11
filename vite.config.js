@@ -160,25 +160,25 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       minify: true,
-      cssMinify: false,
+      cssMinify: true,
+      // flag-icons ships ~250 flag SVGs referenced from its CSS. Inlining them
+      // (the previous default here) produced an 810 kB stylesheet on every
+      // page. Keep them as separate files: the browser then only downloads the
+      // handful of flags actually rendered.
+      assetsInlineLimit: 0,
       rollupOptions: {
         output: {
           manualChunks(id) {
             const normalizedId = id.replace(/\\/g, '/');
-            if (normalizedId.includes('node_modules/react-dom/')) {
-              return 'vendor-react-dom';
-            }
+            // One request for the framework runtime instead of three small ones.
             if (
+              normalizedId.includes('node_modules/react-dom/') ||
               normalizedId.includes('node_modules/react/') ||
-              normalizedId.includes('node_modules/scheduler/')
-            ) {
-              return 'vendor-react-core';
-            }
-            if (
+              normalizedId.includes('node_modules/scheduler/') ||
               normalizedId.includes('node_modules/react-router/') ||
               normalizedId.includes('node_modules/react-router-dom/')
             ) {
-              return 'vendor-router';
+              return 'vendor-react';
             }
             if (normalizedId.includes('node_modules/react-helmet-async/')) {
               return 'vendor-helmet';

@@ -60,7 +60,83 @@ const loadLocaleResource = async (lng) => {
   }
 };
 
+const normalizeLng = (lng) => {
+  const lang = String(lng || 'en').split('-')[0].toLowerCase();
+  return supportedLngs.includes(lang) ? lang : 'en';
+};
+
+const pendingLocaleLoads = new Map();
+
+/**
+ * Makes sure exactly one language file is in memory. Each file lives in its
+ * own Vite chunk (locale-ar, locale-en, ...), so this import is a network
+ * request the first time a language is used and a no-op afterwards.
+ */
+export const ensureLocaleLoaded = async (lng) => {
+  const lang = normalizeLng(lng);
+  if (i18n.hasResourceBundle(lang, 'translation')) return lang;
+
+  if (!pendingLocaleLoads.has(lang)) {
+    const promise = loadLocaleResource(lang)
+      .then((data) => {
+        if (!i18n.hasResourceBundle(lang, 'translation')) {
+          i18n.addResourceBundle(lang, 'translation', data, true, true);
+        }
+        return lang;
+      })
+      .finally(() => pendingLocaleLoads.delete(lang));
+    pendingLocaleLoads.set(lang, promise);
+  }
+
+  return pendingLocaleLoads.get(lang);
+};
+
+/**
+ * Preloads a language only when the visitor shows intent (hover/focus on the
+ * language switcher). Never called during page load for non-active languages.
+ */
+export const preloadLocale = (lng) => ensureLocaleLoaded(lng).catch(() => {});
+
+/**
+ * Loads the requested locale first, then switches the UI. This removes the
+ * window where the new language is active but its translations are still in
+ * flight (which used to flash raw keys / English text).
+ */
+export const changeAppLanguage = async (lng) => {
+  const lang = normalizeLng(lng);
+  try {
+    await ensureLocaleLoaded(lang);
+  } catch (error) {
+    console.warn(`Locale "${lang}" failed to load, keeping current language:`, error);
+    return i18n.language;
+  }
+
+  await i18n.changeLanguage(lang);
+
+  try {
+    localStorage.setItem('i18nextLng', lang);
+  } catch {
+    // Ignore storage restrictions; the in-memory language still switches.
+  }
+
+  syncDocumentDirection(lang);
+  return lang;
+};
+
 const getDefaultLng = () => {
+  // 1) Explicit URL preference (?lang=ar or /?lng=ar) wins over everything so
+  //    shared links always open in the language they were created with.
+  try {
+    if (typeof window !== 'undefined' && window.location?.search) {
+      const params = new URLSearchParams(window.location.search);
+      const fromUrl = (params.get('lang') || params.get('lng') || '').split('-')[0].toLowerCase();
+      if (supportedLngs.includes(fromUrl)) return fromUrl;
+    }
+  } catch {
+    // ignore
+  }
+
+  // 2) Saved preference
   try {
     const stored = localStorage.getItem('i18nextLng');
     if (stored) {
@@ -70,6 +146,8 @@ const getDefaultLng = () => {
   } catch {
     // ignore
   }
+
+  // 3) Browser language, 4) English default
   const navLng = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
   return supportedLngs.includes(navLng) ? navLng : 'en';
 };

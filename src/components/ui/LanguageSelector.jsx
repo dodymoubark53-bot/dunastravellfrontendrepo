@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaChevronDown, FaCheck } from 'react-icons/fa';
 import { useActiveLocales } from '../../hooks/useActiveLocales';
-import { syncDocumentDirection } from '../../i18n';
+import { changeAppLanguage, preloadLocale } from '../../i18n';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import CountryFlag from './CountryFlag';
 
@@ -48,17 +48,17 @@ const LanguageSelector = ({ light = false, className = '', showFullLabel = false
 
   const handleSelectLanguage = useCallback((code) => {
     if (code !== i18n.language) {
-      i18n.changeLanguage(code);
-      try {
-        localStorage.setItem('i18nextLng', code);
-      } catch {
-        // Safe fallback in restrictive privacy contexts
-      }
-      syncDocumentDirection(code);
+      // Load the locale chunk first; the UI switches once it is in memory.
+      changeAppLanguage(code);
     }
     closeDropdown();
     buttonRef.current?.focus();
   }, [i18n, closeDropdown]);
+
+  // Warm the locale chunk only on real intent (hover/focus), never on load.
+  const handlePreload = useCallback((code) => {
+    if (code) preloadLocale(code);
+  }, []);
 
   // Keyboard navigation within the dropdown
   const handleKeyDown = (e) => {
@@ -156,7 +156,7 @@ const LanguageSelector = ({ light = false, className = '', showFullLabel = false
       {/* Dropdown Menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.ul
+          <m.ul
             ref={listboxRef}
             variants={dropdownVariants}
             initial="hidden"
@@ -187,7 +187,10 @@ const LanguageSelector = ({ light = false, className = '', showFullLabel = false
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelectLanguage(lang.code)}
-                  onMouseEnter={() => setFocusedIndex(index)}
+                  onMouseEnter={() => {
+                    setFocusedIndex(index);
+                    handlePreload(lang.code);
+                  }}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-150 select-none ${
                     isSelected
                       ? 'bg-gold-500/20 text-gold-400 font-bold border border-gold-500/30'
@@ -216,7 +219,7 @@ const LanguageSelector = ({ light = false, className = '', showFullLabel = false
                 </li>
               );
             })}
-          </motion.ul>
+          </m.ul>
         )}
       </AnimatePresence>
     </div>

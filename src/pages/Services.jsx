@@ -3,7 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import SEOHead from '../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../animations/variants';
 import Button from '../components/ui/Button';
 import { useServices } from '../hooks/useServices';
@@ -128,9 +128,9 @@ const Services = () => {
             </>
           )}
         </div>
-        <motion.div className="relative z-10 text-center px-6 mt-20" variants={staggerContainer} initial="hidden" animate="visible">
-          <motion.span variants={fadeInUp} className="text-gold-500 uppercase tracking-widest text-caption block mb-4">{t('services.subtitle', 'Tailored Experiences')}</motion.span>
-          <motion.h1
+        <m.div className="relative z-10 text-center px-6 mt-20" variants={staggerContainer} initial="hidden" animate="visible">
+          <m.span variants={fadeInUp} className="text-gold-500 uppercase tracking-widest text-caption block mb-4">{t('services.subtitle', 'Tailored Experiences')}</m.span>
+          <m.h1
             variants={fadeInUp}
             className="text-display-xl text-ivory-50"
             style={['safari', 'cruises', 'camping', 'hotels', 'transportation', 'classic'].includes(service) ? { fontFamily: "'Playfair Display', serif" } : {}}
@@ -141,33 +141,33 @@ const Services = () => {
                   service === 'hotels' ? t('nav.hotels', 'Luxury Hotels') :
                     service === 'transportation' ? t('nav.transportation', 'Transportation') :
                       service === 'classic' ? t('nav.classicPrograms', 'Classic Programs') : t('services.ourServices', 'Our Services')}
-          </motion.h1>
+          </m.h1>
           {service === 'safari' ? (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
               {t('services.safariDesc', 'Embark on an unforgettable off-road adventure through shifting sands and majestic desert landscapes.')}
-            </motion.p>
+            </m.p>
           ) : service === 'cruises' ? (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
               {t('services.cruisesDesc', 'Sail Through the Heart of Ancient Egypt')}
-            </motion.p>
+            </m.p>
           ) : service === 'camping' ? (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
               {t('services.campingDesc', 'Experience luxury tented camps under the stars with private chefs and premium amenities.')}
-            </motion.p>
+            </m.p>
           ) : service === 'hotels' ? (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
               {t('services.hotelsDesc', 'Hand-picked 5-star accommodations offering unparalleled views and absolute comfort.')}
-            </motion.p>
+            </m.p>
           ) : service === 'transportation' ? (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 max-w-2xl mx-auto">
               {t('services.transportationDesc', 'Premium vehicles with professional drivers ensuring absolute comfort and safety.')}
-            </motion.p>
+            </m.p>
           ) : (service && service !== 'classic') && (
-            <motion.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 capitalize">
+            <m.p variants={fadeInUp} className="text-body-lg text-ivory-300 mt-4 capitalize">
               {t('services.explore', 'Explore')} {t(`nav.${service}`, service)}
-            </motion.p>
+            </m.p>
           )}
-        </motion.div>
+        </m.div>
       </section>
 
       <section className="container mx-auto px-6 py-12">
@@ -187,7 +187,7 @@ const Services = () => {
 
         {/* Services Grid */}
         {filteredServices.length > 0 && (
-          <motion.div
+          <m.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={staggerContainer}
             initial="hidden"
@@ -208,7 +208,7 @@ const Services = () => {
                   }
                   className="group h-full flex flex-col cursor-pointer no-underline"
                 >
-                  <motion.div
+                  <m.div
                     variants={fadeInUp}
                     className="bg-ivory-50 dark:bg-[#1a1a30] rounded-2xl overflow-hidden shadow-card group h-full flex flex-col transition-all border border-obsidian-200/40 dark:border-gray-700"
                   >
@@ -257,11 +257,11 @@ const Services = () => {
                         </>
                       )}
                     </div>
-                  </motion.div>
+                  </m.div>
                 </Link>
               );
             })}
-          </motion.div>
+          </m.div>
         )}
       </section>
     </div>

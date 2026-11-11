@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaCheckCircle, FaExclamationTriangle, FaEnvelope, FaShieldAlt, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import AuthFormField from '../../components/auth/AuthFormField';
@@ -236,7 +236,7 @@ const VerifyEmail = () => {
 
         {/* Verification Succeeded */}
         {!isVerifying && success && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-4 space-y-4"
@@ -264,7 +264,7 @@ const VerifyEmail = () => {
                 {t('auth.proceedToLogin', 'Proceed to Sign In')}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* OTP Input State */}
@@ -294,7 +294,7 @@ const VerifyEmail = () => {
             {/* Error Alert */}
             <AnimatePresence>
               {error && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
@@ -302,7 +302,7 @@ const VerifyEmail = () => {
                   role="alert"
                 >
                   {error}
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 

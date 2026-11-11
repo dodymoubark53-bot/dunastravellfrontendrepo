@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import SEOHead from '../../components/seo/SEOHead';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import Button from '../../components/ui/Button';
@@ -151,7 +151,7 @@ export default function Egipto() {
         )}
 
         {/* 9 Base Standalone Tours Grid */}
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
@@ -160,32 +160,32 @@ export default function Egipto() {
           {(display9Tours.length > 0 ? display9Tours : baseClassic9Tours).map((tour, index) => (
             <TourCard key={tour.id || tour.slug} tour={tour} index={index} />
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* Bottom Section: 5 Master Programs (برامج مصر الـ 5) */}
       <section className="container mx-auto px-6 mt-24" id="egypt-programs">
-        <motion.div
+        <m.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
           className="text-center mb-12"
         >
-          <motion.span
+          <m.span
             variants={itemVariants}
             className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4 font-bold"
           >
             {t('dest.egypt.programsSubtitle', 'Luxury Travel Programs in Egypt')}
-          </motion.span>
-          <motion.h2
+          </m.span>
+          <m.h2
             variants={itemVariants}
             className="text-display-lg text-obsidian-900 dark:text-ivory-50 mb-4 font-display"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {t('dest.egypt.programsTitle', 'Handpicked Egypt Packages')}
-          </motion.h2>
-          <motion.p
+          </m.h2>
+          <m.p
             variants={itemVariants}
             className="text-body-lg text-obsidian-600 dark:text-ivory-300 max-w-2xl mx-auto"
           >
@@ -193,10 +193,10 @@ export default function Egipto() {
               'dest.egypt.programsDesc',
               'Discover a wide selection of classic, honeymoon, and religious programs tailored for absolute comfort.'
             )}
-          </motion.p>
-        </motion.div>
+          </m.p>
+        </m.div>
 
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
@@ -204,7 +204,7 @@ export default function Egipto() {
           viewport={{ once: true, margin: '-50px' }}
         >
           {/* Card 1: Classic Program (برنامج مصر الكلاسيكي) */}
-          <motion.div
+          <m.div
             variants={itemVariants}
             onClick={(e) => {
               if (!e.target.closest('a, button')) navigate('/tours/classic-program');
@@ -259,10 +259,10 @@ export default function Egipto() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Card 2: Honeymooners Program (شهر العسل في مصر) */}
-          <motion.div
+          <m.div
             variants={itemVariants}
             onClick={(e) => {
               if (!e.target.closest('a, button')) navigate('/programs/honeymooners');
@@ -317,10 +317,10 @@ export default function Egipto() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Card 3: Religious / Holy Family Program (رحلة العائلة المقدسة) */}
-          <motion.div
+          <m.div
             variants={itemVariants}
             onClick={(e) => {
               if (!e.target.closest('a, button')) navigate('/programs/religious');
@@ -375,10 +375,10 @@ export default function Egipto() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Card 4: Multi-Country Tours Program */}
-          <motion.div
+          <m.div
             variants={itemVariants}
             onClick={(e) => {
               if (!e.target.closest('a, button')) navigate('/programs/multi-country');
@@ -435,10 +435,10 @@ export default function Egipto() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Card 5: Egypt Extensions (رحلات الاستجمام والملحقات) */}
-          <motion.div
+          <m.div
             variants={itemVariants}
             onClick={(e) => {
               if (!e.target.closest('a, button')) navigate('/programs/extension');
@@ -497,8 +497,8 @@ export default function Egipto() {
                 </div>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* Tailor-Made CTA Section */}

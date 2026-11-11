@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { staggerContainer, fadeInUp, cardHover } from '../animations/variants';
 import { useBlogs } from '../hooks/useBlogs';
 import SkeletonLoader from '../components/ui/SkeletonLoader';
@@ -75,19 +75,19 @@ const Blogs = () => {
           <div className="absolute inset-0 bg-obsidian-900/60 bg-gradient-to-t from-obsidian-900 to-transparent"></div>
         </div>
 
-        <motion.div
+        <m.div
           className="relative z-10 container mx-auto px-6 text-center mt-12"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
-          <motion.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
+          <m.span variants={fadeInUp} className="inline-block font-body text-gold-500 tracking-[0.2em] uppercase text-sm mb-4">
             {t('blogs.subtitle', 'Stories, guides, and inspiration from the world of luxury travel')}
-          </motion.span>
-          <motion.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6">
+          </m.span>
+          <m.h1 variants={fadeInUp} className="text-display-xl text-ivory-50 mb-6">
             {t('blogs.title', 'Travel Journal')}
-          </motion.h1>
-        </motion.div>
+          </m.h1>
+        </m.div>
       </section>
 
       {/* Blog Grid */}
@@ -98,15 +98,15 @@ const Blogs = () => {
           </p>
         </div>
 
-        <motion.div
+        <m.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
           {currentBlogs.map(blog => (
-            <motion.article key={blog.id} variants={fadeInUp}>
-              <motion.div
+            <m.article key={blog.id} variants={fadeInUp}>
+              <m.div
                 className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.06)] group h-full flex flex-col border border-gray-100/50 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1"
                 variants={cardHover}
                 initial="rest"
@@ -162,10 +162,10 @@ const Blogs = () => {
                     </Link>
                   </div>
                 </div>
-              </motion.div>
-            </motion.article>
+              </m.div>
+            </m.article>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Pagination */}
         <div className="flex justify-center items-center mt-16 gap-2">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useJaiderChat } from '../../context/JaiderChatContext';
 
@@ -49,7 +49,7 @@ const FloatingGuideR = () => {
   return (
     <AnimatePresence>
       {showWidget && (
-        <motion.div
+        <m.div
           key="floating-guider-widget"
           initial={{ opacity: 0, scale: 0.6, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -61,7 +61,7 @@ const FloatingGuideR = () => {
           {/* Speech Bubble / Tooltip on Hover */}
           <AnimatePresence>
             {isHovered && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, scale: 0.85, x: 12 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.85, x: 12 }}
@@ -71,12 +71,12 @@ const FloatingGuideR = () => {
               >
                 <span className="text-gold-400 ml-1.5 font-bold">✦</span>
                 <span>{tooltip}</span>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           {/* Mascot Button (Transparent Background) */}
-          <motion.button
+          <m.button
             onClick={() => setIsOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -108,8 +108,8 @@ const FloatingGuideR = () => {
                 <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-slate-950 shadow-sm"></span>
               </span>
             </div>
-          </motion.button>
-        </motion.div>
+          </m.button>
+        </m.div>
       )}
     </AnimatePresence>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaPlay,
   FaPause,
@@ -197,7 +197,7 @@ export default function VideoShowcaseCarousel({ videos = [], loading = false }) 
 
       {/* Section Header */}
       <div className="container mx-auto px-6 mb-10 relative z-10 text-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -215,7 +215,7 @@ export default function VideoShowcaseCarousel({ videos = [], loading = false }) 
             {t('home.videoHeading', 'Witness The Magic')}
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#F5A623] to-transparent mx-auto mt-2 rounded-full" />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Marquee Container with Left & Right Gradient Masks */}
@@ -295,7 +295,7 @@ export default function VideoShowcaseCarousel({ videos = [], loading = false }) 
       {/* Fullscreen Video Player Modal */}
       <AnimatePresence>
         {activeVideo && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -316,7 +316,7 @@ export default function VideoShowcaseCarousel({ videos = [], loading = false }) 
             </button>
 
             {/* Video Container */}
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -400,8 +400,8 @@ export default function VideoShowcaseCarousel({ videos = [], loading = false }) 
                   </div>
                 )}
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>

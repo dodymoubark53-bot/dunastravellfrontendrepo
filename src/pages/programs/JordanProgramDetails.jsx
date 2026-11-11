@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   FaClock,
@@ -159,7 +159,7 @@ export default function JordanProgramDetails() {
           {/* Left Column (2 Cols) */}
           <div className="lg:col-span-2 space-y-16">
             {/* Overview */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -181,11 +181,11 @@ export default function JordanProgramDetails() {
               <p className="text-body-lg text-slate-800 dark:text-slate-100 font-semibold leading-relaxed whitespace-pre-line text-base md:text-lg">
                 {overview}
               </p>
-            </motion.div>
+            </m.div>
 
             {/* Key Highlights */}
             {Array.isArray(highlights) && highlights.length > 0 && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -213,11 +213,11 @@ export default function JordanProgramDetails() {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Itinerary */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -269,11 +269,11 @@ export default function JordanProgramDetails() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Inclusions & Exclusions */}
             {((Array.isArray(included) && included.length > 0) || (Array.isArray(excluded) && excluded.length > 0)) && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -312,7 +312,7 @@ export default function JordanProgramDetails() {
                     </ul>
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* Route Map */}

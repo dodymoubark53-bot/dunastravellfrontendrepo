@@ -1,27 +1,70 @@
 import { countries as rawCountries } from 'countries-list';
 import flagData from 'flag-icons/country.json';
 import isoCountries from 'i18n-iso-countries';
-import enLocale from 'i18n-iso-countries/langs/en.json';
-import arLocale from 'i18n-iso-countries/langs/ar.json';
-import esLocale from 'i18n-iso-countries/langs/es.json';
-import ptLocale from 'i18n-iso-countries/langs/pt.json';
-import itLocale from 'i18n-iso-countries/langs/it.json';
 
-const LOCALES = {
-  en: enLocale,
-  ar: arLocale,
-  es: esLocale,
-  pt: ptLocale,
-  it: itLocale,
+/**
+ * Country-name locales are separate JSON files (~6-8 KB each). They are loaded
+ * on demand for the active language only, so the phone/nationality inputs do
+ * not drag all five languages into their chunk.
+ */
+const LOCALE_LOADERS = {
+  en: () => import('i18n-iso-countries/langs/en.json'),
+  ar: () => import('i18n-iso-countries/langs/ar.json'),
+  es: () => import('i18n-iso-countries/langs/es.json'),
+  pt: () => import('i18n-iso-countries/langs/pt.json'),
+  it: () => import('i18n-iso-countries/langs/it.json'),
 };
 
-Object.entries(LOCALES).forEach(([, locale]) => {
+const registeredLocales = new Set();
+const localePromises = new Map();
+
+const nameLookup = new Map();
+
+const addNamesToLookup = (language) => {
+  let names;
   try {
-    isoCountries.registerLocale(locale);
+    names = isoCountries.getNames(language) || {};
   } catch {
-    // The locale may already be registered during hot module replacement.
+    return;
   }
-});
+  Object.entries(names).forEach(([code, name]) => {
+    if (!name) return;
+    nameLookup.set(String(name).trim().toLowerCase(), code.toUpperCase());
+  });
+};
+
+export const ensureCountryLocale = (language = 'en') => {
+  const requested = String(language || 'en').split('-')[0].toLowerCase();
+  const key = LOCALE_LOADERS[requested] ? requested : 'en';
+
+  if (registeredLocales.has(key)) return Promise.resolve(key);
+  if (localePromises.has(key)) return localePromises.get(key);
+
+  const promise = LOCALE_LOADERS[key]()
+    .then((module) => {
+      const locale = module?.default || module;
+      try {
+        isoCountries.registerLocale(locale);
+      } catch {
+        // The locale may already be registered during hot module replacement.
+      }
+      registeredLocales.add(key);
+      addNamesToLookup(key);
+      return key;
+    })
+    .catch((error) => {
+      console.warn(`Country locale "${key}" could not be loaded:`, error);
+      return null;
+    })
+    .finally(() => {
+      localePromises.delete(key);
+    });
+
+  localePromises.set(key, promise);
+  return promise;
+};
+
+export const getRegisteredCountryLocales = () => Array.from(registeredLocales);
 
 const FLAG_CODES = new Set(flagData.map((country) => country.code.toUpperCase()));
 
@@ -287,15 +330,6 @@ Object.entries(NATIONALITY_ALIASES).forEach(([code, aliases]) => {
 });
 
 const normalize = (value) => String(value || '').trim().toLowerCase();
-
-const nameLookup = new Map();
-Object.keys(LOCALES).forEach((language) => {
-  const names = isoCountries.getNames(language);
-  Object.entries(names).forEach(([code, name]) => {
-    if (!name) return;
-    nameLookup.set(normalize(name), code.toUpperCase());
-  });
-});
 
 export const COUNTRIES = Object.entries(rawCountries)
   .filter(([code, details]) => {

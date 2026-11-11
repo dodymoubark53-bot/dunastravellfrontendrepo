@@ -2,6 +2,7 @@ import { StrictMode, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
+import { LazyMotion, domAnimation } from 'framer-motion'
 import App from './App.jsx'
 import { initI18n } from './i18n'
 import './index.css'
@@ -40,19 +41,24 @@ function Root() {
 
   return (
     <StrictMode>
-      <BrowserRouter>
-        <HelmetProvider>
-          <CurrencyProvider>
-            <ThemeProvider>
-              <AuthProvider>
-                <ToastProvider>
-                  <App />
-                </ToastProvider>
-              </AuthProvider>
-            </ThemeProvider>
-          </CurrencyProvider>
-        </HelmetProvider>
-      </BrowserRouter>
+      {/* `m` components only ship the DOM animation subset; the full
+          framer-motion feature bundle is no longer pulled in. LazyMotion wraps
+          every provider so portals (toasts, modals) share the same context. */}
+      <LazyMotion features={domAnimation}>
+        <BrowserRouter>
+          <HelmetProvider>
+            <CurrencyProvider>
+              <ThemeProvider>
+                <AuthProvider>
+                  <ToastProvider>
+                    <App />
+                  </ToastProvider>
+                </AuthProvider>
+              </ThemeProvider>
+            </CurrencyProvider>
+          </HelmetProvider>
+        </BrowserRouter>
+      </LazyMotion>
     </StrictMode>
   );
 }

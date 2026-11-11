@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
 import { FaChevronLeft, FaChevronRight, FaCompass } from 'react-icons/fa';
 import TourCard from './TourCard';
 import { useTours } from '../../hooks/useTours';

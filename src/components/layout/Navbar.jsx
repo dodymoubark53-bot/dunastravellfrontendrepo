@@ -7,13 +7,13 @@ import { useTheme } from '../../context/ThemeContext';
 import Logo from '../ui/Logo';
 
 const LoginModal = lazy(() => import('../auth/LoginModal'));
+const CustomerNotificationBell = lazy(() => import('../ui/CustomerNotificationBell'));
 import CurrencySelector from '../ui/CurrencySelector';
 import LanguageSelector from '../ui/LanguageSelector';
 import CountryFlag from '../ui/CountryFlag';
-import CustomerNotificationBell from '../ui/CustomerNotificationBell';
 import { useActiveLocales } from '../../hooks/useActiveLocales';
 import { useDestinations } from '../../hooks/useDestinations';
-import { syncDocumentDirection } from '../../i18n';
+import { changeAppLanguage } from '../../i18n';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 const Navbar = () => {
@@ -81,13 +81,8 @@ const Navbar = () => {
   };
 
   const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    try {
-      localStorage.setItem('i18nextLng', lng);
-    } catch {
-      // safe fallback
-    }
-    syncDocumentDirection(lng);
+    // Loads the locale chunk before switching so no untranslated keys flash.
+    changeAppLanguage(lng);
   };
 
   useEffect(() => {
@@ -335,7 +330,11 @@ const Navbar = () => {
               </div>
 
               {/* Customer Notifications */}
-              {user && <CustomerNotificationBell />}
+              {user && (
+                <Suspense fallback={null}>
+                  <CustomerNotificationBell />
+                </Suspense>
+              )}
 
               {/* Currency */}
               <div className="flex">

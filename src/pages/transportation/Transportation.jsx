@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import SEOHead from '../../components/seo/SEOHead';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   FaCheck,
@@ -147,26 +147,26 @@ const Transportation = () => {
         </div>
 
         <div className="container mx-auto px-6 md:px-12 relative z-10 mt-16">
-          <motion.div 
+          <m.div 
             className="max-w-xl text-start ltr:text-left rtl:text-right space-y-3" 
             variants={staggerContainer} 
             initial="hidden" 
             animate="visible"
           >
-            <motion.span variants={fadeInUp} className="text-white uppercase tracking-widest text-caption font-extrabold block drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+            <m.span variants={fadeInUp} className="text-white uppercase tracking-widest text-caption font-extrabold block drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
               {t('services.subtitle', 'Tailored Experiences')}
-            </motion.span>
-            <motion.h1
+            </m.span>
+            <m.h1
               variants={fadeInUp}
               className="text-display-lg md:text-display-xl text-white font-black font-display leading-tight drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               {t('nav.transportation', 'Transportation')}
-            </motion.h1>
-            <motion.p variants={fadeInUp} className="text-body-md md:text-body-lg text-white font-bold leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
+            </m.h1>
+            <m.p variants={fadeInUp} className="text-body-md md:text-body-lg text-white font-bold leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
               {t('transportation.heroDesc', 'Travel in Comfort & Style')}
-            </motion.p>
-          </motion.div>
+            </m.p>
+          </m.div>
         </div>
       </section>
 
@@ -209,7 +209,7 @@ const Transportation = () => {
                 : '/imgs/transportation/bus1.jpeg');
 
             return (
-              <motion.div
+              <m.div
                 key={vehicle.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -319,7 +319,7 @@ const Transportation = () => {
                     <span className={`${isRtl ? 'rotate-180 inline-block' : ''} !text-white`} style={{ color: '#ffffff' }}>&rarr;</span>
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>
@@ -408,7 +408,7 @@ const Transportation = () => {
       {/* Lightbox Modal - Click anywhere to close */}
       <AnimatePresence>
         {isLightboxOpen && activeGalleryIndex !== null && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -450,7 +450,7 @@ const Transportation = () => {
               </button>
 
               {/* Main Image */}
-              <motion.img
+              <m.img
                 key={activeGalleryIndex}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -492,7 +492,7 @@ const Transportation = () => {
                 </button>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

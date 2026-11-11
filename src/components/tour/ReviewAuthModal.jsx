@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaShieldAlt, FaStar, FaUserCheck, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 
 export default function ReviewAuthModal({ isOpen, onClose, returnUrl }) {
@@ -44,7 +44,7 @@ export default function ReviewAuthModal({ isOpen, onClose, returnUrl }) {
           className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
         >
           {/* Backdrop */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export default function ReviewAuthModal({ isOpen, onClose, returnUrl }) {
           />
 
           {/* Modal Dialog Card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.94, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 16 }}
@@ -137,7 +137,7 @@ export default function ReviewAuthModal({ isOpen, onClose, returnUrl }) {
                 {t('reviews.authModalCancel', 'Continue Browsing')}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

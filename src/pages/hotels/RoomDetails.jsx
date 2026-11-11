@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaBed,
   FaUserFriends,
@@ -316,7 +316,7 @@ const RoomDetails = () => {
       {/* Luxury Hero Banner */}
       <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#070b14] md:min-h-[680px]">
         <div className="absolute inset-0 z-0">
-          <motion.img
+          <m.img
             src={room.image}
             alt={room.name}
             initial={{ scale: 1.08 }}
@@ -1018,7 +1018,7 @@ const RoomDetails = () => {
       {/* Lightbox Modal */}
       <AnimatePresence>
         {activeImage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1033,7 +1033,7 @@ const RoomDetails = () => {
               <FaTimes size={32} />
             </button>
             <img src={activeImage} className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" alt="Room preview" />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

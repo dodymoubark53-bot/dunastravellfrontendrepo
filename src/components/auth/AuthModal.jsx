@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
@@ -127,7 +127,7 @@ const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           variants={modalBackdropVariants}
           initial="hidden"
           animate="visible"
@@ -139,7 +139,7 @@ const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
           aria-labelledby="auth-modal-title"
         >
           {/* Card Container */}
-          <motion.div
+          <m.div
             ref={modalRef}
             variants={modalCardVariants}
             initial="hidden"
@@ -253,8 +253,8 @@ const AuthModal = ({ isOpen, onClose, initialTab = 'login' }) => {
                 )}
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>,
     document.body

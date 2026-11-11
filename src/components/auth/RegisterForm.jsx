@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import AuthFormField from './AuthFormField';
@@ -103,7 +103,7 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin, onTermsClick }) => {
       {/* Error banner */}
       <AnimatePresence>
         {error && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
@@ -112,21 +112,21 @@ const RegisterForm = ({ onSuccess, onSwitchToLogin, onTermsClick }) => {
           >
             <FaExclamationCircle className="text-red-400 mt-0.5 shrink-0" size={14} />
             <p className="flex-1">{error}</p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Success banner */}
       <AnimatePresence>
         {successMsg && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             className="mb-4 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs text-center font-medium"
           >
             {successMsg}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

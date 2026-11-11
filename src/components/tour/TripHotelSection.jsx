@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaHotel, FaStar, FaMapMarkerAlt, FaBed, FaUsers, FaCalendarAlt,
   FaImages, FaCheckCircle, FaChevronRight, FaWifi, FaSwimmingPool,
@@ -975,7 +975,7 @@ export default function TripHotelSection({
       {/* Internal Fullscreen Photo Lightbox Modal */}
       <AnimatePresence>
         {selectedPhotoIndex !== null && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1008,7 +1008,7 @@ export default function TripHotelSection({
                 {hotelName}
               </span>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

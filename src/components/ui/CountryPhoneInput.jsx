@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FaChevronDown } from 'react-icons/fa';
 import CountryDropdown from './CountryDropdown';
 import CountryFlagIcon from './CountryFlagIcon';
+import useCountryLocale from '../../hooks/useCountryLocale';
 import {
   COUNTRY_BY_CODE,
   buildPhoneValue,
@@ -43,6 +44,7 @@ const CountryPhoneInput = ({
   searchPlaceholder,
 }) => {
   const { i18n } = useTranslation();
+  useCountryLocale(i18n?.language);
   const language = i18n?.language || 'en';
   const isLight = theme === 'light';
   const wrapperRef = useRef(null);

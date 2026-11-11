@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   FaClock,
@@ -159,7 +159,7 @@ export default function DubaiProgramDetails() {
           {/* Left Column (2 Cols) */}
           <div className="lg:col-span-2 space-y-16">
             {/* Overview */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -171,11 +171,11 @@ export default function DubaiProgramDetails() {
               <p className="text-body-lg text-obsidian-500 leading-relaxed whitespace-pre-line">
                 {overview}
               </p>
-            </motion.div>
+            </m.div>
 
             {/* Key Highlights */}
             {Array.isArray(highlights) && highlights.length > 0 && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -192,12 +192,12 @@ export default function DubaiProgramDetails() {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Day-by-Day Itinerary */}
             {Array.isArray(days) && days.length > 0 && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -241,7 +241,7 @@ export default function DubaiProgramDetails() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Route Map */}
@@ -251,7 +251,7 @@ export default function DubaiProgramDetails() {
 
             {/* Pricing Tables */}
             {pricing && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -320,12 +320,12 @@ export default function DubaiProgramDetails() {
                     </tbody>
                   </table>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Extra Night Prices */}
             {extraNightPrices && extraNightPrices.hotels && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -384,12 +384,12 @@ export default function DubaiProgramDetails() {
                     </tbody>
                   </table>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Exhibition Surcharges */}
             {exhibitionSurcharges && (exhibitionSurcharges.dubai || exhibitionSurcharges.abuDhabi) && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -466,12 +466,12 @@ export default function DubaiProgramDetails() {
                     </div>
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* What is Included / Excluded */}
             {(includes || excludes) && (
-              <motion.div
+              <m.div
                 variants={itemVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -523,7 +523,7 @@ export default function DubaiProgramDetails() {
                     )}
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
           </div>
 

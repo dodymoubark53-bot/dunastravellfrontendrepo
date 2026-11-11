@@ -1,7 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
-import { JaiderChatProvider } from '../../context/JaiderChatContext';
+import { JaiderChatProvider, useJaiderChat } from '../../context/JaiderChatContext';
+import { runWhenIdle } from '../../utils/idle';
 
 const Footer = lazy(() => import('./Footer'));
 const FloatingContact = lazy(() => import('./FloatingContact'));
@@ -9,12 +10,31 @@ const BackgroundMusic = lazy(() => import('../ui/BackgroundMusic'));
 const FloatingGuideR = lazy(() => import('../ui/FloatingGuideR'));
 const JaiderChatWindow = lazy(() => import('../ui/JaiderChatWindow'));
 
-const Layout = () => {
-  const [loadWidgets, setLoadWidgets] = useState(false);
-  const location = useLocation();
+/**
+ * The chat panel renders nothing until it is opened, so its chunk and React
+ * tree are only mounted on the first open instead of on page load.
+ */
+const DeferredJaiderChatWindow = () => {
+  const { isOpen } = useJaiderChat();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let timer;
+    if (isOpen) setMounted(true);
+  }, [isOpen]);
+
+  if (!mounted) return null;
+  return <JaiderChatWindow />;
+};
+
+const Layout = () => {
+  const [loadWidgets, setLoadWidgets] = useState(false);
+  const [loadFooter, setLoadFooter] = useState(false);
+  const location = useLocation();
+
+  // Non-critical floating widgets (chat, contact, guide, music) are mounted
+  // after the main thread goes idle, or as soon as the visitor interacts.
+  useEffect(() => {
+    let cancelIdle = () => {};
     const enableWidgets = () => {
       setLoadWidgets(true);
       cleanup();
@@ -25,7 +45,7 @@ const Layout = () => {
       window.removeEventListener('scroll', enableWidgets);
       window.removeEventListener('keydown', enableWidgets);
       window.removeEventListener('touchstart', enableWidgets);
-      if (timer) clearTimeout(timer);
+      cancelIdle();
     };
 
     window.addEventListener('pointerdown', enableWidgets, { passive: true });
@@ -33,9 +53,20 @@ const Layout = () => {
     window.addEventListener('keydown', enableWidgets, { passive: true });
     window.addEventListener('touchstart', enableWidgets, { passive: true });
 
-    timer = setTimeout(enableWidgets, 3500);
+    cancelIdle = runWhenIdle(enableWidgets, { timeout: 4000, fallbackDelay: 3500 });
 
     return cleanup;
+  }, []);
+
+  // The footer sits below every route, so its JS/CSS can wait for idle too.
+  // This keeps it out of the initial network/main-thread contention without
+  // changing anything the visitor sees above the fold.
+  useEffect(() => {
+    const cancelIdle = runWhenIdle(() => setLoadFooter(true), {
+      timeout: 2500,
+      fallbackDelay: 1500,
+    });
+    return cancelIdle;
   }, []);
 
   // Global Scroll Reveal Observer for all pages
@@ -55,16 +86,27 @@ const Layout = () => {
     );
 
     const observeElements = () => {
-      const targets = document.querySelectorAll(
-        '.reveal, .reveal-on-scroll, section:not(.no-reveal), .section-head, .grid-card-reveal'
+      const targets = Array.from(
+        document.querySelectorAll(
+          '.reveal, .reveal-on-scroll, section:not(.no-reveal), .section-head, .grid-card-reveal'
+        )
       );
 
-      targets.forEach((el) => {
+      // Read every rect first, then write classes. Interleaving reads and
+      // writes forced a style/layout recalculation per section.
+      const viewportHeight = window.innerHeight;
+      const measurements = targets.map((el) => {
         const rect = el.getBoundingClientRect();
-        if (
-          (rect.top < window.innerHeight && rect.bottom > 0) ||
-          rect.height > window.innerHeight * 1.1
-        ) {
+        return {
+          el,
+          inView:
+            (rect.top < viewportHeight && rect.bottom > 0) ||
+            rect.height > viewportHeight * 1.1,
+        };
+      });
+
+      measurements.forEach(({ el, inView }) => {
+        if (inView) {
           el.classList.add('in');
         } else {
           el.classList.add('reveal-on-scroll');
@@ -97,15 +139,17 @@ const Layout = () => {
           </Suspense>
         </main>
 
-        <Suspense fallback={null}>
-          <Footer />
-        </Suspense>
+        {loadFooter && (
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
+        )}
         {loadWidgets && (
           <Suspense fallback={null}>
             <FloatingContact />
             <BackgroundMusic />
             <FloatingGuideR />
-            <JaiderChatWindow />
+            <DeferredJaiderChatWindow />
           </Suspense>
         )}
       </div>

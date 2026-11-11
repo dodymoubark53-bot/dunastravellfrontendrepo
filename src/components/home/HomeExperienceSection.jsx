@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useEffect, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import SEOHead from "../seo/SEOHead";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { m, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 import { useTours } from "../../hooks/useTours";
@@ -11,7 +11,7 @@ const VideoShowcaseCarousel = lazy(() => import("./VideoShowcaseCarousel"));
 import { useDestinations } from "../../hooks/useDestinations";
 import { useServices } from "../../hooks/useServices";
 import { transportation as fallbackTransportation } from "../../data/transportation";
-import fallbackToursDatabase from "../../data/database/unified_52_tours.json";
+import { getCachedCatalogTours, loadCatalogTours } from "../../data/catalogTours";
 const AnimatedCounter = lazy(() => import("../common/AnimatedCounter"));
 import HomeHeroSection from "./HomeHeroSection";
 import useInViewport from "../../hooks/useInViewport";
@@ -24,7 +24,6 @@ import {
   resolveTourDuration,
   resolveTourHeroImage,
 } from "../../utils/titleHelper";
-const TourCard = lazy(() => import("../tour/TourCard"));
 import {
   FaCalendarAlt,
   FaSuitcase,
@@ -34,7 +33,6 @@ import {
   FaCompass,
   FaClock,
   FaStar,
-  FaTimes,
   FaMapMarkerAlt,
   FaArrowRight,
   FaHeadset,
@@ -353,7 +351,10 @@ const HomeExperienceSection = () => {
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [isAllToursPopupOpen, setIsAllToursPopupOpen] = useState(false);
-  const [destSectionRef, isDestSectionVisible] = useInViewport({ threshold: 0.05 });
+  // The full catalogue is a multi-megabyte JSON asset. Start from the cached
+  // copy (undefined on first load) and fetch it once the page is idle.
+  const [catalogTours, setCatalogTours] = useState(() => getCachedCatalogTours() || []);
+  const [destSectionRef, isDestSectionVisible] = useInViewport({ threshold: 0.05, rootMargin: '300px 0px' });
   const [transportSectionRef, isTransportSectionVisible] = useInViewport({ threshold: 0.05 });
   const [photoSectionRef, isPhotoSectionVisible] = useInViewport({ threshold: 0.05, rootMargin: '250px', once: true });
   const [videoSectionRef, isVideoSectionVisible] = useInViewport({ threshold: 0.05, rootMargin: '250px', once: true });
@@ -367,6 +368,10 @@ const HomeExperienceSection = () => {
     target: ctaSectionRef,
     offset: ["start end", "end start"],
   });
+  // Continuous ambient animations (orbs, dust particles, shimmer) are paused
+  // while the CTA section is off-screen: they looked identical but kept the
+  // main thread busy on every frame of the initial load.
+  const ctaInView = useInView(ctaSectionRef, { margin: "200px 0px" });
   const ctaBgY = useTransform(ctaScrollYProgress, [0, 1], ["-20%", "20%"]);
   const ctaBgScale = useTransform(ctaScrollYProgress, [0, 0.5, 1], [1.25, 1.08, 1]);
   const ctaGlowOpacity = useTransform(ctaScrollYProgress, [0.1, 0.5, 0.9], [0.2, 0.65, 0.2]);
@@ -394,6 +399,41 @@ const HomeExperienceSection = () => {
   const { photos: showcasePhotos, videos: showcaseVideos, loading: showcaseLoading } = useMediaShowcase({
     enabled: isPhotoSectionVisible || isVideoSectionVisible,
   });
+
+  // Fetch the static catalogue only when the tour sections approach the
+  // viewport or as soon as the visitor scrolls. It is a ~2.7 MB asset (plus its
+  // parse/render cost), so it must never compete with the hero/LCP request;
+  // live API data renders immediately, and browsers without
+  // IntersectionObserver fall back to loading it right away.
+  useEffect(() => {
+    if (getCachedCatalogTours()) return undefined;
+    let cancelled = false;
+
+    const load = () => {
+      window.removeEventListener('scroll', handleScroll);
+      loadCatalogTours().then((tours) => {
+        if (!cancelled) setCatalogTours(tours);
+      });
+    };
+
+    function handleScroll() {
+      if ((window.scrollY || window.pageYOffset || 0) > 80) load();
+    }
+
+    if (isDestSectionVisible) {
+      load();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isDestSectionVisible]);
   const {
     destinations: liveDestinationsRaw,
     loading: destinationsLoading,
@@ -408,7 +448,6 @@ const HomeExperienceSection = () => {
     const tourMap = new Map();
 
     // 1. Catalog tours from unified database (59 tours across Egypt, Turkey, Dubai, Jordan, Multi-Country, etc.)
-    const catalogTours = fallbackToursDatabase?.tours || [];
     catalogTours.forEach((tour) => {
       const key = tour.slug || tour.id;
       if (key) {
@@ -442,7 +481,7 @@ const HomeExperienceSection = () => {
     }
 
     return Array.from(tourMap.values());
-  }, [allLiveToursRaw, liveDestinationsRaw]);
+  }, [allLiveToursRaw, catalogTours, liveDestinationsRaw]);
   const { services: rawTransportation = [], loading: transportLoading } = useServices('transportation', {
     enabled: isTransportSectionVisible,
   });
@@ -597,30 +636,6 @@ const HomeExperienceSection = () => {
 
 
   const defaultPackageTours = useMemo(() => [], []);
-
-  const packagesToursMap = useMemo(() => {
-    const matches = (tour, values) => {
-      if (!tour) return false;
-      const searchable = `${tour.slug || ''} ${tour.category || ''} ${tour.title || ''}`.toLowerCase();
-      return values.some((value) => searchable.includes(value));
-    };
-    const withLinkBase = (items) => (items || []).map((tour) => ({ ...tour, linkBase: tour.link ? '' : '/tours' }));
-    const safeTours = Array.isArray(allLiveTours) ? allLiveTours : [];
-
-    const classicLive = safeTours.filter((tour) => matches(tour, ['classic', 'classico', 'clásico', 'cairo']));
-    const honeymoonLive = safeTours.filter((tour) => matches(tour, ['honeymoon', 'luna de miel', 'شهر العسل']));
-    const religiousLive = safeTours.filter((tour) => matches(tour, ['religious', 'holy family', 'العائلة المقدسة']));
-    const multiLive = safeTours.filter((tour) => matches(tour, ['multi-country', 'combined', 'and-', 'متعددة', 'stars-of-the-middle-east', 'middle-east']));
-    const extLive = safeTours.filter((tour) => matches(tour, ['extension', 'escape']));
-
-    return {
-      'classic-program': withLinkBase(classicLive.length > 0 ? classicLive : safeTours),
-      honeymooners: withLinkBase(honeymoonLive.length > 0 ? honeymoonLive : safeTours),
-      religious: withLinkBase(religiousLive.length > 0 ? religiousLive : safeTours),
-      'multi-country': withLinkBase(multiLive.length > 0 ? multiLive : safeTours),
-      extension: withLinkBase(extLive.length > 0 ? extLive : safeTours),
-    };
-  }, [allLiveTours]);
 
   const packagesToursForMarquee = useMemo(() => {
     if (allLiveTours && allLiveTours.length > 0) {
@@ -875,17 +890,6 @@ const HomeExperienceSection = () => {
     navigate(`/destinations/${id}`);
   };
 
-  const [activePackage, setActivePackage] = useState(null);
-
-  const handlePackageClick = (id) => {
-    setActivePackage((prev) => (prev === id ? null : id));
-  };
-
-  const activePackageTours = useMemo(() => {
-    if (!activePackage) return [];
-    return packagesToursMap[activePackage] || [];
-  }, [activePackage, packagesToursMap]);
-
   return (
     <div className="w-full">
       <SEOHead
@@ -928,7 +932,7 @@ const HomeExperienceSection = () => {
         {/* Search Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
           {/* Search Form Box */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 45, scale: 0.95 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
@@ -1059,7 +1063,7 @@ const HomeExperienceSection = () => {
 
                 {/* Search Button */}
                 <div className="col-span-1 md:col-span-1">
-                  <motion.button
+                  <m.button
                     whileHover={{ scale: 1.06, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -1070,14 +1074,14 @@ const HomeExperienceSection = () => {
                     <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                     <FaSearch className="text-sm sm:text-base group-hover/btn:rotate-12 group-hover/btn:scale-125 transition-transform duration-300 text-amber-300" />
                     <span>{t('home.searchBtn', 'Search')}</span>
-                  </motion.button>
+                  </m.button>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Popular Destinations */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-20px' }}
@@ -1089,7 +1093,7 @@ const HomeExperienceSection = () => {
             </p>
             <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3.5">
               {destinations.map((d, idx) => (
-                <motion.div
+                <m.div
                   key={d.id}
                   initial={{ opacity: 0, scale: 0.85, y: 15 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -1109,19 +1113,19 @@ const HomeExperienceSection = () => {
                       {d.label}
                     </span>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
 
             {/* Customize & Contact Buttons */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.55, duration: 0.6 }}
               className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4"
             >
-              <motion.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
+              <m.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
                 <Link
                   to="/tailor-a-tour"
                   className="relative overflow-hidden group inline-flex items-center gap-2.5 bg-gradient-to-r from-[#F5A623] via-[#FFC857] to-[#D97706] text-[#0C1120] font-black text-sm sm:text-base px-7 sm:px-9 py-3.5 sm:py-4 rounded-full shadow-[0_0_25px_rgba(245,166,35,0.7)] hover:shadow-[0_0_40px_rgba(245,166,35,1)] transition-all duration-300"
@@ -1132,9 +1136,9 @@ const HomeExperienceSection = () => {
                   </svg>
                   {t('home.customize', 'Customize Your Trip')}
                 </Link>
-              </motion.div>
+              </m.div>
 
-              <motion.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
+              <m.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
                 <Link
                   to="/contact"
                   className="relative overflow-hidden group inline-flex items-center gap-2.5 bg-black/60 hover:bg-amber-500/20 backdrop-blur-xl border border-amber-400/70 hover:border-amber-400 text-amber-300 hover:text-white font-black text-sm sm:text-base px-7 sm:px-9 py-3.5 sm:py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(245,166,35,0.7)] transition-all duration-300"
@@ -1145,9 +1149,9 @@ const HomeExperienceSection = () => {
                   </svg>
                   {t('nav.contact', 'Contact Us')}
                 </Link>
-              </motion.div>
-            </motion.div>
-          </motion.div>
+              </m.div>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
@@ -1155,7 +1159,7 @@ const HomeExperienceSection = () => {
       <section className="py-12 bg-ivory-50">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -1182,9 +1186,9 @@ const HomeExperienceSection = () => {
                   {t("home.learnMore", "Learn More About Us")}
                 </Button>
               </Link>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: isRtl ? -30 : 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -1221,7 +1225,7 @@ const HomeExperienceSection = () => {
                 loading="lazy"
                 decoding="async"
               />
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>
@@ -1237,7 +1241,7 @@ const HomeExperienceSection = () => {
               { count: 182, suffix: '+', icon: FaMapMarkedAlt, labelKey: 'about.heroStatsGuides' },
               { count: 5, suffix: '', icon: FaGlobe, labelKey: 'about.heroStatsOffices' },
             ].map((s, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -1254,7 +1258,7 @@ const HomeExperienceSection = () => {
                 <div className="l">
                   {t(s.labelKey)}
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -1323,7 +1327,7 @@ const HomeExperienceSection = () => {
               const isFirst = index % 3 === 0;
 
               return (
-                <motion.div
+                <m.div
                   key={dest.id}
                   initial={{ opacity: 0, y: 35 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -1384,7 +1388,7 @@ const HomeExperienceSection = () => {
                       <span className="text-white font-extrabold">{tourCount} {t("home.toursAvailable", "رحلة متوفرة")}</span>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
@@ -1535,15 +1539,15 @@ const HomeExperienceSection = () => {
             <div className="relative z-10">
               {/* Header */}
               <div className="text-center mb-12 sm:mb-16 max-w-3xl mx-auto">
-                <motion.span
+                <m.span
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500/20 border border-gold-400/50 text-gold-300 text-sm font-bold uppercase tracking-wider mb-4 shadow-lg backdrop-blur-md"
                 >
                   <span className="text-amber-400">✨</span> {t("home.ourPackages", "Discover Egypt Packages")}
-                </motion.span>
-                <motion.h2
+                </m.span>
+                <m.h2
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -1552,8 +1556,8 @@ const HomeExperienceSection = () => {
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   {t("home.packagesTitle", "برامج وتجارب مصر المميزة")}
-                </motion.h2>
-                <motion.p
+                </m.h2>
+                <m.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -1561,7 +1565,7 @@ const HomeExperienceSection = () => {
                   className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-sm"
                 >
                   {t("home.packagesSubtitle", isAr ? "مجموعة نادرة من أرقى البرامج السياحية المصممة لاستكشاف سحر مصر والشرق الأوسط" : "Selection of premium itineraries designed to experience the magic of Egypt & the Middle East")}
-                </motion.p>
+                </m.p>
               </div>
 
               {/* 5-Card Bento Layout Grid */}
@@ -1570,7 +1574,7 @@ const HomeExperienceSection = () => {
                   const isHero = pkg.featured || idx === 0;
 
                   return (
-                    <motion.div
+                    <m.div
                       key={pkg.recordId || pkg.id}
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -1580,7 +1584,7 @@ const HomeExperienceSection = () => {
                         ? "lg:col-span-2 min-h-[380px] sm:min-h-[420px] bg-gradient-to-br from-[#121c3b]/90 via-[#0d152d]/90 to-[#070c1b]/90 border-gold-500/40 hover:border-gold-400 shadow-[0_12px_40px_rgba(245,166,35,0.2)] hover:shadow-[0_16px_50px_rgba(245,166,35,0.35)]"
                         : "min-h-[360px] bg-gradient-to-br from-[#121c3b]/80 via-[#0a1127]/80 to-[#060a17]/80 border-white/10 hover:border-gold-500/50 hover:shadow-[0_12px_36px_rgba(245,166,35,0.25)] hover:-translate-y-2"
                         }`}
-                      onClick={() => handlePackageClick(pkg.id)}
+                      onClick={() => navigate(pkg.link)}
                     >
                       {/* Background Image with High Clarity & Gradient Overlay */}
                       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -1648,59 +1652,12 @@ const HomeExperienceSection = () => {
                           </Link>
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </div>
 
-              {/* Interactive Nested Tours Accordion */}
-              <AnimatePresence>
-                {activePackage && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="overflow-hidden mt-10 sm:mt-14"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-gold-500/20">
-                      <h3 className="text-xl sm:text-2xl md:text-3xl text-white font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
-                        {livePackageCards.find(p => p.id === activePackage)?.name} — {t("nav.tours", "Tours")}
-                      </h3>
-                      <button
-                        onClick={() => setActivePackage(null)}
-                        className="w-9 h-9 rounded-full bg-white/10 hover:bg-gold-500 hover:text-obsidian-900 text-white flex items-center justify-center transition-all"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                      {activePackageTours.slice(0, 6).map((tour) => (
-                        <Suspense key={tour.id} fallback={<div className="h-64 bg-primary-800/20 rounded-xl animate-pulse" />}>
-                          <TourCard
-                            tour={tour}
-                            linkBase={tour.linkBase || "/tours"}
-                          />
-                        </Suspense>
-                      ))}
-                    </div>
-
-                    <div className="flex justify-center mt-10">
-                      <Link
-                        to={livePackageCards.find(p => p.id === activePackage)?.link || "/tours"}
-                        className="explore-program-btn inline-flex items-center gap-2 px-8 py-3.5 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-2xl hover:scale-105 transition-all duration-300 text-xs font-black border-2 border-white/80 cursor-pointer"
-                        style={{ background: 'linear-gradient(135deg, #FFE082 0%, #F5A623 50%, #D4AF37 100%)', color: '#000000' }}
-                      >
-                        <span className="font-black tracking-wider text-black" style={{ color: '#000000', fontWeight: 900 }}>
-                          {t("home.explorePackage", "Explore Full Program")}
-                        </span>
-                        <span className="rtl-flip font-black text-black" style={{ color: '#000000', fontWeight: 900 }}>→</span>
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -1713,15 +1670,15 @@ const HomeExperienceSection = () => {
       <section ref={transportSectionRef} className="py-12 bg-ivory-50 dark:bg-obsidian-950 relative overflow-hidden content-auto">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <motion.span
+            <m.span
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="text-gold-500 uppercase tracking-widest text-caption block mb-4"
             >
               {t('home.transportSub', 'GET AROUND IN STYLE')}
-            </motion.span>
-            <motion.h2
+            </m.span>
+            <m.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1729,7 +1686,7 @@ const HomeExperienceSection = () => {
               className="text-display-lg text-obsidian-900 dark:text-white mb-6"
             >
               {t('home.transportTitle', 'Premium Transportation Services')}
-            </motion.h2>
+            </m.h2>
 
           </div>
 
@@ -1845,7 +1802,7 @@ const HomeExperienceSection = () => {
       >
         <div className="container mx-auto px-6 relative z-10">
           {/* Section Header */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1862,13 +1819,13 @@ const HomeExperienceSection = () => {
               {t('home.servicesDesc', 'Premium travel solutions tailored to your needs')}
             </p>
             <div className="w-20 h-[3px] bg-gradient-to-r from-transparent via-[#F5A623] to-transparent mx-auto mt-8 rounded-full" />
-          </motion.div>
+          </m.div>
 
           {/* Dynamic Expanding Panels */}
           <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto min-h-[500px] md:h-[550px]">
 
             {/* Hotels Card */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1876,13 +1833,21 @@ const HomeExperienceSection = () => {
               className="relative flex-1 md:hover:grow-[1.4] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group rounded-3xl overflow-hidden cursor-pointer shadow-card hover:shadow-card-lg border border-gold-200/20 flex flex-col justify-end"
             >
               <Link to="/services" className="absolute inset-0 z-20" aria-label={t('nav.hotelsTab', 'Hotels')} />
-              {/* Background Image with Muted Overlay */}
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
-                style={{
-                  backgroundImage: "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80')"
-                }}
-              />
+              {/* Background Image with Muted Overlay — a lazy <img> instead of a
+                  CSS background so this below-the-fold photo is not downloaded
+                  during the initial load. */}
+              <div className="absolute inset-0 overflow-hidden transition-transform duration-1000 ease-out group-hover:scale-105">
+                <img
+                  src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=70"
+                  alt=""
+                  aria-hidden="true"
+                  width="1000"
+                  height="667"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/80 to-black/40 opacity-95 transition-opacity duration-500 group-hover:opacity-100" />
 
               {/* Golden Overlay Light Leak */}
@@ -1924,10 +1889,10 @@ const HomeExperienceSection = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Transportation Card */}
-            <motion.a
+            <m.a
               href="/programs/transportation"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1935,13 +1900,20 @@ const HomeExperienceSection = () => {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="relative flex-1 md:hover:grow-[1.4] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group rounded-3xl overflow-hidden cursor-pointer shadow-card hover:shadow-card-lg border border-gold-200/20 flex flex-col justify-end"
             >
-              {/* Background Image with Muted Overlay */}
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
-                style={{
-                  backgroundImage: "url('https://res.cloudinary.com/degbrq3ck/image/upload/w_600,c_limit,q_auto:eco,f_auto/v1783071610/bus1_lprkiy.jpg')"
-                }}
-              />
+              {/* Background Image with Muted Overlay — lazy <img> for the same
+                  reason as the hotels card above. */}
+              <div className="absolute inset-0 overflow-hidden transition-transform duration-1000 ease-out group-hover:scale-105">
+                <img
+                  src="https://res.cloudinary.com/degbrq3ck/image/upload/w_600,c_limit,q_auto:eco,f_auto/v1783071610/bus1_lprkiy.jpg"
+                  alt=""
+                  aria-hidden="true"
+                  width="600"
+                  height="400"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/80 to-black/40 opacity-95 transition-opacity duration-500 group-hover:opacity-100" />
 
               {/* Golden Overlay Light Leak */}
@@ -1986,7 +1958,7 @@ const HomeExperienceSection = () => {
                   </div>
                 </div>
               </div>
-            </motion.a>
+            </m.a>
 
           </div>
         </div>
@@ -2034,7 +2006,7 @@ const HomeExperienceSection = () => {
 
             {/* Left Column: Visual Focal Point + Typography Heading */}
             <div className="lg:col-span-2 space-y-8 text-center lg:text-start">
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -2056,10 +2028,10 @@ const HomeExperienceSection = () => {
                     : "Our dedicated travel advisors are standing by 24/7 to design your bespoke itinerary, answer questions, or provide support at any point of your journey."
                   }
                 </p>
-              </motion.div>
+              </m.div>
 
               {/* Headset Support Focal Point */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -2077,10 +2049,10 @@ const HomeExperienceSection = () => {
                     <FaHeadset className="w-12 h-12 text-[#F5A623] group-hover:scale-110 transition-transform duration-500" />
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Action Buttons */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -2104,14 +2076,14 @@ const HomeExperienceSection = () => {
                   {i18n.language === 'ar' ? "صفحة الاتصال" : "Contact Page"}
                   <FaArrowRight className="w-3.5 h-3.5 text-white" />
                 </Link>
-              </motion.div>
+              </m.div>
             </div>
 
             {/* Right Column: 3 Contact Cards */}
             <div className="lg:col-span-3 space-y-6">
 
               {/* Card 1: Address */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -2140,10 +2112,10 @@ const HomeExperienceSection = () => {
                     <FaArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform text-white" />
                   </a>
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Card 2: Phone */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -2175,10 +2147,10 @@ const HomeExperienceSection = () => {
                     </a>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
 
               {/* Card 3: Email */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -2204,7 +2176,7 @@ const HomeExperienceSection = () => {
                     </a>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
 
             </div>
 
@@ -2219,15 +2191,26 @@ const HomeExperienceSection = () => {
       >
         {/* Hardware-Accelerated Parallax Background Image */}
         <div className="absolute inset-0 overflow-hidden">
-          <motion.div
+          <m.div
             style={{
               y: ctaBgY,
               scale: ctaBgScale,
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1920&q=80')",
             }}
-            className="absolute -inset-y-28 inset-x-0 bg-cover bg-center will-change-transform"
-          />
+            className="absolute -inset-y-28 inset-x-0 will-change-transform"
+          >
+            {/* Lazy <img> instead of a CSS background: the browser no longer
+                downloads this 300 kB photo during the initial page load. */}
+            <img
+              src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=70"
+              alt=""
+              aria-hidden="true"
+              width="1200"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
+          </m.div>
         </div>
 
         {/* Ambient Dark Gradient Overlays */}
@@ -2236,28 +2219,36 @@ const HomeExperienceSection = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-obsidian-950/70 to-obsidian-950 pointer-events-none" />
 
         {/* Animated Gold Ambient Light Orbs */}
-        <motion.div
+        <m.div
           style={{ opacity: ctaGlowOpacity }}
-          animate={{
-            scale: [0.95, 1.2, 0.95],
-            rotate: [0, 10, 0],
-          }}
+          animate={
+            ctaInView
+              ? {
+                  scale: [0.95, 1.2, 0.95],
+                  rotate: [0, 10, 0],
+                }
+              : undefined
+          }
           transition={{
             duration: 8,
-            repeat: Infinity,
+            repeat: ctaInView ? Infinity : 0,
             ease: "easeInOut",
           }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[500px] bg-gradient-radial from-amber-500/30 via-gold-500/15 to-transparent blur-3xl pointer-events-none rounded-full"
         />
 
-        <motion.div
-          animate={{
-            opacity: [0.15, 0.45, 0.15],
-            scale: [1.1, 0.9, 1.1],
-          }}
+        <m.div
+          animate={
+            ctaInView
+              ? {
+                  opacity: [0.15, 0.45, 0.15],
+                  scale: [1.1, 0.9, 1.1],
+                }
+              : undefined
+          }
           transition={{
             duration: 12,
-            repeat: Infinity,
+            repeat: ctaInView ? Infinity : 0,
             ease: "easeInOut",
           }}
           className="absolute -top-20 -left-20 w-96 h-96 bg-gold-500/20 blur-3xl pointer-events-none rounded-full"
@@ -2266,7 +2257,7 @@ const HomeExperienceSection = () => {
         {/* Floating Golden Dust Particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {[...Array(14)].map((_, i) => (
-            <motion.div
+            <m.div
               key={`cta-particle-${i}`}
               initial={{
                 // eslint-disable-next-line react-hooks/purity
@@ -2277,14 +2268,21 @@ const HomeExperienceSection = () => {
                 // eslint-disable-next-line react-hooks/purity
                 scale: Math.random() * 0.7 + 0.3,
               }}
-              animate={{
-                opacity: [0, 0.9, 0],
-                y: [-50, -450],
-                x: [`${10 + (i * 6.5) % 80}%`, `${10 + (i * 6.5) % 80 + (i % 2 === 0 ? 6 : -6)}%`],
-              }}
+              animate={
+                ctaInView
+                  ? {
+                      opacity: [0, 0.9, 0],
+                      y: [-50, -450],
+                      x: [
+                        `${10 + (i * 6.5) % 80}%`,
+                        `${10 + (i * 6.5) % 80 + (i % 2 === 0 ? 6 : -6)}%`,
+                      ],
+                    }
+                  : undefined
+              }
               transition={{
                 duration: 5.5 + (i % 4),
-                repeat: Infinity,
+                repeat: ctaInView ? Infinity : 0,
                 delay: i * 0.5,
                 ease: "easeOut",
               }}
@@ -2298,7 +2296,7 @@ const HomeExperienceSection = () => {
         <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/50 to-transparent shadow-[0_0_12px_rgba(201,162,39,0.5)]" />
 
         <div className="relative z-10 container mx-auto px-6 text-center max-w-4xl">
-          <motion.div
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: false, amount: 0.25 }}
@@ -2314,7 +2312,7 @@ const HomeExperienceSection = () => {
             }}
           >
             {/* Floating Luxury Tag */}
-            <motion.div
+            <m.div
               variants={{
                 hidden: { opacity: 0, y: 35, scale: 0.88 },
                 visible: {
@@ -2326,9 +2324,9 @@ const HomeExperienceSection = () => {
               }}
               className="mb-8 inline-block"
             >
-              <motion.div
-                animate={{ y: [0, -7, 0] }}
-                transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
+              <m.div
+                animate={ctaInView ? { y: [0, -7, 0] } : undefined}
+                transition={{ duration: 3.8, repeat: ctaInView ? Infinity : 0, ease: "easeInOut" }}
                 className="relative group"
               >
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/80 via-yellow-400/60 to-amber-500/80 rounded-full blur-md opacity-80 group-hover:opacity-100 transition duration-500" />
@@ -2342,11 +2340,11 @@ const HomeExperienceSection = () => {
                     {t('home.ctaTag', 'Bespoke Journeys')}
                   </span>
                 </span>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
 
             {/* Main Animated Title */}
-            <motion.div
+            <m.div
               variants={{
                 hidden: { opacity: 0, y: 45, filter: "blur(14px)" },
                 visible: {
@@ -2365,16 +2363,21 @@ const HomeExperienceSection = () => {
               </h2>
 
               {/* Shimmer light sweep bar */}
-              <motion.div
+              <m.div
                 initial={{ x: "-100%", opacity: 0 }}
-                animate={{ x: "100%", opacity: [0, 0.85, 0] }}
-                transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 2.5, ease: "easeInOut" }}
+                animate={ctaInView ? { x: "100%", opacity: [0, 0.85, 0] } : undefined}
+                transition={{
+                  duration: 3.2,
+                  repeat: ctaInView ? Infinity : 0,
+                  repeatDelay: 2.5,
+                  ease: "easeInOut",
+                }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-gold-300/25 to-transparent pointer-events-none mix-blend-overlay"
               />
-            </motion.div>
+            </m.div>
 
             {/* Subtitle / Description */}
-            <motion.div
+            <m.div
               variants={{
                 hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
                 visible: {
@@ -2386,7 +2389,7 @@ const HomeExperienceSection = () => {
               }}
               className="mb-12 max-w-2xl mx-auto flex items-center justify-center gap-4"
             >
-              <motion.span
+              <m.span
                 initial={{ width: 0 }}
                 whileInView={{ width: "2.5rem" }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -2398,16 +2401,16 @@ const HomeExperienceSection = () => {
                   "Let us craft a journey tailored entirely to you",
                 )}
               </p>
-              <motion.span
+              <m.span
                 initial={{ width: 0 }}
                 whileInView={{ width: "2.5rem" }}
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="hidden sm:block h-[1px] bg-gradient-to-l from-transparent to-gold-400/80"
               />
-            </motion.div>
+            </m.div>
 
             {/* Action Buttons */}
-            <motion.div
+            <m.div
               variants={{
                 hidden: { opacity: 0, y: 35, scale: 0.92 },
                 visible: {
@@ -2440,15 +2443,15 @@ const HomeExperienceSection = () => {
                   {t("home.ctaBrowse", "Browse Tours")}
                 </span>
               </Button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
       {/* All Tours Popup Modal */}
       <AnimatePresence>
         {isAllToursPopupOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -2456,7 +2459,7 @@ const HomeExperienceSection = () => {
             className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center p-4"
             onClick={() => setIsAllToursPopupOpen(false)}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -2527,8 +2530,8 @@ const HomeExperienceSection = () => {
                   </div>
                 ))}
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 

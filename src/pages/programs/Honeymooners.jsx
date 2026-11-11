@@ -1,7 +1,7 @@
 import React from 'react';
 import SEOHead from '../../components/seo/SEOHead';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
@@ -125,7 +125,7 @@ export default function Honeymooners() {
           />
         )}
 
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
           variants={staggerContainer}
           initial="hidden"
@@ -133,14 +133,14 @@ export default function Honeymooners() {
           viewport={{ once: true, margin: '-50px' }}
         >
           {toursToRender.map((adaptedTour) => (
-            <motion.div key={adaptedTour.id} variants={fadeInUp}>
+            <m.div key={adaptedTour.id} variants={fadeInUp}>
               <TourCard
                 tour={adaptedTour}
                 linkBase="/programs/honeymooners"
               />
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
     </div>
   );

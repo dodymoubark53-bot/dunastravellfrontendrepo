@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { FaBullhorn, FaShieldAlt, FaRegClock } from 'react-icons/fa';
 
 const listVariants = {
@@ -172,7 +172,7 @@ export default function ImportantNotes({ items, title, renderItem, className = '
           </div>
 
           {/* Notes */}
-          <motion.ul
+          <m.ul
             variants={listVariants}
             initial="hidden"
             whileInView="visible"
@@ -180,7 +180,7 @@ export default function ImportantNotes({ items, title, renderItem, className = '
             className="relative grid gap-3"
           >
             {items.map((item, idx) => (
-              <motion.li
+              <m.li
                 key={idx}
                 variants={itemVariants}
                 className="group/note relative flex items-start gap-3.5 overflow-hidden rounded-2xl border border-amber-900/10 bg-white/60 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:border-gold-500/40 hover:bg-white/85 hover:shadow-[0_12px_30px_-16px_rgba(245,166,35,0.55)] sm:gap-4 sm:p-4 dark:border-gold-400/10 dark:bg-white/[0.035] dark:hover:border-gold-400/30 dark:hover:bg-white/[0.07]"
@@ -197,9 +197,9 @@ export default function ImportantNotes({ items, title, renderItem, className = '
                   className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-gradient-to-b from-gold-300 via-gold-500 to-amber-700 opacity-0 transition-opacity duration-300 group-hover/note:opacity-100"
                   aria-hidden="true"
                 />
-              </motion.li>
+              </m.li>
             ))}
-          </motion.ul>
+          </m.ul>
 
           {/* Footer */}
           <div className="relative mt-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-amber-900/10 bg-amber-50/70 px-4 py-3 sm:flex-row sm:items-center dark:border-gold-400/10 dark:bg-gold-400/[0.06]">

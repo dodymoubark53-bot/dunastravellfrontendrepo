@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaClock,
   FaUsers,
@@ -283,7 +283,7 @@ export default function HoneymoonersDetails() {
           {/* Left Column (2 Cols) */}
           <div className="lg:col-span-2 space-y-16">
             {/* Overview Section */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -313,10 +313,10 @@ export default function HoneymoonersDetails() {
                   )}
                 </p>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Key Highlights (Curated Experiences) */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -352,10 +352,10 @@ export default function HoneymoonersDetails() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
 
             {/* Day-by-Day Itinerary Section */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -418,10 +418,10 @@ export default function HoneymoonersDetails() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Inclusions & Exclusions Section */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -492,10 +492,10 @@ export default function HoneymoonersDetails() {
                   </ul>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Route Map */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -503,10 +503,10 @@ export default function HoneymoonersDetails() {
               className="mt-16"
             >
               <RouteMap itinerary={HONEYMOON_ITINERARY} tourTitle={egyptTitle} />
-            </motion.div>
+            </m.div>
 
             {/* Romantic Call to Action Banner */}
-            <motion.div
+            <m.div
               variants={itemVariants}
               initial="hidden"
               whileInView="visible"
@@ -537,7 +537,7 @@ export default function HoneymoonersDetails() {
                   <span>{t('honeymooners.ctaBtn', 'Start Planning Your Honeymoon')}</span>
                 </Link>
               </div>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Right Column: Advanced Booking Component Sidebar */}
@@ -565,7 +565,7 @@ export default function HoneymoonersDetails() {
       {/* Gallery Modal Lightbox */}
       <AnimatePresence>
         {activeImageIndex !== null && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -585,7 +585,7 @@ export default function HoneymoonersDetails() {
                 className="w-full h-full object-contain"
               />
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { 
   FaHeart, 
   FaRegHeart, 
@@ -200,7 +200,7 @@ const TourCard = ({
   const imageLoadingAttr = loading || (index < 2 ? "eager" : "lazy");
 
   return (
-    <motion.div
+    <m.div
       onClick={handleCardClick}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
@@ -278,7 +278,7 @@ const TourCard = ({
       </div>
 
       {/* Dunas Content Section (.populer-contnet) */}
-      <motion.div 
+      <m.div 
         className="populer-contnet flex flex-col flex-grow bg-white dark:bg-transparent"
         variants={contentStaggerVariants}
         initial="hidden"
@@ -384,8 +384,8 @@ const TourCard = ({
             </Link>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 };
 

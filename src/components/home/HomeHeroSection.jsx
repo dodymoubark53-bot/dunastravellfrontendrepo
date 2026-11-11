@@ -5,16 +5,36 @@ import { Link } from "react-router-dom";
 import { FaPlay, FaTimes } from "react-icons/fa";
 import "./HomeHeroSection.css";
 
-// The circular badge keeps the same English lettering in every language so the
-// rotating-ring design looks identical across the whole site.
+// Rotating ring configuration
 const VIDEO_RING_LABEL = "WATCH VIDEO";
 const VIDEO_RING_COPIES = 3;
+
+/**
+ * Renders the hero description sentence with luxury gradient keyword highlights.
+ * Highlights Egypt (and its equivalents in AR, ES, IT, PT) in radiant gold,
+ * and Experts in luminous brand cyan, leaving the surrounding words crisp and elegant.
+ */
+function renderStyledHeroDesc(descText) {
+  if (!descText) return null;
+  return descText;
+}
+
+function getHeroEyebrowText(lang, isRtl) {
+  if (isRtl) return "رحلات استكشافية فاخرة برعاية خبرائنا";
+  const l = (lang || "").toLowerCase();
+  if (l.startsWith("es")) return "EXPEDICIONES DE LUJO PERSONALIZADAS";
+  if (l.startsWith("it")) return "SPEDIZIONI DI LUSSO SU MISURA";
+  if (l.startsWith("pt")) return "EXPEDIÇÕES DE LUXO EXCLUSIVAS";
+  return "CURATED LUXURY EXPEDITIONS";
+}
 
 const SLIDE_DATA = [
   {
     id: "hero-s1",
     bgClass: "slider-bg one",
     bgImage: "/imgs/slider-abu-simbel.webp",
+    bgImage480: "/imgs/slider-abu-simbel-480.webp",
+    bgImage800: "/imgs/slider-abu-simbel-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
     desc: "Discover the magic of Egypt and its historical monuments with the help of Experts",
@@ -25,6 +45,8 @@ const SLIDE_DATA = [
     id: "hero-s2",
     bgClass: "slider-bg two",
     bgImage: "/imgs/slider-pyramids.webp",
+    bgImage480: "/imgs/slider-pyramids-480.webp",
+    bgImage800: "/imgs/slider-pyramids-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
     desc: "Discover the magic of Egypt and its historical monuments with the help of Experts",
@@ -35,6 +57,8 @@ const SLIDE_DATA = [
     id: "hero-s3",
     bgClass: "slider-bg three",
     bgImage: "/imgs/slider-karnak.webp",
+    bgImage480: "/imgs/slider-karnak-480.webp",
+    bgImage800: "/imgs/slider-karnak-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
     desc: "Discover the magic of Egypt and its historical monuments with the help of Experts",
@@ -43,9 +67,11 @@ const SLIDE_DATA = [
   },
 ];
 
-function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t }) {
+function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t, lang }) {
   const watchVideoLabel = t("home.heroWatchVideo", "WATCH VIDEO");
   const ringPathId = `circlePath-${slide.id}`;
+  const eyebrowText = getHeroEyebrowText(lang, isRtl);
+  const rawDescText = t("home.heroDesc", slide.desc);
 
   const renderAnimatedWord = (text, startCharIdx = 0) => {
     if (!text) return null;
@@ -109,10 +135,22 @@ function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t }) {
       className={`hero-slide ${isActive ? "active" : ""}`}
     >
       <div className="slider-section d-flex align-items-center">
-        <div
-          className={slide.bgClass}
-          style={{ backgroundImage: `url('${slide.bgImage}')` }}
-        ></div>
+        <div className={slide.bgClass}>
+          <picture>
+            <source media="(max-width: 768px)" srcSet={slide.bgImage800} />
+            <img
+              className="slider-bg-img"
+              src={slide.bgImage}
+              srcSet={`${slide.bgImage800} 800w, ${slide.bgImage} 1376w`}
+              sizes="100vw"
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+              loading={isActive ? "eager" : "lazy"}
+              fetchPriority={isActive ? "high" : "low"}
+            />
+          </picture>
+        </div>
         <div className="auto-container">
           <div className="row align-items-center d-flex">
             <div className="col-lg-12">
@@ -123,7 +161,18 @@ function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t }) {
                 <h1 className="text-anime-3 hero-heading-2">
                   {renderAnimatedWord(t("home.heroTitle2", slide.titlePart2))}
                 </h1>
-                <p className="slider-contect-des">{t("home.heroDesc", slide.desc)}</p>
+                {/* Luxury Illuminated Subtitle Card */}
+                <div className="hero-desc-glass-card">
+                  <div className="hero-desc-content">
+                    <div className="hero-desc-eyebrow">
+                      <span className="hero-desc-sparkle" aria-hidden="true">✦</span>
+                      <span className="hero-desc-badge-text">{eyebrowText}</span>
+                    </div>
+                    <p className="slider-contect-des">
+                      {renderStyledHeroDesc(rawDescText)}
+                    </p>
+                  </div>
+                </div>
                 <div className="hero-btn defult-btn">
                     <Link to={slide.btnLink}>
                       {t("home.heroBtnText", slide.btnText)}
@@ -261,6 +310,7 @@ export default function HomeHeroSection() {
               isRtl={isRtl}
               setIsVideoOpen={setIsVideoOpen}
               t={t}
+              lang={i18n.language || "en"}
             />
           ))}
 

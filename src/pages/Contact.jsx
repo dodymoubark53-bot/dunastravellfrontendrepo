@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import SEOHead from '../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   FaPhone, 
   FaWhatsapp, 
@@ -152,41 +152,41 @@ const Contact = () => {
         <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-amber-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         {/* Hero Content */}
-        <motion.div
+        <m.div
           className="relative z-10 text-center max-w-4xl mx-auto px-4"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
           {/* Status Badge */}
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-900/90 border border-gold-500/40 text-gold-300 text-xs font-medium uppercase tracking-widest mb-6 shadow-2xl backdrop-blur-md">
+          <m.div variants={fadeInUp} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-900/90 border border-gold-500/40 text-gold-300 text-xs font-medium uppercase tracking-widest mb-6 shadow-2xl backdrop-blur-md">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
             <span>{t('contact.statusBadge', 'VIP Travel Concierges Available Now')}</span>
-          </motion.div>
+          </m.div>
 
           {/* Main Title */}
-          <motion.h1
+          <m.h1
             variants={fadeInUp}
             className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif text-ivory-50 tracking-wide drop-shadow-2xl leading-tight"
           >
             {t('contact.heroTitle', 'تواصل مع خبراء السفر الفاخر')}
-          </motion.h1>
+          </m.h1>
 
-          <motion.div variants={fadeInUp} className="w-24 h-1.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto my-6 rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]" />
+          <m.div variants={fadeInUp} className="w-24 h-1.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto my-6 rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]" />
 
           {/* Subtitle */}
-          <motion.p
+          <m.p
             variants={fadeInUp}
             className="text-white text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal drop-shadow"
           >
             {t('contact.heroSubtitle', 'نحن هنا لتصميم أدق تفاصيل رحلتك المخصصة لمصر والشرق الأوسط، بخدمة كونسيرج على أعلى مستوى على مدار الساعة.')}
-          </motion.p>
+          </m.p>
 
           {/* Ultra High-Visibility Live World Clocks (Egypt 🇪🇬, Spain 🇪🇸, Portugal 🇵🇹) */}
-          <motion.div 
+          <m.div 
             variants={fadeInUp}
             className="mt-12 max-w-4xl mx-auto"
           >
@@ -293,8 +293,8 @@ const Contact = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* ========================================================================= */}
@@ -304,7 +304,7 @@ const Contact = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* WhatsApp Direct */}
-          <motion.a
+          <m.a
             href="https://wa.me/201149401111"
             target="_blank"
             rel="noopener noreferrer"
@@ -324,10 +324,10 @@ const Contact = () => {
               <span>{t('contact.chatNow', 'محادثة فورية الان')}</span>
               <span className="text-base">→</span>
             </div>
-          </motion.a>
+          </m.a>
 
           {/* Direct Phone Call */}
-          <motion.div
+          <m.div
             whileHover={{ y: -6, scale: 1.02 }}
             className="group relative bg-white dark:bg-slate-900/90 border border-gold-500/30 hover:border-gold-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
@@ -346,10 +346,10 @@ const Contact = () => {
             <div className="mt-6 flex items-center gap-3">
               <a href="tel:+20233746643" className="text-xs font-bold text-gold-600 dark:text-gold-400 hover:underline">{t('contact.callNow', 'اتصل الآن')}</a>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Official Email */}
-          <motion.div
+          <m.div
             whileHover={{ y: -6, scale: 1.02 }}
             className="group relative bg-white dark:bg-slate-900/90 border border-blue-500/30 hover:border-blue-500 p-6 rounded-2xl shadow-lg dark:shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
           >
@@ -371,10 +371,10 @@ const Contact = () => {
                 <span>{copiedEmail === 'info' ? t('contact.copied', 'تم النسخ') : t('contact.copyEmail', 'نسخ الإيميل')}</span>
               </button>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Headquarters Location */}
-          <motion.a
+          <m.a
             href="https://maps.app.goo.gl/hr4pd5kARWvnRB5N8"
             target="_blank"
             rel="noopener noreferrer"
@@ -393,7 +393,7 @@ const Contact = () => {
             <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
               <span>📍 {t('contact.viewMaps', 'فتح خريطة جوجل')}</span>
             </div>
-          </motion.a>
+          </m.a>
 
         </div>
       </section>
@@ -729,7 +729,7 @@ const Contact = () => {
               </button>
               <AnimatePresence>
                 {activeFaq === faq.id && (
-                  <motion.div
+                  <m.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
@@ -739,7 +739,7 @@ const Contact = () => {
                     <div className="px-6 pb-6 pt-2 text-sm leading-relaxed text-slate-900 dark:text-ivory-50 border-t border-gray-100 dark:border-slate-800 font-medium">
                       {faq.a}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>

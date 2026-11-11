@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaChevronRight, FaChevronLeft, FaClock, FaTag,
   FaCheck, FaTimes, FaBed, FaCheckCircle, FaUsers,
@@ -218,7 +218,7 @@ const TourDetailsView = ({ tour }) => {
           <div className="lg:col-span-2">
 
             {/* Overview */}
-            <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <m.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
               <div className="bg-gradient-to-br from-amber-50/90 via-orange-50/90 to-amber-100/60 dark:bg-gradient-to-br dark:from-[#0b1d4b] dark:via-[#0e245e] dark:to-[#112c72] p-6 md:p-8 rounded-2xl border-2 border-gold-500/80 dark:border-gold-500/70 shadow-lg dark:shadow-[0_14px_45px_rgba(0,0,0,0.85)]">
                 <div className="flex items-center gap-3.5 mb-5 pb-3.5 border-b-2 border-gold-500/30 dark:border-gold-500/40">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-gold-500 to-amber-600 dark:from-amber-300 dark:via-gold-400 dark:to-amber-500 flex items-center justify-center text-slate-950 shadow-[0_0_20px_rgba(245,166,35,0.45)] shrink-0 font-black">
@@ -235,11 +235,11 @@ const TourDetailsView = ({ tour }) => {
                 </div>
                 <p className="text-body-lg text-black dark:text-slate-50 font-extrabold leading-relaxed text-base md:text-lg">{overview}</p>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Highlights */}
             {Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -267,11 +267,11 @@ const TourDetailsView = ({ tour }) => {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Itinerary */}
-            <motion.div
+            <m.div
               variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
@@ -341,11 +341,11 @@ const TourDetailsView = ({ tour }) => {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Seasonal Pricing Tiers Section */}
             {showNumericPricing && seasonRules.length > 0 && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -403,12 +403,12 @@ const TourDetailsView = ({ tour }) => {
                     );
                   })}
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Inclusions & Exclusions Section */}
             {((tour.included && tour.included.length > 0) || (tour.excluded && tour.excluded.length > 0) || (tour.notes && tour.notes.length > 0)) && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -500,12 +500,12 @@ const TourDetailsView = ({ tour }) => {
                     className="mt-8"
                   />
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* Multi-Photo Gallery Section */}
             {galleryImages.length > 0 && (
-              <motion.div
+              <m.div
                 variants={fadeInUp}
                 initial="hidden"
                 whileInView="visible"
@@ -556,7 +556,7 @@ const TourDetailsView = ({ tour }) => {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </div>
 
@@ -616,7 +616,7 @@ const TourDetailsView = ({ tour }) => {
       {/* Interactive Multi-Photo Lightbox Modal */}
       <AnimatePresence>
         {isLightboxOpen && galleryImages.length > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -686,7 +686,7 @@ const TourDetailsView = ({ tour }) => {
                 ))}
               </div>
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

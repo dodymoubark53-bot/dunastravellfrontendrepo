@@ -45,7 +45,7 @@
   max-height: 100vh;
   max-height: 100svh;
   overflow: hidden;
-  background: #122327 url('/imgs/slider-abu-simbel.webp') center center / cover no-repeat;
+  background: #122327;
 }
 
 .hero-slide {
@@ -119,6 +119,7 @@
 .hero-slide:not(.active) .hero-heading-1,
 .hero-slide:not(.active) .hero-heading-2,
 .hero-slide:not(.active) .dunas-logo,
+.hero-slide:not(.active) .hero-desc-glass-card,
 .hero-slide:not(.active) .slider-contect-des,
 .hero-slide:not(.active) .defult-btn a,
 .hero-slide:not(.active) .circle__video,
@@ -141,6 +142,7 @@
   animation-delay: 0.22s;
 }
 
+.hero-slide.active .hero-desc-glass-card,
 .hero-slide.active .slider-contect-des {
   animation: heroFadeSlideUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: 0.32s;
@@ -167,42 +169,43 @@
 }
 
 .slider-bg {
-  background: url('/imgs/slider-abu-simbel.webp');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
+  background-color: #122327;
   position: absolute;
   height: 100%;
   width: 100%;
   will-change: transform;
 }
 
-.slider-bg.two {
-  background: url('/imgs/slider-pyramids.webp');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  will-change: transform;
-}
-
+.slider-bg.two,
 .slider-bg.three {
-  background: url('/imgs/slider-karnak.webp');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
+  background-color: #122327;
   position: absolute;
   height: 100%;
   width: 100%;
   will-change: transform;
+}
+
+/* Responsive hero artwork: identical to the old `background-size: cover`
+   rendering, but served from srcset so only the needed size is downloaded. */
+.slider-bg picture {
+  display: contents;
+}
+
+.slider-bg-img {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
 }
 
 .slider-section .hero_content {
   position: relative;
   z-index: 10;
-  padding: 60px 15px 0;
+  padding: 20px 15px 0;
+  margin-top: -16px;
   max-width: 100%;
 }
 
@@ -244,16 +247,131 @@
   will-change: transform, opacity;
 }
 
+/* --- LUXURY HERO SUBTITLE CARD (ROYAL BLUE, GOLD & WARM BROWN) --- */
+.hero-desc-glass-card {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  max-width: 660px;
+  width: auto;
+  margin: 18px 0 12px;
+  background: linear-gradient(135deg, rgba(8, 23, 48, 0.95) 0%, rgba(46, 24, 13, 0.90) 50%, rgba(12, 35, 64, 0.96) 100%);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-inline-start: 5px solid #D4AF37;
+  border-radius: 16px;
+  padding: 16px 24px 18px 22px;
+  box-shadow: 0 16px 42px -6px rgba(0, 0, 0, 0.85),
+              inset 0 1px 0 rgba(255, 215, 0, 0.35),
+              0 0 35px rgba(212, 175, 55, 0.22),
+              0 0 25px rgba(29, 78, 216, 0.32);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.hero-desc-glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(30, 64, 175, 0.7) 20%, rgba(255, 215, 0, 0.95) 50%, rgba(229, 169, 110, 0.75) 80%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-desc-glass-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 215, 0, 0.65);
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.9),
+              inset 0 1px 0 rgba(255, 215, 0, 0.45),
+              0 0 45px rgba(255, 215, 0, 0.35),
+              0 0 35px rgba(37, 99, 235, 0.45);
+}
+
+.hero-desc-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.hero-desc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #F8D376;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 0 12px rgba(212, 175, 55, 0.7);
+  user-select: none;
+}
+
+.hero-desc-sparkle {
+  color: #FFD700;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-block;
+  animation: heroSparklePulse 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.95));
+}
+
+@keyframes heroSparklePulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.25) rotate(12deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(255, 209, 102, 1));
+  }
+}
+
 .slider-section .hero_content .slider-contect-des {
-  font-size: 19px;
+  font-size: 21px;
   position: relative;
   font-weight: 700;
-  color: #ffffff;
-  width: 48%;
-  line-height: 28px;
-  margin: 24px 0 8px;
+  color: #FFD700;
+  width: 100%;
+  line-height: 1.58;
+  letter-spacing: 0.25px;
+  margin: 0;
   font-family: var(--text-font);
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.95);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hero-desc-glass-card .slider-contect-des {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.hero-desc-highlight {
+  display: inline;
+  position: relative;
+  font-weight: 800;
+}
+
+.hero-desc-highlight-gold {
+  color: #FFD700;
+  text-shadow: 0 0 14px rgba(255, 215, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.95);
+}
+
+.hero-desc-highlight-brown {
+  color: #E5A96E;
+  text-shadow: 0 0 14px rgba(229, 169, 110, 0.8), 0 2px 5px rgba(0, 0, 0, 0.95);
+}
+
+.hero-desc-highlight-royal,
+.hero-desc-highlight-cyan {
+  color: #60A5FA;
+  text-shadow: 0 0 14px rgba(96, 165, 250, 0.85), 0 2px 5px rgba(0, 0, 0, 0.95);
 }
 
 .slider-section .hero_content h1 img.dunas-logo {
@@ -393,9 +511,16 @@
 }
 
 .circle__video .rotate-text {
-  animation: rotateText 12s linear infinite;
+  /* The rotation runs on the HTML <svg> wrapper (see below) so the browser
+     composites it. Animating the SVG <g> forced a repaint/layout of the SVG
+     tree on every frame. */
   transform-origin: 100px 100px !important;
   transform-box: view-box;
+}
+
+.circle__video > svg {
+  animation: rotateText 12s linear infinite;
+  transform-origin: 50% 50%;
 }
 
 @keyframes rotateText {
@@ -409,7 +534,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .circle__video .rotate-text {
+  .circle__video .rotate-text,
+  .circle__video > svg {
     animation: none;
   }
 }
@@ -587,9 +713,13 @@
     width: 200px;
   }
 
+  .hero-desc-glass-card {
+    max-width: 560px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    width: 48%;
     font-size: 20px;
+    font-weight: 700;
   }
 
   .slider__active_container,
@@ -609,10 +739,15 @@
     width: 170px;
   }
 
+  .hero-desc-glass-card {
+    max-width: 500px;
+    padding: 12px 18px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    width: 55%;
-    font-size: 18px;
-    line-height: 28px;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 26px;
   }
 
   .slider__active_container,
@@ -658,9 +793,13 @@
     width: 145px;
   }
 
+  .hero-desc-glass-card {
+    max-width: 520px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    width: 70%;
-    font-size: 17px;
+    font-size: 18px;
+    font-weight: 700;
     line-height: 25px;
   }
 
@@ -716,8 +855,13 @@
   }
 
   /* Center right background alignment so monuments shine on portrait screens */
-  .slider-bg {
-    background-position: 75% center !important;
+  .slider-bg-img {
+    object-position: 75% center !important;
+  }
+
+  .slider-section .hero_content {
+    padding: 0 16px;
+    margin-top: -24px;
   }
 
   .slider-section .hero_content h1 {
@@ -732,14 +876,25 @@
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
   }
 
+  .hero-desc-glass-card {
+    width: 92%;
+    max-width: 100%;
+    margin: 12px 0 8px;
+    padding: 11px 16px;
+    border-radius: 14px;
+  }
+
+  .hero-desc-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    width: 90%;
-    font-size: 16px;
+    font-size: 16.5px;
     line-height: 23px;
-    margin-top: 14px;
     font-weight: 700;
-    color: #ffffff;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 0, 0, 0.9);
+    color: #FFD700;
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.95);
   }
 
   .defult-btn a {
@@ -790,12 +945,13 @@
     border-radius: 0;
   }
 
-  .slider-bg {
-    background-position: 78% center !important;
+  .slider-bg-img {
+    object-position: 78% center !important;
   }
 
   .slider-section .hero_content {
     padding: 0 16px;
+    margin-top: -24px;
   }
 
   .slider-section .hero_content h1 {
@@ -808,14 +964,24 @@
     margin-right: 6px;
   }
 
+  .hero-desc-glass-card {
+    width: 96%;
+    padding: 9px 14px;
+    border-radius: 12px;
+    margin: 10px 0 6px;
+  }
+
+  .hero-desc-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 1.2px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    width: 95%;
-    font-size: 15px;
+    font-size: 15.5px;
     line-height: 22px;
-    margin-top: 10px;
     font-weight: 700;
-    color: #ffffff;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 0, 0, 0.9);
+    color: #FFD700;
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.95);
   }
 
   .defult-btn a {
@@ -855,8 +1021,8 @@
     min-height: 0;
   }
 
-  .slider-bg {
-    background-position: 80% center !important;
+  .slider-bg-img {
+    object-position: 80% center !important;
   }
 
   .slider-section .hero_content h1 {
@@ -869,9 +1035,19 @@
     margin-right: 4px;
   }
 
+  .hero-desc-glass-card {
+    width: 98%;
+    padding: 8px 12px;
+  }
+
+  .hero-desc-eyebrow {
+    font-size: 9px;
+  }
+
   .slider-section .hero_content .slider-contect-des {
-    font-size: 13px;
-    line-height: 19px;
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 20px;
   }
 
   .defult-btn a {
@@ -973,10 +1149,31 @@
 
 /* Same width, alignment and weight as the LTR description — only the Arabic
    font stack is swapped in so the copy is never rendered by a Latin-only face. */
+.rtl .hero-desc-glass-card,
+[dir="rtl"] .hero-desc-glass-card {
+  text-align: right;
+  border-inline-start: 5px solid #D4AF37;
+  border-inline-end: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.rtl .hero-desc-eyebrow,
+[dir="rtl"] .hero-desc-eyebrow {
+  letter-spacing: 0.5px;
+  font-family: "Cairo", "Tajawal", "Montserrat", sans-serif;
+  font-size: 11.5px;
+  color: #F8D376;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 0 12px rgba(212, 175, 55, 0.7);
+}
+
 .rtl .slider-section .hero_content .slider-contect-des,
 [dir="rtl"] .slider-section .hero_content .slider-contect-des {
   font-family: "Cairo", "Tajawal", "Montserrat", sans-serif;
   text-align: right;
+  line-height: 1.68;
+  font-size: 21px;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 /* Arabic is a cursive script: letter-spacing would visually break the joins, and
@@ -1138,13 +1335,25 @@
     font-size: clamp(26px, 8vh, 45px);
   }
 
+  .hero-desc-glass-card,
+  .rtl .hero-desc-glass-card,
+  [dir="rtl"] .hero-desc-glass-card {
+    max-width: min(65%, 540px);
+    padding: 6px 12px;
+    margin: 6px 0 2px;
+    border-radius: 10px;
+  }
+
+  .hero-desc-eyebrow {
+    font-size: 8.5px;
+    letter-spacing: 1px;
+  }
+
   .slider-section .hero_content .slider-contect-des,
   .rtl .slider-section .hero_content .slider-contect-des,
   [dir="rtl"] .slider-section .hero_content .slider-contect-des {
-    width: min(62%, 560px);
-    font-size: clamp(12px, 2.8vh, 15px);
-    line-height: 1.4;
-    margin: 8px 0 0;
+    font-size: clamp(11.5px, 2.7vh, 14px);
+    line-height: 1.35;
   }
 
   .defult-btn a,
@@ -1215,3 +1424,6 @@ html.dark .our-brands-title,
 [data-theme="dark"] .our-brands-title {
   color: #000000 !important;
 }
+/* Mobile hero art direction is handled by the <img srcset> inside
+   `.slider-bg` (480w/800w/1376w), so no background-image overrides here. */
+

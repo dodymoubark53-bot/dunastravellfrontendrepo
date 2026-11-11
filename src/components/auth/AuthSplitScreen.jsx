@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   FaShieldAlt,
   FaWhatsapp,
@@ -111,7 +111,7 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
         <main className="my-auto py-6 max-w-md w-full mx-auto relative z-20 flex flex-col justify-center">
           {/* Welcoming Header */}
           <div className="text-start mb-6">
-            <motion.div
+            <m.div
               key={activeTab}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -126,14 +126,14 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
               <p className="text-xs sm:text-sm text-ivory-300/80 mt-2 font-normal leading-relaxed">
                 {currentMeta.desc}
               </p>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Form Panes */}
           <div className="relative">
             <AnimatePresence mode="wait">
               {activeTab === 'login' && (
-                <motion.div
+                <m.div
                   key="login-form-panel"
                   role="region"
                   aria-label="Login Form"
@@ -147,11 +147,11 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
                     onSwitchToRegister={() => navigateWithQuery('/register')}
                     onForgotPassword={() => navigateWithQuery('/forgot-password')}
                   />
-                </motion.div>
+                </m.div>
               )}
 
               {activeTab === 'register' && (
-                <motion.div
+                <m.div
                   key="register-form-panel"
                   role="region"
                   aria-label="Register Form"
@@ -165,11 +165,11 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
                     onSwitchToLogin={() => navigateWithQuery('/login')}
                     onTermsClick={() => {}}
                   />
-                </motion.div>
+                </m.div>
               )}
 
               {activeTab === 'forgot-password' && (
-                <motion.div
+                <m.div
                   key="forgot-password-panel"
                   role="region"
                   aria-label="Forgot Password Form"
@@ -182,7 +182,7 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
                     onSwitchToLogin={() => navigateWithQuery('/login')}
                     onSwitchToRegister={() => navigateWithQuery('/register')}
                   />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>
@@ -210,7 +210,7 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
       {/* ========================================================================= */}
       <div className="flex w-full lg:w-[50%] xl:w-[52%] 2xl:w-[56%] min-h-screen relative overflow-hidden flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 pt-12 lg:pt-32 pb-12 select-none bg-black">
         {/* Cinematic Background Image with Subtle Breathing Zoom Animation */}
-        <motion.div
+        <m.div
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute inset-0 z-0 bg-cover bg-center"
@@ -244,7 +244,7 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
 
         {/* Center Brand Statement & Traveler Accolade Card */}
         <div className="relative z-20 my-auto max-w-xl">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -278,7 +278,7 @@ const AuthSplitScreen = ({ initialTab = 'login' }) => {
                 «{t('auth.quoteCardText', 'مغامرة لا تُنسى وذكريات حقيقية تُبنى وتُخلّد، وأحلام تتحقق في عالم ساحر خلاب مليء بالمغامرة مع دوناس ترافل.. تعال واجعل الخيال واقعاً حقيقياً وملموساً.')}»
               </p>
             </div>
-          </motion.div>
+          </m.div>
         </div>
 
 

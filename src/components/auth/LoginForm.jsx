@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaLock, FaExclamationCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import AuthFormField from './AuthFormField';
@@ -72,7 +72,7 @@ const LoginForm = ({ onSuccess, onSwitchToRegister, onForgotPassword }) => {
       {/* Error / Alert banner */}
       <AnimatePresence>
         {error && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
@@ -95,21 +95,21 @@ const LoginForm = ({ onSuccess, onSwitchToRegister, onForgotPassword }) => {
                 </div>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Resend Success banner */}
       <AnimatePresence>
         {resendSuccess && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             className="mb-4 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs text-center font-medium"
           >
             {resendSuccess}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

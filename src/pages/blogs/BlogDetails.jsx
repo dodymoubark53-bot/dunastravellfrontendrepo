@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import SEOHead from '../../components/seo/SEOHead';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { staggerContainer, fadeInUp } from '../../animations/variants';
 import { useBlog } from '../../hooks/useBlog';
 import { useBlogs } from '../../hooks/useBlogs';
@@ -145,15 +145,15 @@ const BlogDetails = () => {
             <FaChevronRight className={`text-[10px] ${isRtl ? 'rotate-180' : ''}`} />
             <span className="text-ivory-300 truncate max-w-[200px]">{t(`blogs.${blog.title}`, blog.title)}</span>
           </div>
-          <motion.h1
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-display-xl text-ivory-50 mb-4"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {t(`blogs.${blog.title}`, blog.title)}
-          </motion.h1>
-          <motion.div
+          </m.h1>
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -177,7 +177,7 @@ const BlogDetails = () => {
                 <span className="text-gold-400 font-medium">{blog.relatedTour.label}</span>
               </Link>
             )}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -194,7 +194,7 @@ const BlogDetails = () => {
 
       {/* Article Body */}
       <section className="container mx-auto px-6 mt-12 md:mt-16 mb-24 max-w-3xl" onClick={handleContentClick}>
-        <motion.div
+        <m.div
           className="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-obsidian-900 prose-p:text-obsidian-600 prose-p:font-body prose-a:text-gold-500 hover:prose-a:text-gold-700 prose-strong:text-obsidian-900 prose-strong:font-semibold"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -227,11 +227,11 @@ const BlogDetails = () => {
               );
             })
           ) : null}
-        </motion.div>
+        </m.div>
 
         {/* Related Trip CTA */}
         {blog.relatedTour && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -255,7 +255,7 @@ const BlogDetails = () => {
                 <FaArrowRight className={`text-xs ${isRtl ? 'rtl-flip' : ''}`} />
               </Link>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Share / Tags */}
@@ -285,7 +285,7 @@ const BlogDetails = () => {
             <div className="w-24 h-1 bg-gold-500 mx-auto mt-6"></div>
           </div>
 
-          <motion.div
+          <m.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
             variants={staggerContainer}
             initial="hidden"
@@ -293,7 +293,7 @@ const BlogDetails = () => {
             viewport={{ once: true, margin: "-50px" }}
           >
             {relatedArticles.map((relBlog) => (
-              <motion.article key={relBlog.id} variants={fadeInUp}>
+              <m.article key={relBlog.id} variants={fadeInUp}>
                 <div className="bg-white rounded-2xl overflow-hidden group h-full flex flex-col border border-gray-100/50 shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.1)] hover:-translate-y-1">
                   <Link to={`/blogs/${relBlog.slug}`} className="relative h-52 md:h-56 overflow-hidden block">
                     <div className="absolute top-4 left-4 z-10 bg-gold-500 text-obsidian-900 text-caption uppercase tracking-wider px-3 py-1.5 rounded-full shadow-md font-semibold text-[10px]">
@@ -319,9 +319,9 @@ const BlogDetails = () => {
                     </div>
                   </div>
                 </div>
-              </motion.article>
+              </m.article>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </div>
