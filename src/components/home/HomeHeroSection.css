@@ -859,7 +859,7 @@
 
   /* Center right background alignment so monuments shine on portrait screens */
   .slider-bg-img {
-    object-position: 75% center !important;
+    object-position: 70% center !important;
   }
 
   .slider-section .hero_content {
@@ -951,7 +951,7 @@
   }
 
   .slider-bg-img {
-    object-position: 78% center !important;
+    object-position: 68% center !important;
   }
 
   .slider-section .hero_content {

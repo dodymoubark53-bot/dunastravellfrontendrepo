@@ -36,8 +36,7 @@
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <link rel="dns-prefetch" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://api.dunas-travel.com">
-  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-480.webp" type="image/webp" fetchpriority="high" media="(max-width: 480px)">
-  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-800.webp" type="image/webp" fetchpriority="high" media="(min-width: 481px) and (max-width: 768px)">
+  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-800.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
   <link rel="preload" as="image" href="/imgs/slider-abu-simbel.webp" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
   <!-- Preload primary self-hosted fonts for instant first paint and zero layout shift -->
   <link rel="preload" href="/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS4J0.woff2" as="font" type="font/woff2" crossorigin>
@@ -48,19 +47,13 @@
   </noscript>
 
   <style>
-    /* First-paint skeleton hero (kept in HTML so it paints before React).
-       Phones under 480px use the 15 kB 480px variant for instant LCP. */
+    /* First-paint skeleton hero (kept in HTML so it paints before React). */
     .initial-hero {
       background: #122327 url('/imgs/slider-abu-simbel.webp') center center / cover no-repeat;
     }
     @media (max-width: 768px) {
       .initial-hero {
         background-image: url('/imgs/slider-abu-simbel-800.webp');
-      }
-    }
-    @media (max-width: 480px) {
-      .initial-hero {
-        background-image: url('/imgs/slider-abu-simbel-480.webp');
       }
     }
   </style>

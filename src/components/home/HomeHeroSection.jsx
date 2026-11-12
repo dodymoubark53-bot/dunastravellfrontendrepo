@@ -33,7 +33,6 @@ const SLIDE_DATA = [
     id: "hero-s1",
     bgClass: "slider-bg one",
     bgImage: "/imgs/slider-abu-simbel.webp",
-    bgImage480: "/imgs/slider-abu-simbel-480.webp",
     bgImage800: "/imgs/slider-abu-simbel-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
@@ -45,7 +44,6 @@ const SLIDE_DATA = [
     id: "hero-s2",
     bgClass: "slider-bg two",
     bgImage: "/imgs/slider-pyramids.webp",
-    bgImage480: "/imgs/slider-pyramids-480.webp",
     bgImage800: "/imgs/slider-pyramids-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
@@ -57,7 +55,6 @@ const SLIDE_DATA = [
     id: "hero-s3",
     bgClass: "slider-bg three",
     bgImage: "/imgs/slider-karnak.webp",
-    bgImage480: "/imgs/slider-karnak-480.webp",
     bgImage800: "/imgs/slider-karnak-800.webp",
     titlePart1: "luxury",
     titlePart2: "journey",
@@ -137,12 +134,10 @@ function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t, lang }) {
       <div className="slider-section d-flex align-items-center">
         <div className={slide.bgClass}>
           <picture>
-            <source media="(max-width: 480px)" srcSet={slide.bgImage480} />
-            <source media="(max-width: 768px)" srcSet={slide.bgImage800} />
             <img
               className="slider-bg-img"
               src={slide.bgImage}
-              srcSet={`${slide.bgImage480} 480w, ${slide.bgImage800} 800w, ${slide.bgImage} 1376w`}
+              srcSet={`${slide.bgImage800} 800w, ${slide.bgImage} 1376w`}
               sizes="100vw"
               alt=""
               aria-hidden="true"
