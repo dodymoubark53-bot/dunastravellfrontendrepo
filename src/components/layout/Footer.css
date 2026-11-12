@@ -1,5 +1,4 @@
-/* استدعاء خط Outfit المميز */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+/* خط الفوتر موحد مع هوية الموقع المحلية (Montserrat / Cairo) */
 
 /* الحاوية الرئيسية للتأكد من ثبات الارتفاع وعدم اهتزاز العناصر */
 .footer-automation-title {
@@ -41,7 +40,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Montserrat', 'Cairo', sans-serif;
     filter: drop-shadow(0 4px 20px rgba(12, 178, 219, 0.35));
     
     font-size: clamp(28px, 8.5vw, 120px);

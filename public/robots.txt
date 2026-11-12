@@ -37,6 +37,10 @@ Disallow: /invoice/
 Disallow: /*?*token=*
 Disallow: /*?*sessionId=*
 
-# Explicit Sitemaps
+# Explicit Sitemaps & Agent Discovery
 Sitemap: https://dunas-travel.com/sitemap.xml
 Sitemap: https://api.dunas-travel.com/api/sitemap.xml
+# Agent Discovery (Linked via HTML <link rel="ard"> and <link rel="ai-catalog">)
+# Agentmap: https://dunas-travel.com/.well-known/ard.json
+# Agentmap: https://dunas-travel.com/.well-known/ai-catalog.json
+

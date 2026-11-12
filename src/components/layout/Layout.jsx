@@ -69,7 +69,8 @@ const Layout = () => {
     return cancelIdle;
   }, []);
 
-  // Global Scroll Reveal Observer for all pages
+  // Global Scroll Reveal Observer for all pages — 100% async native IntersectionObserver
+  // Eliminates synchronous getBoundingClientRect layout reads that forced 230ms reflow.
   useEffect(() => {
     if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return;
 
@@ -86,39 +87,23 @@ const Layout = () => {
     );
 
     const observeElements = () => {
-      const targets = Array.from(
-        document.querySelectorAll(
-          '.reveal, .reveal-on-scroll, section:not(.no-reveal), .section-head, .grid-card-reveal'
-        )
+      const targets = document.querySelectorAll(
+        '.reveal, .reveal-on-scroll, section:not(.no-reveal), .section-head, .grid-card-reveal'
       );
-
-      // Read every rect first, then write classes. Interleaving reads and
-      // writes forced a style/layout recalculation per section.
-      const viewportHeight = window.innerHeight;
-      const measurements = targets.map((el) => {
-        const rect = el.getBoundingClientRect();
-        return {
-          el,
-          inView:
-            (rect.top < viewportHeight && rect.bottom > 0) ||
-            rect.height > viewportHeight * 1.1,
-        };
-      });
-
-      measurements.forEach(({ el, inView }) => {
-        if (inView) {
-          el.classList.add('in');
-        } else {
+      targets.forEach((el) => {
+        if (!el.classList.contains('in')) {
           el.classList.add('reveal-on-scroll');
           observer.observe(el);
         }
       });
     };
 
-    const timeoutId = setTimeout(observeElements, 120);
+    const idleId = (window.requestIdleCallback || ((cb) => setTimeout(cb, 200)))(observeElements);
 
     return () => {
-      clearTimeout(timeoutId);
+      if (window.cancelIdleCallback && typeof idleId === 'number') {
+        window.cancelIdleCallback(idleId);
+      }
       observer.disconnect();
     };
   }, [location.pathname]);

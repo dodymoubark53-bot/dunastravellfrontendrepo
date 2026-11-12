@@ -25,6 +25,31 @@ function asyncCssPlugin() {
   };
 }
 
+// Security plugin: isolates hidden sourcemaps into a private directory outside dist
+function isolateSourceMapsPlugin() {
+  return {
+    name: 'isolate-sourcemaps',
+    apply: 'build',
+    closeBundle() {
+      const distAssetsDir = path.resolve(process.cwd(), 'dist/assets');
+      const privateMapsDir = path.resolve(process.cwd(), '.private-sourcemaps');
+      if (!fs.existsSync(distAssetsDir)) return;
+      if (!fs.existsSync(privateMapsDir)) {
+        fs.mkdirSync(privateMapsDir, { recursive: true });
+      }
+      const files = fs.readdirSync(distAssetsDir);
+      for (const file of files) {
+        if (file.endsWith('.map')) {
+          const srcPath = path.join(distAssetsDir, file);
+          const destPath = path.join(privateMapsDir, file);
+          fs.copyFileSync(srcPath, destPath);
+          fs.unlinkSync(srcPath);
+        }
+      }
+    }
+  };
+}
+
 // Development plugin to capture and save all browser runtime logs & errors to a local file
 function devLoggerPlugin() {
   const logFilePath = path.resolve(process.cwd(), 'frontend_runtime.log');
@@ -122,6 +147,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       asyncCssPlugin(),
+      isolateSourceMapsPlugin(),
       devLoggerPlugin(),
       visualizer({
         filename: 'stats.html',
@@ -206,8 +232,10 @@ export default defineConfig(({ mode }) => {
               return 'vendor-leaflet';
             }
             if (normalizedId.includes('src/i18n/locales/')) {
-              const match = normalizedId.match(/locales\/([a-z]{2})\.json/);
-              if (match) return `locale-${match[1]}`;
+              const match = normalizedId.match(/locales\/([a-z]{2})\.(ui|catalog)\.json/);
+              if (match) return `locale-${match[1]}-${match[2]}`;
+              const matchOld = normalizedId.match(/locales\/([a-z]{2})\.json/);
+              if (matchOld) return `locale-${matchOld[1]}`;
             }
           },
         },

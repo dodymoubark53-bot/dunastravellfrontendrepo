@@ -57,37 +57,37 @@ const _destinationsData = [
     id: "turkey",
     nameKey: "home.destTurkey",
     descKey: "home.destTurkeyDesc",
-    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: "dubai",
     nameKey: "home.destDubai",
     descKey: "home.destDubaiDesc",
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: "jordan",
     nameKey: "home.destJordan",
     descKey: "home.destJordanDesc",
-    image: "https://www.touristsecrets.com/wp-content/uploads/2023/09/jordan-travel-guide-best-places-to-visit-in-jordan-tips-1693570205.jpeg",
+    image: "/images/jordan.webp",
   },
   {
     id: "morocco",
     nameKey: "home.destMorocco",
     descKey: "home.destMoroccoDesc",
-    image: "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: "tunisia",
     nameKey: "home.destTunisia",
     descKey: "home.destTunisiaDesc",
-    image: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: "greece",
     nameKey: "home.destGreece",
     descKey: "home.destGreeceDesc",
-    image: "https://static.arrajol.com/styles/800x533/public/2020/11/14/287336-80888809099.jpg",
+    image: "/images/athens.webp",
   },
   {
     id: "holy-land",
@@ -338,8 +338,6 @@ const buildInfiniteMarqueeList = (items, prefix = 'tour', maxVisible = 8) => {
   return [
     ...base.map((tItem, i) => ({ ...tItem, origIdx: i, isDuplicate: false, uKey: `${prefix}-set1-${tItem.id || tItem.slug || i}-${i}` })),
     ...base.map((tItem, i) => ({ ...tItem, origIdx: i, isDuplicate: true, uKey: `${prefix}-set2-${tItem.id || tItem.slug || i}-${i}` })),
-    ...base.map((tItem, i) => ({ ...tItem, origIdx: i, isDuplicate: true, uKey: `${prefix}-set3-${tItem.id || tItem.slug || i}-${i}` })),
-    ...base.map((tItem, i) => ({ ...tItem, origIdx: i, isDuplicate: true, uKey: `${prefix}-set4-${tItem.id || tItem.slug || i}-${i}` })),
   ];
 };
 
@@ -917,9 +915,9 @@ const HomeExperienceSection = () => {
             src="https://res.cloudinary.com/nclvl0iu/image/upload/v1790040263/pyramids-search-bg_compressed.webp"
             alt="Search tours and holiday packages background"
             className="search-hero-bg-parallax w-full h-full object-cover object-[center_35%] sm:object-[center_30%] md:object-center transition-all duration-700"
-            loading="eager"
+            loading="lazy"
             decoding="async"
-            fetchPriority="high"
+            fetchPriority="low"
             width="1440"
             height="600"
           />
@@ -1125,7 +1123,7 @@ const HomeExperienceSection = () => {
               transition={{ delay: 0.55, duration: 0.6 }}
               className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4"
             >
-              <m.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
+              <div className="hover:scale-[1.06] hover:-translate-y-1 active:scale-95 transition-transform duration-200 ease-out">
                 <Link
                   to="/tailor-a-tour"
                   className="relative overflow-hidden group inline-flex items-center gap-2.5 bg-gradient-to-r from-[#F5A623] via-[#FFC857] to-[#D97706] text-[#0C1120] font-black text-sm sm:text-base px-7 sm:px-9 py-3.5 sm:py-4 rounded-full shadow-[0_0_25px_rgba(245,166,35,0.7)] hover:shadow-[0_0_40px_rgba(245,166,35,1)] transition-all duration-300"
@@ -1136,9 +1134,9 @@ const HomeExperienceSection = () => {
                   </svg>
                   {t('home.customize', 'Customize Your Trip')}
                 </Link>
-              </m.div>
+              </div>
 
-              <m.div whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 350, damping: 15 }}>
+              <div className="hover:scale-[1.06] hover:-translate-y-1 active:scale-95 transition-transform duration-200 ease-out">
                 <Link
                   to="/contact"
                   className="relative overflow-hidden group inline-flex items-center gap-2.5 bg-black/60 hover:bg-amber-500/20 backdrop-blur-xl border border-amber-400/70 hover:border-amber-400 text-amber-300 hover:text-white font-black text-sm sm:text-base px-7 sm:px-9 py-3.5 sm:py-4 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(245,166,35,0.7)] transition-all duration-300"
@@ -1149,7 +1147,7 @@ const HomeExperienceSection = () => {
                   </svg>
                   {t('nav.contact', 'Contact Us')}
                 </Link>
-              </m.div>
+              </div>
             </m.div>
           </m.div>
         </div>
@@ -1210,6 +1208,8 @@ const HomeExperienceSection = () => {
                     className="w-20 sm:w-28 md:w-36 aspect-[2/1] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.4)]"
                     width="160"
                     height="80"
+                    loading="lazy"
+                    decoding="async"
                     style={{ aspectRatio: '2 / 1' }}
                   />
                 </div>
@@ -1593,6 +1593,7 @@ const HomeExperienceSection = () => {
                           alt={pkg.name}
                           className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-100"
                           loading="lazy"
+                          decoding="async"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#060a17]/95 via-[#060a17]/40 to-transparent"></div>
                       </div>
@@ -1938,7 +1939,7 @@ const HomeExperienceSection = () => {
                     <path d="M12 32L28 28L32 32L28 36Z" fill="currentColor" opacity="0.3" />
                     <path d="M52 32L36 36L32 32L36 28Z" fill="currentColor" opacity="0.3" />
                     <path d="M32 10V22" strokeLinecap="round" />
-                    <path d="M30 14L32 10L34 14" strokeLinecap="round" strokeJoin="round" />
+                    <path d="M30 14L32 10L34 14" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M16 48C28 48 24 24 48 20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                     <circle cx="48" cy="20" r="3" fill="currentColor" />
                   </svg>
@@ -2254,42 +2255,37 @@ const HomeExperienceSection = () => {
           className="absolute -top-20 -left-20 w-96 h-96 bg-gold-500/20 blur-3xl pointer-events-none rounded-full"
         />
 
-        {/* Floating Golden Dust Particles */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(14)].map((_, i) => (
-            <m.div
-              key={`cta-particle-${i}`}
-              initial={{
-                // eslint-disable-next-line react-hooks/purity
-                opacity: 0,
-                // eslint-disable-next-line react-hooks/purity
-                y: Math.random() * 400 + 100,
-                x: `${10 + (i * 6.5) % 80}%`,
-                // eslint-disable-next-line react-hooks/purity
-                scale: Math.random() * 0.7 + 0.3,
-              }}
-              animate={
-                ctaInView
-                  ? {
-                      opacity: [0, 0.9, 0],
-                      y: [-50, -450],
-                      x: [
-                        `${10 + (i * 6.5) % 80}%`,
-                        `${10 + (i * 6.5) % 80 + (i % 2 === 0 ? 6 : -6)}%`,
-                      ],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: 5.5 + (i % 4),
-                repeat: ctaInView ? Infinity : 0,
-                delay: i * 0.5,
-                ease: "easeOut",
-              }}
-              className="absolute w-1.5 h-1.5 rounded-full bg-gradient-to-t from-gold-400 via-amber-300 to-yellow-100 shadow-[0_0_10px_#fbbf24]"
-            />
-          ))}
-        </div>
+        {/* Floating Golden Dust Particles (Rendered only when section is in view) */}
+        {ctaInView && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(14)].map((_, i) => (
+              <m.div
+                key={`cta-particle-${i}`}
+                initial={{
+                  opacity: 0,
+                  y: Math.random() * 400 + 100,
+                  x: `${10 + (i * 6.5) % 80}%`,
+                  scale: Math.random() * 0.7 + 0.3,
+                }}
+                animate={{
+                  opacity: [0, 0.9, 0],
+                  y: [-50, -450],
+                  x: [
+                    `${10 + (i * 6.5) % 80}%`,
+                    `${10 + (i * 6.5) % 80 + (i % 2 === 0 ? 6 : -6)}%`,
+                  ],
+                }}
+                transition={{
+                  duration: 5.5 + (i % 4),
+                  repeat: Infinity,
+                  delay: i * 0.5,
+                  ease: "easeOut",
+                }}
+                className="absolute w-1.5 h-1.5 rounded-full bg-gradient-to-t from-gold-400 via-amber-300 to-yellow-100 shadow-[0_0_10px_#fbbf24]"
+              />
+            ))}
+          </div>
+        )}
 
         {/* Decorative Luxury Top/Bottom Gold Borders */}
         <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-gold-500/50 to-transparent shadow-[0_0_12px_rgba(201,162,39,0.5)]" />
@@ -2346,12 +2342,12 @@ const HomeExperienceSection = () => {
             {/* Main Animated Title */}
             <m.div
               variants={{
-                hidden: { opacity: 0, y: 45, filter: "blur(14px)" },
+                hidden: { opacity: 0, y: 35, scale: 0.97 },
                 visible: {
                   opacity: 1,
                   y: 0,
-                  filter: "blur(0px)",
-                  transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] },
+                  scale: 1,
+                  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
                 },
               }}
               className="mb-6 relative"
@@ -2482,9 +2478,9 @@ const HomeExperienceSection = () => {
 
               {/* Tours Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                {allToursForMarquee.map((tour) => (
+                {allToursForMarquee.map((tour, idx) => (
                   <div
-                    key={tour.id}
+                    key={tour.id || tour.slug || `all-tour-${idx}`}
                     className="bg-white rounded-[10px] overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col h-full text-left"
                   >
                     {/* Tour image on top */}

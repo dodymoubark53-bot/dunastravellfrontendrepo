@@ -28,30 +28,39 @@
   <meta name="twitter:description" content="Discover the timeless wonders of Egypt, Jordan, Turkey, and beyond with bespoke private itineraries and 5-star concierge services." />
   <meta name="twitter:image" content="https://dunas-travel.com/dunas-travel-logo.webp" />
 
+  <!-- Agentic Resource Discovery (ARD) -->
+  <link rel="ard" href="/.well-known/ard.json" />
+  <link rel="ai-catalog" href="/.well-known/ai-catalog.json" />
+
   <!-- Performance & Asset Pre-connections -->
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <link rel="dns-prefetch" href="https://images.unsplash.com">
   <link rel="dns-prefetch" href="https://api.dunas-travel.com">
-  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-800.webp" type="image/webp" fetchpriority="high" media="(max-width: 768px)">
+  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-480.webp" type="image/webp" fetchpriority="high" media="(max-width: 480px)">
+  <link rel="preload" as="image" href="/imgs/slider-abu-simbel-800.webp" type="image/webp" fetchpriority="high" media="(min-width: 481px) and (max-width: 768px)">
   <link rel="preload" as="image" href="/imgs/slider-abu-simbel.webp" type="image/webp" fetchpriority="high" media="(min-width: 769px)">
-  <link rel="preload" as="image" href="/dunas-travel-logo.webp" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=Satisfy&family=Cairo:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+  <!-- Preload primary self-hosted fonts for instant first paint and zero layout shift -->
+  <link rel="preload" href="/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS4J0.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css" media="print" onload="this.media='all'">
   <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=Satisfy&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="/fonts/fonts.css" rel="stylesheet">
   </noscript>
 
   <style>
     /* First-paint skeleton hero (kept in HTML so it paints before React).
-       Phones use the 800px variant to cut ~65 kB off the LCP request. */
+       Phones under 480px use the 15 kB 480px variant for instant LCP. */
     .initial-hero {
       background: #122327 url('/imgs/slider-abu-simbel.webp') center center / cover no-repeat;
     }
     @media (max-width: 768px) {
       .initial-hero {
         background-image: url('/imgs/slider-abu-simbel-800.webp');
+      }
+    }
+    @media (max-width: 480px) {
+      .initial-hero {
+        background-image: url('/imgs/slider-abu-simbel-480.webp');
       }
     }
   </style>

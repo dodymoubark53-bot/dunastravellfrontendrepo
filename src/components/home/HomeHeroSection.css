@@ -12,9 +12,8 @@
   --theme-bg-color2: #122327;
   --theme-bg-color3: #D6EEF3;
   --theme-bg-color4: #EDF5F6;
-  --text-font: "Inter", sans-serif;
+  --text-font: "Montserrat", "Cairo", system-ui, sans-serif;
   --title-font: "Bebas Neue", sans-serif;
-  --style-font: "Satisfy", sans-serif;
   --container-width: 1470px;
   --dark-bg-color: #122327;
   --dark-bg-color2: #172A2F;
@@ -71,7 +70,7 @@
 @keyframes heroFadeSlideDown {
   0% {
     opacity: 0;
-    transform: translateY(-45px);
+    transform: translateY(-6px);
   }
 
   100% {
@@ -83,7 +82,7 @@
 @keyframes heroFadeSlideUp {
   0% {
     opacity: 0;
-    transform: translateY(50px);
+    transform: translateY(6px);
   }
 
   100% {
@@ -95,7 +94,7 @@
 @keyframes heroLogoRise {
   0% {
     opacity: 0;
-    transform: translateY(50px) scale(0.9);
+    transform: translateY(6px) scale(0.96);
   }
 
   100% {
@@ -107,7 +106,7 @@
 @keyframes heroCircleRise {
   0% {
     opacity: 0;
-    transform: translateY(50px) scale(0.85);
+    transform: translateY(6px) scale(0.95);
   }
 
   100% {
@@ -207,6 +206,8 @@
   padding: 20px 15px 0;
   margin-top: -16px;
   max-width: 100%;
+  min-height: 280px;
+  contain: layout;
 }
 
 .slider-section .hero_content h1 {
@@ -317,18 +318,18 @@
   line-height: 1;
   display: inline-block;
   animation: heroSparklePulse 2.6s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.95));
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95));
+  will-change: transform, opacity;
 }
 
 @keyframes heroSparklePulse {
   0%, 100% {
     transform: scale(1) rotate(0deg);
-    opacity: 0.95;
+    opacity: 0.85;
   }
   50% {
     transform: scale(1.25) rotate(12deg);
     opacity: 1;
-    filter: drop-shadow(0 0 12px rgba(255, 209, 102, 1));
   }
 }
 
@@ -492,7 +493,7 @@
 .circle__video text {
   fill: #ffffff;
   /* Lock the ring typography so all five languages render the same badge. */
-  font-family: "Bebas Neue", "Outfit", sans-serif;
+  font-family: "Bebas Neue", "Montserrat", "Cairo", sans-serif;
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -521,6 +522,8 @@
 .circle__video > svg {
   animation: rotateText 12s linear infinite;
   transform-origin: 50% 50%;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 @keyframes rotateText {
@@ -862,6 +865,8 @@
   .slider-section .hero_content {
     padding: 0 16px;
     margin-top: -24px;
+    min-height: 220px;
+    contain: layout;
   }
 
   .slider-section .hero_content h1 {
@@ -952,6 +957,8 @@
   .slider-section .hero_content {
     padding: 0 16px;
     margin-top: -24px;
+    min-height: 220px;
+    contain: layout;
   }
 
   .slider-section .hero_content h1 {

@@ -45,4 +45,5 @@ originals-backup/
 testing-coverage/
 
 
+.private-sourcemaps/
 start_dev.bat

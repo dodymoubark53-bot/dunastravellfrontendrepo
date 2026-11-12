@@ -159,23 +159,9 @@ export const JaiderChatProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!isOpen) return;
     const activeLang = i18n.language ? i18n.language.split('-')[0] : 'en';
-    if (isOpen) {
-      fetchChatConfigAndPersonas(activeLang);
-      return;
-    }
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const handle = window.requestIdleCallback(() => {
-        fetchChatConfigAndPersonas(activeLang);
-      }, { timeout: 3000 });
-      return () => window.cancelIdleCallback(handle);
-    } else {
-      const timer = setTimeout(() => {
-        fetchChatConfigAndPersonas(activeLang);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    fetchChatConfigAndPersonas(activeLang);
   }, [i18n.language, isOpen, fetchChatConfigAndPersonas]);
 
   const changePersona = (personaCode) => {

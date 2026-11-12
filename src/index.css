@@ -1585,6 +1585,7 @@ html[dir="rtl"] .dropdown-item:hover {
 .animate-continuous-marquee-right.is-visible {
   animation-play-state: running;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 .animate-continuous-marquee-left:hover,

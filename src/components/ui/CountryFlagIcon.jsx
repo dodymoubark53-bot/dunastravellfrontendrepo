@@ -1,4 +1,5 @@
 import React from 'react';
+import 'flag-icons/css/flag-icons.min.css';
 
 /**
  * SVG country flag that renders consistently on mobile, laptop and desktop

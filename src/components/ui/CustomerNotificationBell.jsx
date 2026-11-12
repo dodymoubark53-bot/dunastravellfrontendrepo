@@ -46,7 +46,9 @@ export default function CustomerNotificationBell() {
       prevUnreadCountRef.current = data.unreadCount;
       isInitializedRef.current = true;
     } catch (err) {
-      console.warn('Customer notification fetch failed', err);
+      if (err?.code !== 'INVALID_SUCCESS_ENVELOPE' && err?.status !== 401) {
+        console.warn('Customer notification fetch failed', err);
+      }
     } finally {
       setLoading(false);
     }

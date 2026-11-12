@@ -137,11 +137,12 @@ function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t, lang }) {
       <div className="slider-section d-flex align-items-center">
         <div className={slide.bgClass}>
           <picture>
+            <source media="(max-width: 480px)" srcSet={slide.bgImage480} />
             <source media="(max-width: 768px)" srcSet={slide.bgImage800} />
             <img
               className="slider-bg-img"
               src={slide.bgImage}
-              srcSet={`${slide.bgImage800} 800w, ${slide.bgImage} 1376w`}
+              srcSet={`${slide.bgImage480} 480w, ${slide.bgImage800} 800w, ${slide.bgImage} 1376w`}
               sizes="100vw"
               alt=""
               aria-hidden="true"
