@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { FaPlay, FaTimes } from "react-icons/fa";
+import { FaPlay, FaTimes } from "../ui/Icons";
 import "./HomeHeroSection.css";
 
 // Rotating ring configuration
@@ -159,85 +159,82 @@ function HeroSlideItem({ slide, isActive, isRtl, setIsVideoOpen, t, lang }) {
                 </h1>
                 {/* Luxury Illuminated Subtitle Card */}
                 <div className="hero-desc-glass-card">
-                  <div className="hero-desc-content">
-                    <div className="hero-desc-eyebrow">
-                      <span className="hero-desc-sparkle" aria-hidden="true">✦</span>
-                      <span className="hero-desc-badge-text">{eyebrowText}</span>
-                    </div>
-                    <p className="slider-contect-des">
-                      {renderStyledHeroDesc(rawDescText)}
-                    </p>
+                  <div className="hero-desc-eyebrow">
+                    <span className="hero-desc-badge-text">{eyebrowText}</span>
                   </div>
+                  <p className="slider-contect-des">
+                    {renderStyledHeroDesc(rawDescText)}
+                  </p>
                 </div>
                 <div className="hero-btn defult-btn">
-                    <Link to={slide.btnLink}>
-                      {t("home.heroBtnText", slide.btnText)}
-                      <svg
-                        width="16"
-                        height="12"
-                        viewBox="0 0 16 12"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M14.96 4.9808C12.8146 4.9808 10.8592 3.0272 10.8592 0.88V0H9.0992V0.88C9.0992 2.44112 9.78384 3.90544 10.8583 4.9808H0V6.7408H10.8583C9.78384 7.81616 9.0992 9.28048 9.0992 10.8416V11.7216H10.8592V10.8416C10.8592 8.69528 12.8146 6.7408 14.96 6.7408H15.84V4.9808H14.96Z"
-                          fill="white"
-                        ></path>
-                      </svg>
-                    </Link>
-                  </div>
+                  <Link to={slide.btnLink}>
+                    {t("home.heroBtnText", slide.btnText)}
+                    <svg
+                      width="16"
+                      height="12"
+                      viewBox="0 0 16 12"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M14.96 4.9808C12.8146 4.9808 10.8592 3.0272 10.8592 0.88V0H9.0992V0.88C9.0992 2.44112 9.78384 3.90544 10.8583 4.9808H0V6.7408H10.8583C9.78384 7.81616 9.0992 9.28048 9.0992 10.8416V11.7216H10.8592V10.8416C10.8592 8.69528 12.8146 6.7408 14.96 6.7408H15.84V4.9808H14.96Z"
+                        fill="white"
+                      ></path>
+                    </svg>
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Rotating Circular Video Badge positioned at bottom-right (bottom-left in RTL) */}
-          <div
-            className="circle__video"
-            onClick={() => setIsVideoOpen(true)}
-            style={{ cursor: "pointer" }}
+        {/* Rotating Circular Video Badge positioned at bottom-right (bottom-left in RTL) */}
+        <div
+          className="circle__video"
+          onClick={() => setIsVideoOpen(true)}
+          style={{ cursor: "pointer" }}
+        >
+          <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+            <defs>
+              <path
+                id={ringPathId}
+                d="M 100, 100 m -78, 0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0"
+              ></path>
+            </defs>
+            <g className="rotate-text">
+              <text className="no-capitalize">
+                {Array.from({ length: VIDEO_RING_COPIES }, (_, copyIndex) => (
+                  <textPath
+                    key={copyIndex}
+                    className="no-capitalize"
+                    href={`#${ringPathId}`}
+                    startOffset={`${(copyIndex * 100) / VIDEO_RING_COPIES}%`}
+                  >
+                    {VIDEO_RING_LABEL}
+                  </textPath>
+                ))}
+              </text>
+            </g>
+          </svg>
+
+          <button
+            type="button"
+            className="circle-vide_btn popup-video"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsVideoOpen(true);
+            }}
+            aria-label={watchVideoLabel}
           >
-            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-              <defs>
-                <path
-                  id={ringPathId}
-                  d="M 100, 100 m -78, 0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0"
-                ></path>
-              </defs>
-              <g className="rotate-text">
-                <text className="no-capitalize">
-                  {Array.from({ length: VIDEO_RING_COPIES }, (_, copyIndex) => (
-                    <textPath
-                      key={copyIndex}
-                      className="no-capitalize"
-                      href={`#${ringPathId}`}
-                      startOffset={`${(copyIndex * 100) / VIDEO_RING_COPIES}%`}
-                    >
-                      {VIDEO_RING_LABEL}
-                    </textPath>
-                  ))}
-                </text>
-              </g>
-            </svg>
-
-            <button
-              type="button"
-              className="circle-vide_btn popup-video"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsVideoOpen(true);
-              }}
-              aria-label={watchVideoLabel}
-            >
-              <span className="play-now">
-                <FaPlay />
-              </span>
-            </button>
-          </div>
+            <span className="play-now">
+              <FaPlay />
+            </span>
+          </button>
         </div>
       </div>
+    </div>
   );
 }
 

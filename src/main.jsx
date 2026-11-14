@@ -2,7 +2,11 @@ import { StrictMode, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
-import { LazyMotion, domAnimation } from 'framer-motion'
+import { LazyMotion } from 'framer-motion'
+
+// Async loader: loads framer-motion DOM features dynamically on demand,
+// completely eliminating vendor-motion from the synchronous critical path.
+const loadMotionFeatures = () => import('framer-motion').then((res) => res.domAnimation);
 import App from './App.jsx'
 import { initI18n } from './i18n'
 import './index.css'
@@ -43,7 +47,7 @@ function Root() {
       {/* `m` components only ship the DOM animation subset; the full
           framer-motion feature bundle is no longer pulled in. LazyMotion wraps
           every provider so portals (toasts, modals) share the same context. */}
-      <LazyMotion features={domAnimation}>
+      <LazyMotion features={loadMotionFeatures} strict={false}>
         <BrowserRouter>
           <HelmetProvider>
             <CurrencyProvider>

@@ -1,6 +1,5 @@
 import { useState, useRef, useMemo, useEffect, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import SEOHead from "../seo/SEOHead";
 import { m, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
@@ -13,7 +12,6 @@ import { useServices } from "../../hooks/useServices";
 import { transportation as fallbackTransportation } from "../../data/transportation";
 import { getCachedCatalogTours, loadCatalogTours } from "../../data/catalogTours";
 const AnimatedCounter = lazy(() => import("../common/AnimatedCounter"));
-import HomeHeroSection from "./HomeHeroSection";
 import useInViewport from "../../hooks/useInViewport";
 import { useCurrency } from "../../context/CurrencyContext";
 import api from "../../utils/api";
@@ -43,7 +41,7 @@ import {
   FaChevronRight,
   FaSearch,
   FaChevronDown,
-} from "react-icons/fa";
+} from "../ui/Icons";
 
 
 const _destinationsData = [
@@ -352,6 +350,21 @@ const HomeExperienceSection = () => {
   // The full catalogue is a multi-megabyte JSON asset. Start from the cached
   // copy (undefined on first load) and fetch it once the page is idle.
   const [catalogTours, setCatalogTours] = useState(() => getCachedCatalogTours() || []);
+  const [isTourSelectActive, setIsTourSelectActive] = useState(false);
+
+  useEffect(() => {
+    let idleHandle;
+    let timerHandle;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleHandle = window.requestIdleCallback(() => setIsTourSelectActive(true), { timeout: 3500 });
+    } else {
+      timerHandle = setTimeout(() => setIsTourSelectActive(true), 1500);
+    }
+    return () => {
+      if (idleHandle && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+      if (timerHandle) clearTimeout(timerHandle);
+    };
+  }, []);
   const [destSectionRef, isDestSectionVisible] = useInViewport({ threshold: 0.05, rootMargin: '300px 0px' });
   const [transportSectionRef, isTransportSectionVisible] = useInViewport({ threshold: 0.05 });
   const [photoSectionRef, isPhotoSectionVisible] = useInViewport({ threshold: 0.05, rootMargin: '250px', once: true });
@@ -890,25 +903,8 @@ const HomeExperienceSection = () => {
 
   return (
     <div className="w-full">
-      <SEOHead
-        title={t(
-          "home.metaTitle",
-          "Award-Winning Experiences in Egypt, Jordan, Turkey, Tunisia, Greece, Holy Land, Morocco and Dubai"
-        )}
-        description={t(
-          "home.metaDesc",
-          "Experience true luxury with Dunas Travel — curated journeys through the timeless wonders of Egypt, Jordan, Turkey, Tunisia, Greece, the Holy Land, Morocco, and Dubai."
-        )}
-        keywords="luxury egypt tours, private middle east holidays, nile cruise private tour, bespoke luxury travel cairo luxor aswan, jordan petra luxury, turkey cappadocia tour"
-        canonical="https://dunas-travel.com/"
-        ogImage="https://dunas-travel.com/imgs/slider-abu-simbel.webp"
-      />
-
-      {/* Yacht Dark Hero Section */}
-      <HomeHeroSection />
-
       {/* Search Section */}
-      <section id="search-section" className="relative w-full py-14 sm:py-20 md:py-28 min-h-[460px] sm:min-h-[520px] md:min-h-0 flex items-center justify-center overflow-hidden mt-0">
+      <section id="search-section" className="relative w-full py-14 sm:py-20 md:py-28 min-h-[460px] sm:min-h-[520px] md:min-h-0 flex items-center justify-center overflow-hidden mt-0" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 520px' }}>
         {/* Background Image with Dynamic Pulsing Motion & Rich Glow */}
         <div className="absolute inset-0 overflow-hidden">
           <img
@@ -1007,6 +1003,10 @@ const HomeExperienceSection = () => {
                     <select
                       id="search-tour-input"
                       value={searchTour}
+                      onFocus={() => setIsTourSelectActive(true)}
+                      onPointerDown={() => setIsTourSelectActive(true)}
+                      onClick={() => setIsTourSelectActive(true)}
+                      onTouchStart={() => setIsTourSelectActive(true)}
                       onChange={(e) => {
                         const selectedVal = e.target.value;
                         setSearchTour(selectedVal);
@@ -1027,7 +1027,7 @@ const HomeExperienceSection = () => {
                       <option value="" style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}>
                         {t('home.searchAllTours', isRtl ? 'جميع الرحلات والبرامج' : 'All Tours & Programs')}
                       </option>
-                      {searchDest && searchDest !== "all" ? (
+                      {(isTourSelectActive || searchTour) && (searchDest && searchDest !== "all" ? (
                         destTours.map((item) => (
                           <option key={item.id} value={item.id} style={{ backgroundColor: '#0B132B', color: '#FFFFFF' }}>
                             {item.label}
@@ -1051,7 +1051,7 @@ const HomeExperienceSection = () => {
                             ))}
                           </optgroup>
                         ))
-                      )}
+                      ))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 flex items-center px-3.5 text-amber-400">
                       <FaChevronDown className="text-xs transition-transform duration-300" />
@@ -1154,7 +1154,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* About the Company */}
-      <section className="py-12 bg-ivory-50">
+      <section className="py-12 bg-ivory-50" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <m.div
@@ -1231,7 +1231,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Stats Counter Section */}
-      <section className="relative py-12 md:py-16 overflow-hidden bg-gray-50/50 dark:bg-[#07163c]">
+      <section className="relative py-12 md:py-16 overflow-hidden bg-gray-50/50 dark:bg-[#07163c]" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 250px' }}>
         <div className="relative z-10 container mx-auto px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
@@ -1265,7 +1265,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Destinations & Their Tours - Travolo Style Replica */}
-      <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #041446 0%, #061d5d 50%, #020b26 100%)' }}>
+      <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #041446 0%, #061d5d 50%, #020b26 100%)', contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
         {/* Ambient Royal Blue & Gold Glow Elements */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#F5A623]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#041446]/80 rounded-full blur-3xl pointer-events-none" />
@@ -1397,7 +1397,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Destination Tours Marquee Section */}
-      <section ref={destSectionRef} className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative">
+      <section ref={destSectionRef} className="py-12 bg-ivory-100 dark:bg-obsidian-950 overflow-hidden relative" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 550px' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-10 max-w-3xl mx-auto">
             <span className="text-[#B45309] dark:text-[#F5A623] uppercase tracking-widest text-caption block mb-2 font-bold">
@@ -1519,7 +1519,7 @@ const HomeExperienceSection = () => {
       </section>
 
       {/* Packages Section — 5 Egypt Packages Ultra Luxury Bento Grid */}
-      <section className="py-16 md:py-24 relative overflow-hidden bg-ivory-50 dark:bg-obsidian-950">
+      <section className="py-16 md:py-24 relative overflow-hidden bg-ivory-50 dark:bg-obsidian-950" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           {/* Container Card with Top Header Background & Royal Gold Accents */}
           <div
@@ -1668,7 +1668,7 @@ const HomeExperienceSection = () => {
 
 
       {/* Transportation & Transfers (Vehicles Marquee Slider Only) */}
-      <section ref={transportSectionRef} className="py-12 bg-ivory-50 dark:bg-obsidian-950 relative overflow-hidden content-auto">
+      <section ref={transportSectionRef} className="py-12 bg-ivory-50 dark:bg-obsidian-950 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 550px' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <m.span
@@ -1714,9 +1714,10 @@ const HomeExperienceSection = () => {
           </div>
 
           {/* Vehicles Strip: Infinite Marquee */}
-          <div dir="ltr" className="w-full relative overflow-x-auto md:overflow-hidden py-4 scrollbar-none snap-x snap-mandatory md:snap-none">
+          <div dir="ltr" className="w-full relative overflow-x-auto md:overflow-hidden py-4 scrollbar-none snap-x snap-mandatory md:snap-none" style={{ contain: 'layout paint' }}>
             <div
               className="tour-marquee-track flex w-max"
+              data-active={isTransportSectionVisible ? "true" : "false"}
               style={{
                 gap: "16px",
                 paddingLeft: "16px",
@@ -1725,7 +1726,7 @@ const HomeExperienceSection = () => {
               onMouseLeave={e => e.currentTarget.style.animationPlayState = 'running'}
             >
               {(() => {
-                const repeatedList = buildInfiniteMarqueeList(filteredVehicles, 'veh', 8);
+                const repeatedList = buildInfiniteMarqueeList(filteredVehicles, 'veh', 6);
                 return repeatedList.map((vehicle, idx) => (
                   <div
                     key={`veh-${vehicle.id}-${idx}`}
@@ -1798,8 +1799,12 @@ const HomeExperienceSection = () => {
 
       {/* Services Section */}
       <section
-        className="py-20 lg:py-28 relative overflow-hidden content-auto"
-        style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
+        className="py-20 lg:py-28 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)',
+          contentVisibility: 'auto',
+          containIntrinsicSize: 'auto 750px',
+        }}
       >
         <div className="container mx-auto px-6 relative z-10">
           {/* Section Header */}
@@ -1999,8 +2004,12 @@ const HomeExperienceSection = () => {
 
       {/* Contact Info Section */}
       <section
-        className="py-20 lg:py-32 relative overflow-hidden content-auto"
-        style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
+        className="py-20 lg:py-32 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)',
+          contentVisibility: 'auto',
+          containIntrinsicSize: 'auto 700px',
+        }}
       >
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
@@ -2189,6 +2198,7 @@ const HomeExperienceSection = () => {
       <section
         ref={ctaSectionRef}
         className="relative py-32 md:py-44 lg:py-52 min-h-[580px] md:min-h-[680px] flex items-center justify-center bg-obsidian-950 overflow-hidden select-none"
+        style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 650px' }}
       >
         {/* Hardware-Accelerated Parallax Background Image */}
         <div className="absolute inset-0 overflow-hidden">
@@ -2533,8 +2543,8 @@ const HomeExperienceSection = () => {
 
       {/* Our Brands Logos - White Background */}
       <section
-        className="w-full bg-white dark:bg-white py-12 sm:py-16 content-auto our-brands-section"
-        style={{ backgroundColor: '#ffffff', color: '#000000' }}
+        className="w-full bg-white dark:bg-white py-12 sm:py-16 our-brands-section"
+        style={{ backgroundColor: '#ffffff', color: '#000000', contentVisibility: 'auto', containIntrinsicSize: 'auto 250px' }}
       >
         <div className="max-w-6xl mx-auto px-6">
           <h3

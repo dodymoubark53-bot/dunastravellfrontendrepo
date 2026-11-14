@@ -64,23 +64,13 @@ const transformObjToTitleCase = (obj) => {
 };
 
 const loadLocaleUiResource = async (lng) => {
-  switch (lng) {
-    case 'ar': return (await import('./locales/ar.ui.json')).default;
-    case 'es': return (await import('./locales/es.ui.json')).default;
-    case 'it': return (await import('./locales/it.ui.json')).default;
-    case 'pt': return (await import('./locales/pt.ui.json')).default;
-    case 'en': default: return (await import('./locales/en.ui.json')).default;
-  }
+  const lang = normalizeLng(lng);
+  return (await import(`./locales/${lang}.ui.json`)).default;
 };
 
 const loadLocaleCatalogResource = async (lng) => {
-  switch (lng) {
-    case 'ar': return (await import('./locales/ar.catalog.json')).default;
-    case 'es': return (await import('./locales/es.catalog.json')).default;
-    case 'it': return (await import('./locales/it.catalog.json')).default;
-    case 'pt': return (await import('./locales/pt.catalog.json')).default;
-    case 'en': default: return (await import('./locales/en.catalog.json')).default;
-  }
+  const lang = normalizeLng(lng);
+  return (await import(`./locales/${lang}.catalog.json`)).default;
 };
 
 const normalizeLng = (lng) => {

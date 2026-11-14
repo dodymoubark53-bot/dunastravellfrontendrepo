@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaChevronDown, FaCheck } from 'react-icons/fa';
+import { FaChevronDown, FaCheck } from './Icons';
 import { useActiveLocales } from '../../hooks/useActiveLocales';
 import { changeAppLanguage, preloadLocale } from '../../i18n';
 import { useClickOutside } from '../../hooks/useClickOutside';

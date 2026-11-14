@@ -8,6 +8,7 @@ import { trackEvent } from "./utils/analytics";
 import { ConsentProvider } from "./privacy/consent";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { syncDocumentDirection } from "./i18n";
+import { useIdleMount } from "./hooks/useIdleMount";
 
 // ── Stale Chunk / Deployment Recovery Helpers ─────────────────────────────
 const isChunkLoadFailed = (error) => {
@@ -180,6 +181,17 @@ const CookiePolicy = lazyWithRetry(() => import("./pages/legal/CookiePolicy"));
 const CookieConsentBanner = lazyWithRetry(() => import("./components/privacy/CookieConsentBanner"));
 const CookiePreferencesModal = lazyWithRetry(() => import("./components/privacy/CookiePreferencesModal"));
 
+const DeferredCookieBanner = React.memo(function DeferredCookieBanner() {
+  const isIdle = useIdleMount(2000);
+  if (!isIdle) return null;
+  return (
+    <Suspense fallback={null}>
+      <CookieConsentBanner />
+      <CookiePreferencesModal />
+    </Suspense>
+  );
+});
+
 const PageTransition = ({ children }) => {
   const location = useLocation();
   return (
@@ -227,11 +239,18 @@ const ScrollProgressBar = React.memo(function ScrollProgressBar() {
       cachedDocHeight = Math.max(0, (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight);
     };
 
-    measureDocHeight();
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(measureDocHeight);
+    } else {
+      setTimeout(measureDocHeight, 1000);
+    }
     window.addEventListener('resize', measureDocHeight, { passive: true });
 
     const updateProgress = () => {
       if (!barRef.current) return;
+      if (cachedDocHeight <= 0) {
+        measureDocHeight();
+      }
       const scrollY = window.scrollY || window.pageYOffset;
       const progress = cachedDocHeight > 0 ? Math.min(Math.max(scrollY / cachedDocHeight, 0), 1) : 0;
       barRef.current.style.transform = `scaleX(${progress})`;
@@ -284,10 +303,7 @@ function App() {
     <ErrorBoundary>
       <ConsentProvider>
         <ScrollProgressBar />
-        <Suspense fallback={null}>
-          <CookieConsentBanner />
-          <CookiePreferencesModal />
-        </Suspense>
+        <DeferredCookieBanner />
 
         <Suspense fallback={<FallbackLoader />}>
           <Routes>

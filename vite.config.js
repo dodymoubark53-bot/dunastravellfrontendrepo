@@ -187,6 +187,11 @@ export default defineConfig(({ mode }) => {
     build: {
       minify: true,
       cssMinify: true,
+      modulePreload: {
+        resolveDependencies(url, deps, { hostId, hostType }) {
+          return deps.filter(dep => !dep.includes('locale-') && !dep.includes('Cookie') && !dep.includes('vendor-motion'));
+        },
+      },
       // flag-icons ships ~250 flag SVGs referenced from its CSS. Inlining them
       // (the previous default here) produced an 810 kB stylesheet on every
       // page. Keep them as separate files: the browser then only downloads the
@@ -196,15 +201,19 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             const normalizedId = id.replace(/\\/g, '/');
-            // One request for the framework runtime instead of three small ones.
+            // React Core runtime
             if (
               normalizedId.includes('node_modules/react-dom/') ||
               normalizedId.includes('node_modules/react/') ||
-              normalizedId.includes('node_modules/scheduler/') ||
+              normalizedId.includes('node_modules/scheduler/')
+            ) {
+              return 'vendor-react';
+            }
+            if (
               normalizedId.includes('node_modules/react-router/') ||
               normalizedId.includes('node_modules/react-router-dom/')
             ) {
-              return 'vendor-react';
+              return 'vendor-router';
             }
             if (normalizedId.includes('node_modules/react-helmet-async/')) {
               return 'vendor-helmet';
@@ -218,13 +227,6 @@ export default defineConfig(({ mode }) => {
             ) {
               return 'vendor-i18n';
             }
-            if (
-              normalizedId.includes('node_modules/react-icons/fa') ||
-              normalizedId.includes('node_modules/react-icons/fa6')
-            ) {
-              return 'vendor-icons-fa';
-            }
-            if (normalizedId.includes('node_modules/react-icons')) return 'vendor-icons';
             if (
               normalizedId.includes('node_modules/leaflet') ||
               normalizedId.includes('node_modules/react-leaflet')

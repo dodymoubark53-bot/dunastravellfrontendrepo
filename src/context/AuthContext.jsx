@@ -66,16 +66,30 @@ export const AuthProvider = ({ children }) => {
   }, [getMe]);
 
   useEffect(() => {
+    let isMounted = true;
     const initAuth = async () => {
       try {
         await getMe();
       } catch {
-        setUser(null);
+        if (isMounted) setUser(null);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
-    initAuth();
+
+    let idleHandle;
+    let timerHandle;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleHandle = window.requestIdleCallback(initAuth, { timeout: 2500 });
+    } else {
+      timerHandle = setTimeout(initAuth, 300);
+    }
+
+    return () => {
+      isMounted = false;
+      if (idleHandle && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+      if (timerHandle) clearTimeout(timerHandle);
+    };
   }, [getMe]);
 
   /**

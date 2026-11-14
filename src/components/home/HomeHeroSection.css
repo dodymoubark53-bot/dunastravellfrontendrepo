@@ -252,7 +252,8 @@
 .hero-desc-glass-card {
   position: relative;
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  gap: 8px;
   max-width: 660px;
   width: auto;
   margin: 18px 0 12px;
@@ -264,9 +265,9 @@
   border-radius: 16px;
   padding: 16px 24px 18px 22px;
   box-shadow: 0 16px 42px -6px rgba(0, 0, 0, 0.85),
-              inset 0 1px 0 rgba(255, 215, 0, 0.35),
-              0 0 35px rgba(212, 175, 55, 0.22),
-              0 0 25px rgba(29, 78, 216, 0.32);
+    inset 0 1px 0 rgba(255, 215, 0, 0.35),
+    0 0 35px rgba(212, 175, 55, 0.22),
+    0 0 25px rgba(29, 78, 216, 0.32);
   transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
   overflow: hidden;
   box-sizing: border-box;
@@ -287,9 +288,9 @@
   transform: translateY(-2px);
   border-color: rgba(255, 215, 0, 0.65);
   box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.9),
-              inset 0 1px 0 rgba(255, 215, 0, 0.45),
-              0 0 45px rgba(255, 215, 0, 0.35),
-              0 0 35px rgba(37, 99, 235, 0.45);
+    inset 0 1px 0 rgba(255, 215, 0, 0.45),
+    0 0 45px rgba(255, 215, 0, 0.35),
+    0 0 35px rgba(37, 99, 235, 0.45);
 }
 
 .hero-desc-content {
@@ -312,6 +313,17 @@
   user-select: none;
 }
 
+.hero-desc-eyebrow::before {
+  content: "✦";
+  color: #FFD700;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-block;
+  animation: heroSparklePulse 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95));
+  will-change: transform, opacity;
+}
+
 .hero-desc-sparkle {
   color: #FFD700;
   font-size: 14px;
@@ -323,10 +335,13 @@
 }
 
 @keyframes heroSparklePulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1) rotate(0deg);
     opacity: 0.85;
   }
+
   50% {
     transform: scale(1.25) rotate(12deg);
     opacity: 1;
@@ -481,7 +496,7 @@
   box-shadow: 0 14px 38px rgba(12, 178, 219, 0.32);
 }
 
-.circle__video > svg {
+.circle__video>svg {
   width: 100%;
   height: 100%;
   overflow: visible !important;
@@ -519,7 +534,7 @@
   transform-box: view-box;
 }
 
-.circle__video > svg {
+.circle__video>svg {
   animation: rotateText 12s linear infinite;
   transform-origin: 50% 50%;
   will-change: transform;
@@ -537,8 +552,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .circle__video .rotate-text,
-  .circle__video > svg {
+  .circle__video>svg {
     animation: none;
   }
 }
@@ -1209,6 +1225,7 @@
 /* On mobile, mirror the badge with the same edge inset as the LTR layout
    so it sits bottom-right in English and bottom-left in Arabic. */
 @media only screen and (max-width: 768px) {
+
   .rtl .circle__video,
   [dir="rtl"] .circle__video {
     left: 20px !important;
@@ -1216,6 +1233,7 @@
 }
 
 @media only screen and (max-width: 576px) {
+
   .rtl .circle__video,
   [dir="rtl"] .circle__video {
     left: 16px !important;
@@ -1223,6 +1241,7 @@
 }
 
 @media only screen and (max-width: 400px) {
+
   .rtl .circle__video,
   [dir="rtl"] .circle__video {
     left: 14px !important;
@@ -1281,6 +1300,7 @@
 /* Keep the Arabic CTA the same two 8px steps higher than the LTR button
    at the smaller breakpoints, where the base margin is already reduced. */
 @media only screen and (max-width: 768px) {
+
   .rtl .defult-btn a,
   [dir="rtl"] .defult-btn a {
     margin-top: 4px;
@@ -1288,6 +1308,7 @@
 }
 
 @media only screen and (max-width: 576px) {
+
   .rtl .defult-btn a,
   [dir="rtl"] .defult-btn a {
     margin-top: 0;
@@ -1297,6 +1318,7 @@
 /* Short landscape viewports (phones on their side, browser UI eating height).
    Placed after the RTL type scale so it wins at equal specificity. */
 @media (orientation: landscape) and (max-height: 560px) {
+
   .slider__active_container,
   .main-slider-wrpper .slider-section {
     height: 100vh;
@@ -1431,6 +1453,6 @@ html.dark .our-brands-title,
 [data-theme="dark"] .our-brands-title {
   color: #000000 !important;
 }
+
 /* Mobile hero art direction is handled by the <img srcset> inside
    `.slider-bg` (480w/800w/1376w), so no background-image overrides here. */
-

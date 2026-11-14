@@ -8,6 +8,17 @@ import Logo from '../ui/Logo';
 
 const LoginModal = lazy(() => import('../auth/LoginModal'));
 const CustomerNotificationBell = lazy(() => import('../ui/CustomerNotificationBell'));
+import { useIdleMount } from '../../hooks/useIdleMount';
+
+const DeferredNotificationBell = ({ user }) => {
+  const isIdle = useIdleMount(2000);
+  if (!user || !isIdle) return null;
+  return (
+    <Suspense fallback={null}>
+      <CustomerNotificationBell />
+    </Suspense>
+  );
+};
 import CurrencySelector from '../ui/CurrencySelector';
 import LanguageSelector from '../ui/LanguageSelector';
 import CountryFlag from '../ui/CountryFlag';
@@ -330,11 +341,7 @@ const Navbar = () => {
               </div>
 
               {/* Customer Notifications */}
-              {user && (
-                <Suspense fallback={null}>
-                  <CustomerNotificationBell />
-                </Suspense>
-              )}
+              <DeferredNotificationBell user={user} />
 
               {/* Currency */}
               <div className="flex">

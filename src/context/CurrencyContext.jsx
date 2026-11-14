@@ -58,9 +58,18 @@ export const CurrencyProvider = ({ children }) => {
         }
       }
     };
-    fetchRate();
+    let idleHandle;
+    let timerHandle;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleHandle = window.requestIdleCallback(fetchRate, { timeout: 3000 });
+    } else {
+      timerHandle = setTimeout(fetchRate, 500);
+    }
+
     return () => {
       isMounted = false;
+      if (idleHandle && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+      if (timerHandle) clearTimeout(timerHandle);
     };
   }, []);
 
