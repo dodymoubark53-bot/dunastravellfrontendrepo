@@ -359,6 +359,8 @@ export default function JordanProgramDetails() {
                     destination: 'Jordan',
                     badge: rel.code,
                     price: Number(rel.price || rel.basePriceUsd || 0),
+                    priceDisplayMode: rel.priceDisplayMode,
+                    priceLabel: rel.priceLabel,
                   }}
                 />
               </div>

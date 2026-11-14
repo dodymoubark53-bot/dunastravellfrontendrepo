@@ -127,6 +127,8 @@ export function useDubaiPrograms() {
         pricing,
         extraNightPrices,
         exhibitionSurcharges,
+        priceDisplayMode: program.priceDisplayMode || 'PRICE',
+        priceLabel: program.priceLabel || program.priceLabelJsonb || null,
         raw: program,
       };
     });

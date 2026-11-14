@@ -58,6 +58,8 @@ function normalizeLandingPage(value) {
         slug: tourSlug,
         title,
         basePriceUsd,
+        priceDisplayMode: tour?.priceDisplayMode || 'PRICE',
+        priceLabel: tour?.priceLabel || null,
         currency,
         images,
         heroImage,

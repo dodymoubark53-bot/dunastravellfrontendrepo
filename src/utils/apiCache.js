@@ -20,8 +20,8 @@ export const CACHE_POLICIES = {
   // Static configuration & dictionaries: 30m stale, 2h maxAge
   STATIC_CONFIG: { staleTime: 30 * 60 * 1000, ttl: 2 * 60 * 60 * 1000 },
   
-  // Destination and landing page catalogs: 15m stale, 1h maxAge
-  DESTINATIONS: { staleTime: 15 * 60 * 1000, ttl: 60 * 60 * 1000 },
+  // Destination and landing page catalogs: 1m stale, 10m maxAge
+  DESTINATIONS: { staleTime: 60 * 1000, ttl: 10 * 60 * 1000 },
   
   // Tour catalog list & filter views: 2m stale, 15m maxAge
   TOUR_CATALOG: { staleTime: 2 * 60 * 1000, ttl: 15 * 60 * 1000 },

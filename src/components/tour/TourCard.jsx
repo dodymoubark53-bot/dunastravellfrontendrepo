@@ -84,15 +84,41 @@ const contentStaggerVariants = {
   }
 };
 
-export function getTourPriceDisplay(tour) {
-  const displayPrice = Number(tour?.price ?? tour?.basePriceUsd ?? 0);
-  const priceMode = String(tour?.priceDisplayMode || 'PRICE').toUpperCase();
-  const customPriceLabel = (tour?.priceLabel || '').trim();
+export function getTourPriceDisplay(tour, lang = 'en') {
+  const rawMode =
+    tour?.priceDisplayMode ||
+    tour?.raw?.priceDisplayMode ||
+    tour?.tour?.priceDisplayMode ||
+    'PRICE';
+  const priceMode = String(rawMode).toUpperCase();
+
+  const rawLabel =
+    tour?.priceLabel ??
+    tour?.raw?.priceLabel ??
+    tour?.tour?.priceLabel ??
+    tour?.priceLabelJsonb ??
+    tour?.raw?.priceLabelJsonb ??
+    '';
+
+  const customPriceLabel = (
+    typeof rawLabel === 'string'
+      ? rawLabel
+      : (rawLabel?.[lang] || rawLabel?.en || rawLabel?.ar || Object.values(rawLabel || {})[0] || '')
+  ).trim();
+
   const isCustomPrice =
     priceMode === 'CUSTOM_LABEL' && Boolean(customPriceLabel);
   const isPriceHidden =
     priceMode === 'HIDDEN' ||
     (priceMode === 'CUSTOM_LABEL' && !customPriceLabel);
+
+  const displayPrice = Number(
+    tour?.price ??
+    tour?.basePriceUsd ??
+    tour?.raw?.basePriceUsd ??
+    tour?.tour?.basePriceUsd ??
+    0
+  );
 
   return {
     displayPrice,
@@ -128,7 +154,7 @@ const TourCard = ({
     customPriceLabel,
     isCustomPrice,
     isPriceHidden,
-  } = getTourPriceDisplay(tour);
+  } = getTourPriceDisplay(tour, lang);
   const rawTourImage =
     resolveTourHeroImage(tour) ||
     (typeof tour.heroImageUrl === 'string' ? tour.heroImageUrl.trim() : null) ||

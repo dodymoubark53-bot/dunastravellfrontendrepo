@@ -565,6 +565,8 @@ export default function DubaiProgramDetails() {
                     destination: 'Dubai',
                     badge: rel.code,
                     price: Number(rel.pricing?.winter?.[0]?.dbl || 899),
+                    priceDisplayMode: rel.priceDisplayMode,
+                    priceLabel: rel.priceLabel,
                   }}
                 />
               </div>

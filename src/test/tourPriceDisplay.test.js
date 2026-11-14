@@ -58,4 +58,70 @@ describe('tour price display scenarios', () => {
       isCustomPrice: false,
     });
   });
+
+  it('displays custom price label when mode is CUSTOM_LABEL and label is present', () => {
+    expect(
+      getTourPriceDisplay({
+        basePriceUsd: '500.00',
+        priceDisplayMode: 'CUSTOM_LABEL',
+        priceLabel: 'Upon Request',
+      }),
+    ).toEqual({
+      displayPrice: 500,
+      customPriceLabel: 'Upon Request',
+      isCustomPrice: true,
+      isPriceHidden: false,
+    });
+  });
+
+  it('resolves localized priceLabel object according to language', () => {
+    const tour = {
+      basePriceUsd: '500.00',
+      priceDisplayMode: 'CUSTOM_LABEL',
+      priceLabel: { en: 'Inquire Now', ar: 'تواصل معنا للسعر' },
+    };
+    expect(getTourPriceDisplay(tour, 'ar')).toEqual({
+      displayPrice: 500,
+      customPriceLabel: 'تواصل معنا للسعر',
+      isCustomPrice: true,
+      isPriceHidden: false,
+    });
+    expect(getTourPriceDisplay(tour, 'en')).toEqual({
+      displayPrice: 500,
+      customPriceLabel: 'Inquire Now',
+      isCustomPrice: true,
+      isPriceHidden: false,
+    });
+  });
+
+  it('hides price when CUSTOM_LABEL mode has empty label', () => {
+    expect(
+      getTourPriceDisplay({
+        basePriceUsd: '500.00',
+        priceDisplayMode: 'CUSTOM_LABEL',
+        priceLabel: '   ',
+      }),
+    ).toEqual({
+      displayPrice: 500,
+      customPriceLabel: '',
+      isCustomPrice: false,
+      isPriceHidden: true,
+    });
+  });
+
+  it('correctly reads nested tour or raw priceDisplayMode', () => {
+    expect(
+      getTourPriceDisplay({
+        id: 'jordan-tour-1',
+        raw: {
+          basePriceUsd: '350.00',
+          priceDisplayMode: 'HIDDEN',
+        },
+      }),
+    ).toMatchObject({
+      displayPrice: 350,
+      isPriceHidden: true,
+      isCustomPrice: false,
+    });
+  });
 });

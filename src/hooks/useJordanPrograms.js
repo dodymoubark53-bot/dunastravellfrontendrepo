@@ -82,6 +82,8 @@ export function useJordanPrograms() {
         code,
         minPax,
         days,
+        priceDisplayMode: program.priceDisplayMode || 'PRICE',
+        priceLabel: program.priceLabel || program.priceLabelJsonb || null,
         raw: program,
       };
     });

@@ -34,6 +34,8 @@ export default function ReligiousTours() {
       destination: tour.location,
       duration: tour.itinerary ? `${tour.itinerary.length} Days` : '',
       price: tour.price,
+      priceDisplayMode: tour.priceDisplayMode,
+      priceLabel: tour.priceLabel,
       rating: tour.rating || 5.0,
       minPax: '2+',
       badge: 'Religious',
