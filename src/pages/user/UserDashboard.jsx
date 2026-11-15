@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import { 
   FaUserCircle, FaBookmark, FaLock, FaUser, FaEnvelope, 
   FaPhone, FaSignOutAlt, FaCalendarAlt, FaFileInvoiceDollar, FaGlobeAmericas,
-  FaHeart, FaTimesCircle, FaEye, FaEyeSlash, FaCheck, FaTimes, FaHeadset
+  FaHeart, FaTimesCircle, FaEye, FaEyeSlash, FaCheck, FaTimes, FaHeadset, FaCreditCard
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../hooks/useWishlist';
@@ -16,6 +16,7 @@ import Button from '../../components/ui/Button';
 import CountryPhoneInput from '../../components/ui/CountryPhoneInput';
 import CountryNationalityInput from '../../components/ui/CountryNationalityInput';
 import api from '../../utils/api';
+import { redirectToPayLinkCheckout } from '../../utils/paylink';
 import { useToast } from '../../context/ToastContext';
 
 const inputClass = "w-full p-3 rounded-xl outline-none transition-all text-[14px] bg-[rgba(255,252,247,0.04)] text-ivory-50 placeholder:text-[rgba(245,237,214,0.3)] border border-[rgba(201,162,39,0.15)] focus:border-[rgba(201,162,39,0.5)] focus:shadow-[0_0_20px_rgba(201,162,39,0.1)] [color-scheme:dark]";
@@ -38,6 +39,26 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [selectedInvoiceBooking, setSelectedInvoiceBooking] = useState(null);
   const [cancellingCode, setCancellingCode] = useState(null);
+  const [payingBookingId, setPayingBookingId] = useState(null);
+
+  const handlePayBooking = async (booking) => {
+    try {
+      setPayingBookingId(booking.id || booking.referenceCode);
+      const res = await api.post('/payments/initiate', {
+        bookingId: booking.id,
+      });
+      const checkoutUrl = res?.sessionUrl || res?.url;
+      if (checkoutUrl) {
+        redirectToPayLinkCheckout(checkoutUrl);
+        return;
+      }
+      toast.error(t('payment.initiateFailed', 'Could not open payment checkout. Please try again.'));
+    } catch (err) {
+      toast.error(err?.message || t('payment.initiateFailed', 'Payment initiation failed.'));
+    } finally {
+      setPayingBookingId(null);
+    }
+  };
 
   // Profile Form State
   const [profileForm, setProfileForm] = useState({
@@ -374,7 +395,7 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[rgba(201,162,39,0.08)] pb-4 mb-4">
                           <div>
                             <span className="text-caption text-gold-500 font-mono text-[11px] uppercase tracking-widest block mb-1">
-                              Ref: #{b.id || b.referenceCode}
+                              Ref: #{b.referenceCode || b.id}
                             </span>
                             <h4 className="text-body-lg text-ivory-50 font-semibold">{b.tourTitle || b.tourName || 'Custom Luxury Tour'}</h4>
                           </div>
@@ -406,7 +427,17 @@ const UserDashboard = ({ initialTab = 'overview' }) => {
                             <span className="block text-[11px] text-ivory-400 uppercase">{t('booking.paymentStatus', 'Payment')}</span>
                             <span className="font-semibold text-ivory-100">{b.paymentStatus || t('booking.awaitingPayment', 'Awaiting payment')}</span>
                           </div>
-                          <div className="flex items-end gap-2">
+                          <div className="flex items-end gap-2 flex-wrap">
+                            {['pending', 'pending_payment'].includes(String(b.status).toLowerCase()) && (
+                              <button
+                                type="button"
+                                onClick={() => handlePayBooking(b)}
+                                disabled={payingBookingId === (b.id || b.referenceCode)}
+                                className="px-3.5 py-2 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-lg text-[11px] uppercase tracking-[1px] flex items-center gap-1.5 hover:scale-105 transition-all shadow-[0_0_15px_rgba(245,166,35,0.3)] disabled:opacity-50"
+                              >
+                                <FaCreditCard /> {payingBookingId === (b.id || b.referenceCode) ? t('common.loading', 'Loading...') : t('booking.payNow', 'Pay Now')}
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => setSelectedInvoiceBooking(b)}

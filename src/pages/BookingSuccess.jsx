@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaCheckCircle, FaFileInvoiceDollar, FaTimesCircle, FaSpinner } from 'react-icons/fa';
+import { FaCheckCircle, FaFileInvoiceDollar, FaTimesCircle, FaSpinner, FaClock } from 'react-icons/fa';
 import { m } from 'framer-motion';
 import api from '../utils/api';
 import InvoiceModal from '../components/booking/InvoiceModal';
@@ -21,7 +21,8 @@ const BookingSuccess = () => {
   const callbackAuthCode = searchParams.get('auth_code');
   const bookingId = searchParams.get('booking_id') || searchParams.get('bookingId') || searchParams.get('referenceCode');
 
-  const [paymentStatus, setPaymentStatus] = useState('loading'); // loading, SUCCEEDED, PENDING, FAILED
+  const [paymentStatus, setPaymentStatus] = useState('loading'); // loading, SUCCEEDED, PENDING, FAILED, PENDING_TIMEOUT
+  const [retryTrigger, setRetryTrigger] = useState(0);
   const [invoiceNumber, setInvoiceNumber] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [bookingData, setBookingData] = useState(null);
@@ -91,7 +92,7 @@ const BookingSuccess = () => {
               pollCount++;
               timerId = setTimeout(verifyStatus, 1500);
             } else {
-              setPaymentStatus('FAILED');
+              setPaymentStatus('PENDING_TIMEOUT');
             }
           } else {
             setPaymentStatus('FAILED');
@@ -116,6 +117,7 @@ const BookingSuccess = () => {
     callbackStatus,
     callbackMessage,
     callbackSignature,
+    retryTrigger,
   ]);
 
   return (
@@ -136,6 +138,44 @@ const BookingSuccess = () => {
             <p className="text-body-md text-ivory-300 mb-8 leading-relaxed">
               {t('payment.verifyingDesc', 'Please wait while we confirm your payment status.')}
             </p>
+          </div>
+        ) : paymentStatus === 'PENDING_TIMEOUT' ? (
+          <div>
+            <div className="w-24 h-24 bg-gradient-to-br from-amber-500/20 to-amber-700/20 border border-amber-500/40 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaClock className="text-amber-400 text-4xl" />
+            </div>
+            <h1 className="text-display-md font-display font-semibold text-ivory-50 mb-4">
+              {t('payment.pendingConfirmationTitle', 'Payment Awaiting Gateway Confirmation')}
+            </h1>
+            <p className="text-body-md text-ivory-300 mb-4 leading-relaxed">
+              {t(
+                'payment.pendingConfirmationDesc',
+                'Your payment is being processed by the banking network. Once verified, your booking will automatically be confirmed and your receipt emailed to you.'
+              )}
+            </p>
+            {bookingData?.referenceCode && (
+              <p className="text-caption font-mono text-gold-400 mb-6">
+                Ref: #{bookingData.referenceCode}
+              </p>
+            )}
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setPaymentStatus('loading');
+                  setRetryTrigger((prev) => prev + 1);
+                }}
+                className="w-full px-6 py-4 bg-gradient-to-r from-gold-500 to-gold-700 text-obsidian-900 font-bold rounded-xl shadow-[0_0_20px_rgba(201,162,39,0.2)] hover:scale-[1.02] transition-transform text-[13px] uppercase tracking-[1.5px] cursor-pointer"
+              >
+                {t('payment.checkAgain', 'Check Status Again')}
+              </button>
+              <Link
+                to="/account/bookings"
+                className="w-full px-6 py-3.5 bg-white/5 border border-white/10 text-ivory-200 font-medium rounded-xl hover:bg-white/10 transition-colors text-[13px] uppercase tracking-[1.5px]"
+              >
+                {t('user.viewBookings', 'View In My Bookings')}
+              </Link>
+            </div>
           </div>
         ) : paymentStatus === 'FAILED' ? (
           <div>

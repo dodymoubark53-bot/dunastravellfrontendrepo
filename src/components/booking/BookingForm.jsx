@@ -78,6 +78,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
 
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
+  const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
   const [langOpen, setLangOpen] = useState(null);
   const [activityOpen, setActivityOpen] = useState(false);
   const [inqActivityOpen, setInqActivityOpen] = useState(false);
@@ -527,6 +528,13 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
         try { localStorage.removeItem('dunas_guest_token'); } catch {}
       }
 
+      // Fast-path redirect if backend initiated payment directly and returned checkout URL
+      const directPayUrl = data?.paymentUrl || data?.sessionUrl || data?.data?.paymentUrl || data?.data?.sessionUrl;
+      if (directPayUrl) {
+        redirectToPayLinkCheckout(directPayUrl);
+        return;
+      }
+
       const bookingResultData = { ...data, type: 'booking' };
       if ((data?.id || data?.referenceCode) && data?.paymentRequired !== false) {
         try {
@@ -554,6 +562,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
         }
       }
 
+      bookingResultData.paymentPending = true;
       setBookingResult(bookingResultData);
       setStatus('success');
     } catch (err) {
@@ -616,6 +625,29 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
     }
   };
 
+  const handlePayNow = async () => {
+    try {
+      setIsInitiatingPayment(true);
+      setError('');
+      const targetId = bookingResult?.id || bookingResult?.data?.id;
+      const guestToken = typeof window !== 'undefined' ? sessionStorage.getItem('dunas_guest_token') : undefined;
+      const payData = await api.post('/payments/initiate', {
+        bookingId: targetId,
+        guestToken: guestToken || undefined,
+      });
+      const sessionUrl = payData?.sessionUrl || payData?.url;
+      if (sessionUrl) {
+        redirectToPayLinkCheckout(sessionUrl);
+        return;
+      }
+      setError('Payment URL could not be retrieved. Please try again or contact support.');
+    } catch (err) {
+      setError(err?.message || 'Payment initiation failed. Please try again.');
+    } finally {
+      setIsInitiatingPayment(false);
+    }
+  };
+
   return (
     <div
       className="bg-[#121118]/95 backdrop-blur-xl text-ivory-50 rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.55)] border border-[rgba(201,162,39,0.22)] hover:border-gold-500/40 transition-all duration-300 overflow-hidden"
@@ -631,52 +663,69 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
           >
             <div
               className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
-                bookingResult.paymentUnavailable
-                  ? 'bg-gradient-to-br from-amber-500 to-amber-700 shadow-[0_0_30px_rgba(245,158,11,0.35)] ring-amber-500/20'
-                  : 'bg-gradient-to-br from-gold-500 to-gold-700 shadow-[0_0_30px_rgba(201,162,39,0.35)] ring-gold-500/20'
+                bookingResult.type === 'inquiry'
+                  ? 'bg-gradient-to-br from-gold-500 to-gold-700 shadow-[0_0_30px_rgba(201,162,39,0.35)] ring-gold-500/20'
+                  : 'bg-gradient-to-br from-amber-500 to-amber-700 shadow-[0_0_30px_rgba(245,158,11,0.35)] ring-amber-500/20'
               }`}
             >
-              {bookingResult.paymentUnavailable ? (
-                <FaClock className="text-obsidian-900 text-2xl" />
-              ) : (
+              {bookingResult.type === 'inquiry' ? (
                 <FaCheckCircle className="text-obsidian-900 text-2xl" />
+              ) : (
+                <FaClock className="text-obsidian-900 text-2xl" />
               )}
             </div>
             <span
               className={`text-[11px] font-mono uppercase tracking-widest block mb-1 ${
-                bookingResult.paymentUnavailable ? 'text-amber-400' : 'text-gold-400'
+                bookingResult.type === 'inquiry' ? 'text-gold-400' : 'text-amber-400'
               }`}
             >
-              Ref: #{bookingResult.referenceCode || bookingResult.id || (bookingResult.paymentUnavailable ? 'PENDING' : 'CONFIRMED')}
+              Ref: #{bookingResult.referenceCode || bookingResult.id || 'PENDING'}
             </span>
             <h3 className="text-display-sm text-ivory-50 mb-2 font-display">
-              {bookingResult.paymentUnavailable
-                ? t('payment.unavailableTitle', 'Payment Unavailable — Booking Pending')
-                : bookingResult.type === 'booking'
-                  ? t('booking.created', 'Booking Created')
-                  : t('booking.inquirySent', 'Inquiry Sent')}
+              {bookingResult.type === 'inquiry'
+                ? t('booking.inquirySent', 'Inquiry Sent')
+                : bookingResult.paymentUnavailable
+                  ? t('payment.unavailableTitle', 'Payment Unavailable — Booking Pending')
+                  : t('booking.created', 'Booking Created')}
             </h3>
             <p className="text-body-sm text-ivory-300 max-w-sm mx-auto leading-relaxed">
-              {bookingResult.paymentUnavailable
-                ? t(
-                    'payment.unavailableDesc',
-                    'Payment is currently unavailable. Your booking has not been confirmed. Our team will contact you shortly with payment details.'
-                  )
-                : t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')}
+              {bookingResult.type === 'inquiry'
+                ? t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')
+                : bookingResult.paymentUnavailable
+                  ? t(
+                      'payment.unavailableDesc',
+                      'Payment is currently unavailable. Your booking has not been confirmed. Our team will contact you shortly with payment details.'
+                    )
+                  : t(
+                      'booking.pendingPaymentDesc',
+                      'Your booking reservation has been created. To confirm your journey, please complete payment.'
+                    )}
             </p>
 
             {bookingResult.type === 'booking' && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowInvoice(true);
-                }}
-                className="mt-5 px-6 py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] hover:scale-105 active:scale-95 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center gap-2 cursor-pointer"
-              >
-                <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5 w-full max-w-sm">
+                {!bookingResult.paymentUnavailable && (
+                  <button
+                    type="button"
+                    onClick={handlePayNow}
+                    disabled={isInitiatingPayment}
+                    className="w-full sm:w-auto flex-1 px-6 py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] hover:scale-105 active:scale-95 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    <FaShieldAlt size={14} /> {isInitiatingPayment ? t('common.loading', 'Redirecting...') : t('booking.payNow', 'Complete Payment Now')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowInvoice(true);
+                  }}
+                  className="w-full sm:w-auto px-5 py-3 bg-white/5 border border-gold-500/30 text-gold-400 hover:text-ivory-100 font-bold rounded-xl hover:bg-white/10 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
+                </button>
+              </div>
             )}
 
             {transportChoice && (
