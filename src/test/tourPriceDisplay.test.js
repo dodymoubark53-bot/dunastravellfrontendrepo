@@ -124,4 +124,15 @@ describe('tour price display scenarios', () => {
       isCustomPrice: false,
     });
   });
+
+  it('ensures extension packages hide price display', () => {
+    const hurghadaTour = {
+      id: 'hurghada-4d3n',
+      price: null,
+      priceDisplayMode: 'HIDDEN',
+    };
+    expect(getTourPriceDisplay(hurghadaTour)).toMatchObject({
+      isPriceHidden: true,
+    });
+  });
 });

@@ -81,7 +81,7 @@ function buildExtensionTour(base, meta, t) {
     price: 0,
     basePriceUsd: 0,
     currency: 'USD',
-    priceDisplayMode: 'PRICE',
+    priceDisplayMode: 'HIDDEN',
     bookingRules: null,
     accommodations: [],
     seasonRules: [],

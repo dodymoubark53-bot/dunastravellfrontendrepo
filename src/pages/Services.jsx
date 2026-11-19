@@ -244,8 +244,12 @@ const Services = () => {
                           <p className="text-body-sm text-obsidian-600 dark:text-ivory-300 line-clamp-2 mb-6">{resolveLocalizedText(item.shortDesc, t, lang)}</p>
                           <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
                             <div>
-                              <span className="text-caption text-obsidian-400 dark:text-ivory-400 block">{t('tourCard.from', 'From')}</span>
-                              <span className="text-body-lg font-extrabold text-obsidian-900 dark:text-gold-400">{formatPrice(item.category === 'hotels' ? 0 : item.price)}</span>
+                              {item.priceDisplayMode !== 'HIDDEN' && item.category !== 'extension' && (item.category === 'hotels' || item.price > 0) && (
+                                <>
+                                  <span className="text-caption text-obsidian-400 dark:text-ivory-400 block">{t('tourCard.from', 'From')}</span>
+                                  <span className="text-body-lg font-extrabold text-obsidian-900 dark:text-gold-400">{formatPrice(item.category === 'hotels' ? 0 : item.price)}</span>
+                                </>
+                              )}
                             </div>
                             <Button
                               variant="blue"

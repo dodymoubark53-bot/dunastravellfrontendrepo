@@ -21,7 +21,8 @@ export const EXTENSION_PACKAGES = [
     img: 'https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg',
     descKey: 'trip.hurghada.day1.desc',
     descDefault: 'Transfer to Cairo Airport and board flight to Hurghada. Enjoy 3 nights all-inclusive resort stay.',
-    price: 0
+    price: 0,
+    priceDisplayMode: 'HIDDEN'
   },
   {
     id: 'sharm-4d3n',
@@ -34,7 +35,8 @@ export const EXTENSION_PACKAGES = [
     img: 'https://nileholiday.com/wp-content/uploads/2019/10/sharm-el-sheikh-top-attractions-1-1920x750.jpg',
     descKey: 'trip.sharm.day1.desc',
     descDefault: 'Transfer to Cairo Airport and board flight to Sharm El Sheikh. 3 nights all-inclusive stay & Sinai desert safari options.',
-    price: 0
+    price: 0,
+    priceDisplayMode: 'HIDDEN'
   },
   {
     id: 'siwa-oasis-alexandria',
@@ -47,7 +49,8 @@ export const EXTENSION_PACKAGES = [
     img: '/imgs/services/service-317.webp',
     descKey: 'tour_siwa_summary',
     descDefault: 'Cairo → Wadi El Natroun → Marsa Matruh → Siwa → Alexandria → Cairo',
-    price: 0
+    price: 0,
+    priceDisplayMode: 'HIDDEN'
   }
 ];
 
@@ -64,7 +67,8 @@ export default function ExtensionTours() {
       overview: t(pkg.descKey, pkg.descDefault),
       destination: t(pkg.destinationsKey, pkg.destinationsDefault),
       duration: t(pkg.durationKey, pkg.durationDefault),
-      price: pkg.price || null,
+      price: null,
+      priceDisplayMode: pkg.priceDisplayMode || 'HIDDEN',
       rating: 5.0,
       minPax: '2+',
       badge: t('extensions.addOnAvailable', 'Add-on'),

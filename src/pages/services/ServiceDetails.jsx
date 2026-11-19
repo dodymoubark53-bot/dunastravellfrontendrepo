@@ -564,8 +564,12 @@ const ServiceDetails = () => {
                 ))}
                 <span className="text-ivory-50 ml-2 text-body-sm font-medium">{serviceRating}</span>
               </div>
-              <div className="text-[#F5EDD6] text-caption uppercase tracking-wider mb-1">{t('tourCard.startingFrom', 'Starting From')}</div>
-              <div className="text-display-md text-ivory-50">{formatPrice(service.price)}</div>
+              {service.priceDisplayMode !== 'HIDDEN' && service.category !== 'extension' && (service.category === 'hotels' || service.price > 0) && (
+                <>
+                  <div className="text-[#F5EDD6] text-caption uppercase tracking-wider mb-1">{t('tourCard.startingFrom', 'Starting From')}</div>
+                  <div className="text-display-md text-ivory-50">{formatPrice(service.price)}</div>
+                </>
+              )}
             </m.div>
           </m.div>
         </section>
@@ -693,8 +697,12 @@ const ServiceDetails = () => {
                     <p className="text-body-sm text-obsidian-500 line-clamp-2 mb-6">{translateData(relService.shortDesc, relService.shortDesc)}</p>
                     <div className="flex justify-between items-center mt-auto pt-4 border-t border-obsidian-900/10">
                       <div>
-                        <span className="text-caption text-obsidian-300 block">{t('tourCard.from', 'From')}</span>
-                        <span className="text-body-lg font-semibold text-obsidian-900">{formatPrice(relService.price)}</span>
+                        {relService.priceDisplayMode !== 'HIDDEN' && relService.category !== 'extension' && (relService.category === 'hotels' || relService.price > 0) && (
+                          <>
+                            <span className="text-caption text-obsidian-300 block">{t('tourCard.from', 'From')}</span>
+                            <span className="text-body-lg font-semibold text-obsidian-900">{formatPrice(relService.price)}</span>
+                          </>
+                        )}
                       </div>
                       <Link to={['hurghada-4d3n', 'sharm-4d3n', 'siwa-oasis-alexandria'].includes(relService.slug) ? `/trips/${relService.slug}` : `/programs/${relService.category}/${relService.slug}`}>
                         <Button variant="outline-gold" className="px-4 py-2 text-sm">{t('tourCard.viewDetails', 'View Details')}</Button>

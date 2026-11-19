@@ -19,6 +19,7 @@ export const HONEYMOON_PACKAGES = [
     img: 'https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp',
     taglineKey: 'honeymooners.egyptTagline',
     taglineDefault: 'A perfect trip to celebrate love, combining history, culture, romance, and unforgettable moments on the Red Sea.',
+    priceDisplayMode: 'HIDDEN',
   }
 ];
 
@@ -36,6 +37,7 @@ export default function Honeymooners() {
       destination: pkg.destinations,
       duration: pkg.duration,
       price: null,
+      priceDisplayMode: pkg.priceDisplayMode || 'HIDDEN',
       rating: 5.0,
       minPax: '2+',
       badge: t('honeymooners.featured', 'Featured'),
