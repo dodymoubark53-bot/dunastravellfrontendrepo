@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
@@ -70,6 +70,22 @@ const SEOHead = ({
       : [schema]
     : [defaultSchema];
 
+  // Canonical is managed directly on the existing <link> instead of through
+  // Helmet. Prerendered tour pages already ship the correct tag in the raw
+  // HTML; this keeps that tag (and prevents a duplicate from being injected)
+  // while still updating it if the route/language changes client-side.
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const links = Array.from(document.head.querySelectorAll('link[rel="canonical"]'));
+    const canonicalLink = links[0] || document.createElement('link');
+    if (canonicalLink.getAttribute('rel') !== 'canonical') canonicalLink.setAttribute('rel', 'canonical');
+    canonicalLink.setAttribute('href', canonicalUrl);
+    canonicalLink.removeAttribute('data-rh');
+    if (!canonicalLink.parentNode) document.head.appendChild(canonicalLink);
+    links.slice(1).forEach((extra) => extra.remove());
+    return undefined;
+  }, [canonicalUrl]);
+
   const currentOgLocale = LOCALE_OG_MAP[currentLang] || 'en_US';
   const alternateLocales = SUPPORTED_LOCALES.filter((l) => l !== currentLang).map(
     (l) => LOCALE_OG_MAP[l] || l
@@ -81,9 +97,6 @@ const SEOHead = ({
       <title>{pageTitle}</title>
       <meta name="description" content={pageDesc} />
       <meta name="keywords" content={metaKeywords} />
-
-      {/* Canonical URL */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Multilingual Hreflang Tags */}
       {SUPPORTED_LOCALES.map((lang) => (
@@ -112,7 +125,7 @@ const SEOHead = ({
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDesc} />
       <meta property="og:image" content={ogImage} />
-      <meta property="og:url" content={currentUrl} />
+      <meta property="og:url" content={canonicalUrl || currentUrl} />
       <meta property="og:locale" content={currentOgLocale} />
       {alternateLocales.map((altLoc) => (
         <meta key={`og-alt-${altLoc}`} property="og:locale:alternate" content={altLoc} />

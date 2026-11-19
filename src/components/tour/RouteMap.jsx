@@ -692,9 +692,12 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
       map.scrollWheelZoom.enable();
     });
 
+    // Original full OpenStreetMap basemap: streets, roads, cities and natural
+    // features, exactly as it looked before the label-free experiments.
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '',
-      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      subdomains: 'abc',
     }).addTo(map);
 
     mapRef.current = map;
@@ -960,7 +963,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
             <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping flex-shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[9px] sm:text-[10px] font-black uppercase text-blue-400 tracking-wider truncate">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase text-white tracking-wider truncate">
                   {currentLocation?.dayLabel || `${t('tour.stop', 'Stop')} ${activeLocationIndex + 1}`}
                 </span>
                 <span className="text-xs sm:text-sm font-extrabold truncate">{currentLocation?.name}</span>
@@ -1004,14 +1007,19 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
         ) : (
           <div ref={mapContainerRef} className="w-full h-full touch-pan-x touch-pan-y" style={{ direction: 'ltr' }} />
         )}
+
+        {/* Basemap credit (Leaflet attribution UI is disabled for the clean design) */}
+        <span className="absolute bottom-1 right-1 z-[500] bg-slate-950/70 text-white/60 px-1.5 py-0.5 rounded text-[8px] leading-none select-text">
+          &copy; OpenStreetMap contributors
+        </span>
       </div>
 
       {/* Interactive Day-by-Day Journey Route Timeline */}
       {locations.length > 0 && (
         <div className="mt-4 sm:mt-6 w-full bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-xl">
           <div className="flex items-center justify-between mb-3 px-1">
-            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gold-600 dark:text-gold-400 flex items-center gap-1.5">
-              <span>🗺️</span> <span>{t('tour.dayByDayRoute', 'Day-by-Day Journey Route')}</span>
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-1.5">
+              <span>🗺️</span> <span>{t('tour.dayByDayRoute', 'Day-By-Day Journey Route')}</span>
             </span>
 
             {/* Navigation Arrows Replacing Scrollbar */}
@@ -1030,7 +1038,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
               >
                 {i18n.language === 'ar' ? '◀' : '▶'}
               </button>
-              <span className="text-[10px] sm:text-xs text-slate-400 font-extrabold bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700 ml-1">
+              <span className="text-[10px] sm:text-xs text-white font-extrabold bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700 ml-1">
                 {locations.length} {t('tour.stops', 'Stops')}
               </span>
             </div>
@@ -1059,13 +1067,11 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
                   </span>
                   <div className="text-right flex flex-col min-w-0">
                     {loc.dayLabel && (
-                      <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${
-                        isActive ? 'text-blue-100' : 'text-blue-400'
-                      }`}>
+                      <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-white">
                         {loc.dayLabel}
                       </span>
                     )}
-                    <span className="text-xs sm:text-sm font-extrabold whitespace-nowrap">{loc.name}</span>
+                    <span className="text-xs sm:text-sm font-extrabold whitespace-nowrap text-white">{loc.name}</span>
                   </div>
                 </button>
               );
@@ -1081,7 +1087,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
                     {activeLocationIndex + 1}
                   </span>
                   <div className="min-w-0">
-                    <span className="text-[10px] sm:text-xs font-black uppercase text-gold-500 tracking-wider block">
+                    <span className="text-[10px] sm:text-xs font-black uppercase text-white tracking-wider block">
                       {`${t('tour.stop', 'Stop')} ${activeLocationIndex + 1}${currentLocation.dayLabel ? ` · ${currentLocation.dayLabel}` : ''}`}
                     </span>
                     <h4 className="text-base sm:text-lg md:text-xl font-black text-white flex items-center gap-1.5 truncate">

@@ -314,6 +314,9 @@ export default function ReviewsMap({ tourId }) {
 
   const averageRating = Number(summary.averageRating || 5.0).toFixed(1);
   const activeRating = hoverRating || form.rating;
+  // Hide the rating summary until at least one real review exists
+  // (prevents showing a misleading "5.0 / Based on 0 verified reviews")
+  const hasReviews = reviews.length > 0;
 
   return (
     <section
@@ -335,13 +338,19 @@ export default function ReviewsMap({ tourId }) {
           <h2 className="mb-4 text-3xl md:text-5xl font-medium tracking-tight text-white">
             {t('reviews.titleHeading', 'What People Say')}
           </h2>
-          <div className="flex items-center justify-center gap-3">
-            <Stars rating={Math.round(Number(averageRating))} readOnly size="lg" />
-            <span className="text-3xl font-black text-amber-400 tracking-tight">{averageRating}</span>
-          </div>
-          <p className="mt-2 text-sm text-white/70">
-            {t('reviews.count', 'Based on {{count}} verified reviews', { count: summary.totalReviews })}
-          </p>
+          {hasReviews && (
+            <>
+              <div className="flex items-center justify-center gap-3">
+                <Stars rating={Math.round(Number(averageRating))} readOnly size="lg" />
+                <span className="text-3xl font-black text-amber-400 tracking-tight">{averageRating}</span>
+              </div>
+              <p className="mt-2 text-sm text-white/70">
+                {t('reviews.count', 'Based on {{count}} verified reviews', {
+                  count: Math.max(Number(summary.totalReviews) || 0, reviews.length),
+                })}
+              </p>
+            </>
+          )}
           <div className="w-20 h-[3px] bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto mt-6 rounded-full" />
         </header>
 
@@ -549,7 +558,7 @@ export default function ReviewsMap({ tourId }) {
                 readOnly={false}
                 size="xl"
               />
-              <span className="text-lg font-black text-amber-400 font-mono">{form.rating} / 5</span>
+              <span className="text-lg font-black text-amber-400 font-mono">{activeRating} / 5</span>
             </div>
           </div>
 

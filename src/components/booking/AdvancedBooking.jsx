@@ -476,11 +476,11 @@ export default function AdvancedBooking({
           {activeTab === 'booking' ? (
             /* Booking Form */
             <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              {/* Dates - Each on its own full line */}
+              <div className="space-y-4">
+                <div className="w-full">
                   <label htmlFor="modal-arrival-date" className={labelStyle}>
-                    <FaCalendarAlt className="text-gold-400" size={11} />
+                    <FaCalendarAlt className="text-gold-400" size={12} />
                     {t('booking.arrivalDate', 'Arrival Date')}
                   </label>
                   <input
@@ -494,9 +494,9 @@ export default function AdvancedBooking({
                     className={`${inputStyle} text-left font-mono [direction:ltr]`}
                   />
                 </div>
-                <div>
+                <div className="w-full">
                   <label htmlFor="modal-departure-date" className={labelStyle}>
-                    <FaCalendarAlt className="text-gold-400" size={11} />
+                    <FaCalendarAlt className="text-gold-400" size={12} />
                     {t('booking.departureDate', 'Departure Date')}
                   </label>
                   <input
@@ -705,35 +705,33 @@ export default function AdvancedBooking({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="modal-email" className={labelStyle}>
-                      {t('booking.email', 'Email Address')}
-                    </label>
-                    <input
-                      id="modal-email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => updateField('email', e.target.value)}
-                      placeholder="client@luxury.com"
-                      className={inputStyle}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="modal-phone" className={labelStyle}>
-                      {t('booking.phone', 'Phone Number')}
-                    </label>
-                    <CountryPhoneInput
-                      id="modal-phone"
-                      name="phone"
-                      required
-                      value={formData.phone}
-                      onChange={(value) => updateField('phone', value)}
-                      placeholder="+1 234 567 890"
-                      inputClassName={inputStyle}
-                    />
-                  </div>
+                <div className="w-full">
+                  <label htmlFor="modal-email" className={labelStyle}>
+                    {t('booking.email', 'Email Address')}
+                  </label>
+                  <input
+                    id="modal-email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    placeholder="client@luxury.com"
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="w-full">
+                  <label htmlFor="modal-phone" className={labelStyle}>
+                    {t('booking.phone', 'Phone Number')}
+                  </label>
+                  <CountryPhoneInput
+                    id="modal-phone"
+                    name="phone"
+                    required
+                    value={formData.phone}
+                    onChange={(value) => updateField('phone', value)}
+                    placeholder="+1 234 567 890"
+                    inputClassName={inputStyle}
+                  />
                 </div>
 
                 <div>
@@ -906,35 +904,33 @@ export default function AdvancedBooking({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="modal-inq-email" className={labelStyle}>
-                    {t('booking.email', 'Email Address')}
-                  </label>
-                  <input
-                    id="modal-inq-email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    placeholder="client@luxury.com"
-                    className={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="modal-inq-phone" className={labelStyle}>
-                    {t('booking.phone', 'Phone Number')}
-                  </label>
-                  <CountryPhoneInput
-                    id="modal-inq-phone"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={(value) => updateField('phone', value)}
-                    placeholder="+1 234 567 890"
-                    inputClassName={inputStyle}
-                  />
-                </div>
+              <div className="w-full">
+                <label htmlFor="modal-inq-email" className={labelStyle}>
+                  {t('booking.email', 'Email Address')}
+                </label>
+                <input
+                  id="modal-inq-email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => updateField('email', e.target.value)}
+                  placeholder="client@luxury.com"
+                  className={inputStyle}
+                />
+              </div>
+              <div className="w-full">
+                <label htmlFor="modal-inq-phone" className={labelStyle}>
+                  {t('booking.phone', 'Phone Number')}
+                </label>
+                <CountryPhoneInput
+                  id="modal-inq-phone"
+                  name="phone"
+                  required
+                  value={formData.phone}
+                  onChange={(value) => updateField('phone', value)}
+                  placeholder="+1 234 567 890"
+                  inputClassName={inputStyle}
+                />
               </div>
 
               <div>

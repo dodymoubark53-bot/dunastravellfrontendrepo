@@ -11,7 +11,7 @@ import { fadeInUp } from '../../animations/variants';
 import BookingForm from '../../components/booking/BookingForm';
 import { useCurrency } from '../../context/CurrencyContext';
 
-import SEOHead from '../../components/seo/SEOHead';
+import SEOHead, { SITE_URL } from '../../components/seo/SEOHead';
 import SuggestedTours from '../../components/tour/SuggestedTours';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 import TripHotelSection from '../../components/tour/TripHotelSection';
@@ -138,6 +138,13 @@ const TourDetailsView = ({ tour }) => {
   const destinationName = getDestinationName(destinationSlug, t, lang);
   const destinationUrl = getDestinationUrl(destinationSlug);
 
+  // Every tour owns a single, stable canonical URL. Route aliases such as
+  // /programs/*, /turkey/*, /classic/* ... all point back to /tours/<slug>
+  // so Google consolidates signals on one page instead of competing URLs.
+  const canonicalUrl = tour.slug
+    ? `${SITE_URL}/tours/${tour.slug}`
+    : undefined;
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -153,6 +160,7 @@ const TourDetailsView = ({ tour }) => {
       <SEOHead
         title={title}
         description={overview}
+        canonical={canonicalUrl}
         ogImage={heroImg}
         ogType="product"
         schema={[tourSchema, breadcrumbSchema]}

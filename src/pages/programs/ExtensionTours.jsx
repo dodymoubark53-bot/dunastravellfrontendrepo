@@ -8,6 +8,8 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 import DurationSortFilter from '../../components/common/DurationSortFilter';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import { useTours } from '../../hooks/useTours';
 
 export const EXTENSION_PACKAGES = [
   {
@@ -21,7 +23,7 @@ export const EXTENSION_PACKAGES = [
     img: 'https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg',
     descKey: 'trip.hurghada.day1.desc',
     descDefault: 'Transfer to Cairo Airport and board flight to Hurghada. Enjoy 3 nights all-inclusive resort stay.',
-    price: 0,
+    price: null,
     priceDisplayMode: 'HIDDEN'
   },
   {
@@ -35,7 +37,7 @@ export const EXTENSION_PACKAGES = [
     img: 'https://nileholiday.com/wp-content/uploads/2019/10/sharm-el-sheikh-top-attractions-1-1920x750.jpg',
     descKey: 'trip.sharm.day1.desc',
     descDefault: 'Transfer to Cairo Airport and board flight to Sharm El Sheikh. 3 nights all-inclusive stay & Sinai desert safari options.',
-    price: 0,
+    price: null,
     priceDisplayMode: 'HIDDEN'
   },
   {
@@ -49,7 +51,7 @@ export const EXTENSION_PACKAGES = [
     img: '/imgs/services/service-317.webp',
     descKey: 'tour_siwa_summary',
     descDefault: 'Cairo → Wadi El Natroun → Marsa Matruh → Siwa → Alexandria → Cairo',
-    price: 0,
+    price: null,
     priceDisplayMode: 'HIDDEN'
   }
 ];
@@ -57,9 +59,17 @@ export const EXTENSION_PACKAGES = [
 export default function ExtensionTours() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
+  const { tours: liveTours, loading } = useTours({ category: 'extension', limit: 50 });
   const [displayTours, setDisplayTours] = React.useState([]);
 
   const adaptedTours = React.useMemo(() => {
+    if (liveTours && liveTours.length > 0) {
+      return liveTours.map((tour) => ({
+        ...tour,
+        badge: tour.badge || t('extensions.addOnAvailable', 'Add-on'),
+        minPax: tour.minPax || '2+',
+      }));
+    }
     return EXTENSION_PACKAGES.map((pkg) => ({
       id: pkg.id,
       slug: pkg.id,
@@ -75,7 +85,7 @@ export default function ExtensionTours() {
       heroImage: pkg.img,
       images: [pkg.img],
     }));
-  }, [t]);
+  }, [liveTours, t]);
 
   const toursToRender = displayTours.length > 0 ? displayTours : adaptedTours;
 
@@ -150,30 +160,40 @@ export default function ExtensionTours() {
           </p>
         </div>
 
-        {adaptedTours.length > 0 && (
-          <DurationSortFilter
-            tours={adaptedTours}
-            onFilterChange={setDisplayTours}
-            className="mb-8"
-          />
-        )}
+        {adaptedTours.length > 0 ? (
+          <>
+            <DurationSortFilter
+              tours={adaptedTours}
+              onFilterChange={setDisplayTours}
+              className="mb-8"
+            />
 
-        <m.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-        >
-          {toursToRender.map((adaptedTour) => (
-            <m.div key={adaptedTour.id} variants={fadeInUp}>
-              <TourCard
-                tour={adaptedTour}
-                linkBase="/programs/extension"
-              />
+            <m.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+            >
+              {toursToRender.map((adaptedTour) => (
+                <m.div key={adaptedTour.id} variants={fadeInUp}>
+                  <TourCard
+                    tour={adaptedTour}
+                    linkBase="/programs/extension"
+                  />
+                </m.div>
+              ))}
             </m.div>
-          ))}
-        </m.div>
+          </>
+        ) : loading ? (
+          <SkeletonLoader count={3} type="card" />
+        ) : (
+          <div className="text-center py-16 bg-ivory-50 rounded-xl border border-gold-500/10 p-8 shadow-card max-w-xl mx-auto">
+            <p className="text-body-md text-obsidian-500">
+              {t('extensions.noPackages', 'No extension packages available at the moment.')}
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );

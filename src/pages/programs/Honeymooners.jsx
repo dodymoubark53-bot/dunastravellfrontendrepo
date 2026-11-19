@@ -8,6 +8,8 @@ import { staggerContainer, fadeInUp } from '../../animations/variants';
 import TourCard from '../../components/tour/TourCard';
 import LuxuryHeroSection from '../../components/common/LuxuryHeroSection';
 import DurationSortFilter from '../../components/common/DurationSortFilter';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
+import { useTours } from '../../hooks/useTours';
 
 export const HONEYMOON_PACKAGES = [
   {
@@ -26,9 +28,17 @@ export const HONEYMOON_PACKAGES = [
 export default function Honeymooners() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
+  const { tours: liveTours, loading } = useTours({ category: 'honeymoon', limit: 50 });
   const [displayTours, setDisplayTours] = React.useState([]);
 
   const adaptedTours = React.useMemo(() => {
+    if (liveTours && liveTours.length > 0) {
+      return liveTours.map((tour) => ({
+        ...tour,
+        badge: tour.badge || t('honeymooners.featured', 'Featured'),
+        minPax: tour.minPax || '2+',
+      }));
+    }
     return HONEYMOON_PACKAGES.map((pkg) => ({
       id: pkg.id,
       slug: pkg.id,
@@ -44,7 +54,7 @@ export default function Honeymooners() {
       heroImage: pkg.img,
       images: [pkg.img],
     }));
-  }, [t]);
+  }, [liveTours, t]);
 
   const toursToRender = displayTours.length > 0 ? displayTours : adaptedTours;
 
@@ -68,7 +78,7 @@ export default function Honeymooners() {
         highlights={[
           t('honeymooners.tag1', '🍾 استقبال بالورد وعشاء رومانسي خاص'),
           t('honeymooners.tag2', '📸 جلسات تصوير احترافية للزوجين'),
-          t('honeymooners.tag3', '🏨 ترقية مجانية للغرف والأجنحة (حسب الإمكانية)')
+          t('honeymooners.tag3', '🏨 ترقية الغرف والأجنحة (حسب الإمكانية)')
         ]}
         primaryCta={{
           text: t('honeymooners.ctaPrimary', 'استكشف باقات شهر العسل ←'),
@@ -119,30 +129,40 @@ export default function Honeymooners() {
           </p>
         </div>
 
-        {adaptedTours.length > 0 && (
-          <DurationSortFilter
-            tours={adaptedTours}
-            onFilterChange={setDisplayTours}
-            className="mb-8"
-          />
-        )}
+        {adaptedTours.length > 0 ? (
+          <>
+            <DurationSortFilter
+              tours={adaptedTours}
+              onFilterChange={setDisplayTours}
+              className="mb-8"
+            />
 
-        <m.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-        >
-          {toursToRender.map((adaptedTour) => (
-            <m.div key={adaptedTour.id} variants={fadeInUp}>
-              <TourCard
-                tour={adaptedTour}
-                linkBase="/programs/honeymooners"
-              />
+            <m.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+            >
+              {toursToRender.map((adaptedTour) => (
+                <m.div key={adaptedTour.id} variants={fadeInUp}>
+                  <TourCard
+                    tour={adaptedTour}
+                    linkBase="/programs/honeymooners"
+                  />
+                </m.div>
+              ))}
             </m.div>
-          ))}
-        </m.div>
+          </>
+        ) : loading ? (
+          <SkeletonLoader count={3} type="card" />
+        ) : (
+          <div className="text-center py-16 bg-ivory-50 rounded-xl border border-gold-500/10 p-8 shadow-card max-w-xl mx-auto">
+            <p className="text-body-md text-obsidian-500">
+              {t('honeymooners.noPackages', 'No honeymoon packages available at the moment.')}
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );

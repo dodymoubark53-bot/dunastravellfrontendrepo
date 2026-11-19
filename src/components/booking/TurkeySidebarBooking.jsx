@@ -503,9 +503,9 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
           {tab === 'booking' ? (
             /* Booking Form */
             <form onSubmit={handleBookingSubmit} className="px-5 py-4 space-y-3.5">
-              {/* Dates Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              {/* Dates - Each on its own full line */}
+              <div className="space-y-3.5">
+                <div className="w-full">
                   <label htmlFor="arrival-date-input" className={labelStyle}>
                     <FaCalendarAlt className="inline mr-1.5 text-gold-400 text-[11px]" />
                     {t('booking.arrivalDate', 'Arrival Date')}
@@ -513,6 +513,7 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
                   <input
                     id="arrival-date-input"
                     type="date"
+                    lang="en-GB"
                     dir="ltr"
                     value={bookingForm.arrivalDate}
                     min={todayStr}
@@ -522,7 +523,7 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
                   />
                 </div>
 
-                <div>
+                <div className="w-full">
                   <label htmlFor="departure-date-input" className={labelStyle}>
                     <FaCalendarAlt className="inline mr-1.5 text-gold-400 text-[11px]" />
                     {t('booking.departureDate', 'Departure Date')}
@@ -530,6 +531,7 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
                   <input
                     id="departure-date-input"
                     type="date"
+                    lang="en-GB"
                     dir="ltr"
                     value={bookingForm.departureDate}
                     min={bookingForm.arrivalDate || todayStr}
@@ -779,7 +781,10 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
                   required
                   className={inputStyle}
                 />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="w-full">
+                  <label htmlFor="contact-email" className={labelStyle}>
+                    {t('booking.email', 'Email')}
+                  </label>
                   <input
                     id="contact-email"
                     type="email"
@@ -789,6 +794,11 @@ export default function TurkeySidebarBooking({ tourTitle, durationDays, transpor
                     required
                     className={inputStyle}
                   />
+                </div>
+                <div className="w-full">
+                  <label htmlFor="contact-phone" className={labelStyle}>
+                    {t('booking.phone', 'Phone')}
+                  </label>
                   <CountryPhoneInput
                     id="contact-phone"
                     name="phone"

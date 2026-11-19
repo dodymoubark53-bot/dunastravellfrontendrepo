@@ -181,6 +181,37 @@ describe('TourDetails component', () => {
     expect(screen.getByText('$2600')).toBeInTheDocument();
   });
 
+  it('exposes a per-tour title and canonical URL pointing to /tours/:slug (SEO)', () => {
+    // Mirrors the prerendered HTML: the canonical is already in <head> and
+    // SEOHead must update it in place instead of adding a duplicate.
+    const prerenderedCanonical = document.createElement('link');
+    prerenderedCanonical.setAttribute('rel', 'canonical');
+    prerenderedCanonical.setAttribute('href', 'https://dunas-travel.com/tours/egypt-jordan-combined-14d');
+    document.head.appendChild(prerenderedCanonical);
+
+    try {
+      render(
+        <HelmetProvider>
+          <MemoryRouter initialEntries={['/tours/egypt-jordan-combined-14d']}>
+            <Routes>
+              <Route path="/tours/:slug" element={<TourDetails />} />
+            </Routes>
+          </MemoryRouter>
+        </HelmetProvider>
+      );
+
+      expect(document.title).toBe('Grand Egypt & Jordan Pilgrimage - 14 Days | Dunas Travel');
+
+      const canonicalLinks = document.head.querySelectorAll('link[rel="canonical"]');
+      expect(canonicalLinks).toHaveLength(1);
+      expect(canonicalLinks[0].getAttribute('href')).toBe(
+        'https://dunas-travel.com/tours/egypt-jordan-combined-14d'
+      );
+    } finally {
+      prerenderedCanonical.remove();
+    }
+  });
+
   it('serves width-capped, auto-compressed image variants for the hero and gallery (light payload)', () => {
     const { container } = render(
       <HelmetProvider>

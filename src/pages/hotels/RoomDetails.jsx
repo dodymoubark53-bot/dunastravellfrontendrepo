@@ -204,14 +204,14 @@ const RoomDetails = () => {
   }
 
   const roomAmenitiesList = [
-    { label: isAr ? 'إنترنت لاسلكي مجاني' : t('hotel.fac.wifi', 'Free Wi-Fi'), icon: <FaWifi className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'إنترنت لاسلكي فائق السرعة' : t('hotel.fac.wifi', 'High-Speed Wi-Fi'), icon: <FaWifi className="text-gold-500 text-lg" /> },
     { label: isAr ? 'تكييف هواء (بارد وساخن)' : t('hotel.fac.ac', 'Air conditioning (cold & heat)'), icon: <FaSnowflake className="text-gold-500 text-lg" /> },
     { label: isAr ? 'حمام خاص مع المستلزمات ومجفف شعر' : t('hotel.fac.bathroom', 'Private bathroom with amenities'), icon: <FaBath className="text-gold-500 text-lg" /> },
     { label: isAr ? 'ثلاجة صغيرة للغرفة مجهزة بالكامل (برسوم إضافية)' : t('hotel.fac.minibar', 'Mini bar — refrigerated, stocked (against charge)'), icon: <FaWineGlass className="text-gold-500 text-lg" /> },
     { label: isAr ? 'ماكينة قهوة وشاي في الغرفة مع تجديد يومي' : t('hotel.fac.coffee', 'Coffee & tea — daily refreshment basis'), icon: <FaCoffee className="text-gold-500 text-lg" /> },
     { label: isAr ? 'مفروشات وأغطية أسرة من القطن المصري 100٪' : t('hotel.fac.linen', '100% Egyptian cotton linen & bed covers'), icon: <FaBed className="text-gold-500 text-lg" /> },
     { label: isAr ? 'شاشة تلفزيون بقنوات متعددة اللغات: الإيطالية، الإسبانية، الإنجليزية، البرتغالية، الرياضية، الأطفال، العربية' : t('hotel.fac.tv', 'TV — Multi-language channels: Italian, Spanish, English, Portuguese, Sport, Kids, Arabic'), icon: <FaTv className="text-gold-500 text-lg" /> },
-    { label: isAr ? 'خزنة مجانية داخل الغرفة' : t('hotel.fac.safe', 'Free safe box'), icon: <FaLock className="text-gold-500 text-lg" /> },
+    { label: isAr ? 'خزنة آمنة داخل الغرفة' : t('hotel.fac.safe', 'In-Room Safe Box'), icon: <FaLock className="text-gold-500 text-lg" /> },
     { label: isAr ? 'مكواة وطاولة كي (عند الطلب)' : t('hotel.fac.iron', 'Iron & ironing board (upon request)'), icon: <FaShieldAlt className="text-gold-500 text-lg" /> },
     { label: isAr ? 'هاتف داخلي' : t('hotel.fac.phone', 'In-room phone'), icon: <FaPhoneAlt className="text-gold-500 text-lg" /> },
   ];
@@ -869,12 +869,14 @@ const RoomDetails = () => {
                       </label>
                       <input
                         type="date"
+                        lang="en-GB"
+                        dir="ltr"
                         name="checkInDate"
                         required
                         value={bookingForm.checkInDate}
                         min={todayStr}
                         onChange={handleInputChange}
-                        className="w-full p-3 bg-[#17233d] border border-blue-900/60 text-white text-xs outline-none focus:border-gold-400 rounded-xl"
+                        className="w-full p-3 bg-[#17233d] border border-blue-900/60 text-white text-xs outline-none focus:border-gold-400 rounded-xl font-mono text-left"
                       />
                     </div>
                     <div>
@@ -883,12 +885,14 @@ const RoomDetails = () => {
                       </label>
                       <input
                         type="date"
+                        lang="en-GB"
+                        dir="ltr"
                         name="checkOutDate"
                         required
                         value={bookingForm.checkOutDate}
                         min={bookingForm.checkInDate || todayStr}
                         onChange={handleInputChange}
-                        className="w-full p-3 bg-[#17233d] border border-blue-900/60 text-white text-xs outline-none focus:border-gold-400 rounded-xl"
+                        className="w-full p-3 bg-[#17233d] border border-blue-900/60 text-white text-xs outline-none focus:border-gold-400 rounded-xl font-mono text-left"
                       />
                     </div>
                   </div>

@@ -23,7 +23,7 @@ const TAG_FALLBACK_DICTIONARY = {
     pt: 'Sessões de Fotografia Profissional para Casais'
   },
   'honeymooners.tag3': {
-    ar: 'ترقية مجانية للغرف والأجنحة (حسب الإمكانية)',
+    ar: 'ترقية الغرف والأجنحة (حسب الإمكانية)',
     en: 'Complimentary Room & Suite Upgrade (Subject to Availability)',
     es: 'Mejora de Habitación y Suite Gratuita (Sujeto a Disponibilidad)',
     it: 'Upgrade Gratuito di Camera e Suite (Previa Disponibilità)',

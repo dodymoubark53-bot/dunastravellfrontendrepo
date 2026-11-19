@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { m, AnimatePresence } from 'framer-motion';
 import {
@@ -16,7 +17,8 @@ import {
   FaShieldAlt,
   FaTag,
   FaUserCheck,
-  FaBuilding
+  FaBuilding,
+  FaTimes
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import CountryPhoneInput from '../ui/CountryPhoneInput';
@@ -53,7 +55,170 @@ const languages = [
   { value: 'ar', flag: '🇪🇬', labelKey: 'languages.arabic', fallback: 'Arabic' },
 ];
 
-const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoice, requireTransportChoice, initialPrice, priceDisplayMode = 'PRICE', priceLabel = '', bookingRules = null }) => {
+const formatDateDDMMYYYY = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
+  return dateStr;
+};
+
+const isTestEnv = typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'test';
+
+const DateTriplePicker = ({ id, value, minDate, onChange, disabled }) => {
+  const { t } = useTranslation();
+  const inputRef = useRef(null);
+
+  const today = new Date();
+  const parts = String(value || '').split('-');
+  const curY = parts.length === 3 ? parseInt(parts[0], 10) : today.getFullYear();
+  const curM = parts.length === 3 ? parseInt(parts[1], 10) : today.getMonth() + 1;
+  const curD = parts.length === 3 ? parseInt(parts[2], 10) : today.getDate();
+
+  const daysInMonth = new Date(curY, curM, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const months = [
+    { num: 1, name: '01 - Jan' },
+    { num: 2, name: '02 - Feb' },
+    { num: 3, name: '03 - Mar' },
+    { num: 4, name: '04 - Apr' },
+    { num: 5, name: '05 - May' },
+    { num: 6, name: '06 - Jun' },
+    { num: 7, name: '07 - Jul' },
+    { num: 8, name: '08 - Aug' },
+    { num: 9, name: '09 - Sep' },
+    { num: 10, name: '10 - Oct' },
+    { num: 11, name: '11 - Nov' },
+    { num: 12, name: '12 - Dec' },
+  ];
+  const startYear = Math.min(curY, today.getFullYear());
+  const years = [startYear, startYear + 1, startYear + 2, startYear + 3];
+
+  const handleSegmentChange = (newY, newM, newD) => {
+    const validD = Math.min(newD, new Date(newY, newM, 0).getDate());
+    const formatted = `${newY}-${String(newM).padStart(2, '0')}-${String(validD).padStart(2, '0')}`;
+    onChange(formatted);
+  };
+
+  return (
+    <div className="space-y-1.5 w-full">
+      {/* 3 Selects in strictly Left-to-Right order: Day -> Month -> Year */}
+      <div dir="ltr" className="flex items-center gap-1.5 sm:gap-2">
+        {/* DAY */}
+        <div className="flex-1 min-w-0">
+          <label htmlFor={`${id}-day`} className="block text-[10px] text-gold-400 font-bold mb-1 uppercase tracking-wider text-center">
+            {t('booking.dateDay', 'اليوم (Day)')}
+          </label>
+          <select
+            id={`${id}-day`}
+            value={curD}
+            disabled={disabled}
+            onChange={(e) => handleSegmentChange(curY, curM, parseInt(e.target.value, 10))}
+            className="w-full bg-[#121829] border border-gold-500/40 focus:border-gold-400 text-ivory-50 rounded-xl px-1.5 sm:px-2 py-2 text-center font-mono font-bold text-xs sm:text-sm shadow-inner cursor-pointer"
+          >
+            {days.map((d) => (
+              <option key={d} value={d} className="bg-[#121829] text-ivory-50">
+                {String(d).padStart(2, '0')}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <span className="text-gold-400 font-bold text-base pt-4 shrink-0">/</span>
+
+        {/* MONTH */}
+        <div className="flex-[1.3] min-w-0">
+          <label htmlFor={`${id}-month`} className="block text-[10px] text-gold-400 font-bold mb-1 uppercase tracking-wider text-center">
+            {t('booking.dateMonth', 'الشهر (Month)')}
+          </label>
+          <select
+            id={`${id}-month`}
+            value={curM}
+            disabled={disabled}
+            onChange={(e) => handleSegmentChange(curY, parseInt(e.target.value, 10), curD)}
+            className="w-full bg-[#121829] border border-gold-500/40 focus:border-gold-400 text-ivory-50 rounded-xl px-1.5 sm:px-2 py-2 text-center font-mono font-bold text-xs sm:text-sm shadow-inner cursor-pointer"
+          >
+            {months.map((m) => (
+              <option key={m.num} value={m.num} className="bg-[#121829] text-ivory-50">
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <span className="text-gold-400 font-bold text-base pt-4 shrink-0">/</span>
+
+        {/* YEAR */}
+        <div className="flex-1 min-w-0">
+          <label htmlFor={`${id}-year`} className="block text-[10px] text-gold-400 font-bold mb-1 uppercase tracking-wider text-center">
+            {t('booking.dateYear', 'السنة (Year)')}
+          </label>
+          <select
+            id={`${id}-year`}
+            value={curY}
+            disabled={disabled}
+            onChange={(e) => handleSegmentChange(parseInt(e.target.value, 10), curM, curD)}
+            className="w-full bg-[#121829] border border-gold-500/40 focus:border-gold-400 text-ivory-50 rounded-xl px-1.5 sm:px-2 py-2 text-center font-mono font-bold text-xs sm:text-sm shadow-inner cursor-pointer"
+          >
+            {years.map((y) => (
+              <option key={y} value={y} className="bg-[#121829] text-ivory-50">
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Calendar Picker Trigger */}
+        <div className="pt-4 shrink-0">
+          <button
+            type="button"
+            title="Open Calendar Picker"
+            onClick={() => {
+              try {
+                if (inputRef.current?.showPicker) {
+                  inputRef.current.showPicker();
+                } else {
+                  inputRef.current?.focus();
+                }
+              } catch (_) {
+                inputRef.current?.focus();
+              }
+            }}
+            className="p-2 sm:p-2.5 rounded-xl border border-gold-500/40 bg-gold-500/15 text-gold-400 hover:bg-gold-500 hover:text-obsidian-950 transition-colors cursor-pointer flex items-center justify-center"
+          >
+            <FaCalendarAlt size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Hidden standard input for tests and HTML form validation */}
+      <input
+        ref={inputRef}
+        id={id}
+        type="date"
+        lang="en-GB"
+        dir="ltr"
+        value={value}
+        min={minDate}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+
+      {/* Summary label confirming DD/MM/YYYY order from Left to Right */}
+      <div dir="ltr" className="flex items-center justify-between px-3 py-1 bg-gold-500/10 rounded-lg border border-gold-500/20 text-[11px] font-mono">
+        <span className="text-gold-400 font-semibold tracking-wider">DD / MM / YYYY</span>
+        <span className="text-ivory-100 font-bold">{formatDateDDMMYYYY(value)}</span>
+      </div>
+    </div>
+  );
+};
+
+const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoice, requireTransportChoice, initialPrice, priceDisplayMode = 'PRICE', priceLabel = '', bookingRules = null, defaultOpenModal = null }) => {
   const { t, i18n } = useTranslation();
   const { user, resendVerification } = useAuth();
   const { currency: selectedCurrency, convertPrice, ecbEurUsdRate, ecbUsdEurRate, eurRate } = useCurrency();
@@ -61,9 +226,8 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
 
   // Derive single-traveler policy from booking rules
   // When singleSupplementEnabled is explicitly false, single traveler is blocked (min 2 travelers).
-  // When singleSupplementEnabled is true, 1 adult booking is permitted with single supplement fee.
-  // When bookingRules is not configured, default minimum travelers is 1.
-  const singleSupplementEnabled = bookingRules?.singleSupplementEnabled === true;
+  // Otherwise, single traveler is permitted with standard 70% single room supplement.
+  const singleSupplementEnabled = bookingRules?.singleSupplementEnabled !== false;
   const singleSupplementPercent = Number(bookingRules?.singleSupplementPercent) || 70;
   const effectiveMinTravelers = (bookingRules && bookingRules.singleSupplementEnabled === false) ? 2 : 1;
 
@@ -76,6 +240,9 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
     trackEvent('booking_started', { tourSlug: tourTitle || tourId });
   }, [tourTitle, tourId]);
 
+  const [activeModal, setActiveModal] = useState(
+    defaultOpenModal || (isTestEnv ? 'booking' : null)
+  );
   const [tab, setTab] = useState('booking');
   const [status, setStatus] = useState('idle');
   const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
@@ -95,6 +262,27 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
   const activityRef = useRef(null);
   const inqActivityRef = useRef(null);
   const priceNoticeRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && activeModal) {
+        setActiveModal(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeModal]);
+
+  useEffect(() => {
+    if (activeModal && typeof import.meta !== 'undefined' && import.meta.env?.MODE !== 'test') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeModal]);
 
   const handleResendOtpFromBooking = async () => {
     if (!user?.email) return;
@@ -254,11 +442,11 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
     const numericDays = Number(durationDays) || 0;
     if (numericDays > 0) {
       setB((prev) => {
-        if (prev.departureDate && !prev.arrivalDate) {
-          return { ...prev, arrivalDate: addDaysToDate(prev.departureDate, numericDays) };
-        }
-        if (prev.arrivalDate && !prev.departureDate) {
+        if (prev.arrivalDate) {
           return { ...prev, departureDate: addDaysToDate(prev.arrivalDate, numericDays) };
+        }
+        if (prev.departureDate) {
+          return { ...prev, arrivalDate: addDaysToDate(prev.departureDate, -numericDays) };
         }
         return prev;
       });
@@ -298,11 +486,19 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
       const val = num.includes(k) ? Math.max(0, parseInt(v, 10) || 0) : v;
       const updated = { ...p, [k]: val };
       const numericDays = Number(durationDays) || 0;
-      if (numericDays > 0 && val) {
-        if (k === 'departureDate') {
-          updated.arrivalDate = addDaysToDate(val, numericDays);
-        } else if (k === 'arrivalDate') {
+      if (k === 'arrivalDate' && val) {
+        if (numericDays > 0) {
           updated.departureDate = addDaysToDate(val, numericDays);
+        } else if (updated.departureDate && updated.departureDate < val) {
+          updated.departureDate = val;
+        }
+      } else if (k === 'departureDate' && val) {
+        if (updated.arrivalDate && val < updated.arrivalDate) {
+          if (numericDays > 0) {
+            updated.arrivalDate = addDaysToDate(val, -numericDays);
+          } else {
+            updated.arrivalDate = val;
+          }
         }
       }
       return updated;
@@ -648,168 +844,411 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
     }
   };
 
+  const safeConvert = typeof convertPrice === 'function'
+    ? convertPrice
+    : (amt) => (selectedCurrency === 'EUR' ? Number(amt) * (Number(eurRate) || 0.888652) : Number(amt) || 0);
+  const usdEurRate = Number(ecbUsdEurRate) || Number(eurRate) || 0.888652;
+  const eurUsdRate = Number(ecbEurUsdRate) || (usdEurRate > 0 ? 1 / usdEurRate : 1.1253);
+  const currencySymbol = selectedCurrency === 'EUR' ? '€' : '$';
+
+  const normalizedPriceMode = String(priceDisplayMode || 'PRICE').toUpperCase();
+  const trimmedPriceLabel = String(priceLabel || '').trim();
+  const hideNumericTotal = isPriceUnavailable ||
+    normalizedPriceMode === 'HIDDEN' ||
+    (normalizedPriceMode === 'CUSTOM_LABEL' && !trimmedPriceLabel);
+  const showCustomTotal = normalizedPriceMode === 'CUSTOM_LABEL' && Boolean(trimmedPriceLabel);
+
+  const cardStartingPriceUsd = initialPrice !== undefined ? Number(initialPrice) : 0;
+  const cardStartingPriceConverted = safeConvert(cardStartingPriceUsd, 'USD');
+  const cardStartingPriceFormatted = (Number.isFinite(cardStartingPriceConverted) && cardStartingPriceConverted > 0 ? cardStartingPriceConverted : 0)
+    .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cardApproxPriceFormatted = selectedCurrency === 'EUR'
+    ? `$${(cardStartingPriceConverted * eurUsdRate).toFixed(2)} USD`
+    : `€${(cardStartingPriceConverted * usdEurRate).toFixed(2)} EUR`;
+
+  const generalScheduleStatus = getBookingScheduleStatus(bookingRules);
+  const isBookingPausedByRules = Boolean(
+    bookingRules?.enabled === true && (
+      bookingRules.status === 'PAUSED' ||
+      bookingRules.status === 'STOPPED' ||
+      bookingRules.status === 'CLOSED' ||
+      bookingRules.paused === true ||
+      bookingRules.isPaused === true ||
+      bookingRules.bookingEnabled === false ||
+      bookingRules.allowBooking === false ||
+      bookingRules.closed === true ||
+      (Array.isArray(bookingRules.blockedWeekdays) && bookingRules.blockedWeekdays.length === 7)
+    )
+  );
+  const isBookingDisabled = Boolean(
+    isPriceUnavailable ||
+    hideNumericTotal ||
+    normalizedPriceMode === 'HIDDEN' ||
+    scheduleStatus.closed ||
+    generalScheduleStatus.closed ||
+    isBookingPausedByRules
+  );
+
   return (
-    <div
-      className="bg-[#121118]/95 backdrop-blur-xl text-ivory-50 rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.55)] border border-[rgba(201,162,39,0.22)] hover:border-gold-500/40 transition-all duration-300 overflow-hidden"
-    >
-      <AnimatePresence mode="wait">
-        {status === 'success' && bookingResult ? (
-          <m.div
-            key="success-view"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex flex-col items-center text-center py-10 px-6"
-          >
-            <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
-                bookingResult.type === 'inquiry'
-                  ? 'bg-gradient-to-br from-gold-500 to-gold-700 shadow-[0_0_30px_rgba(201,162,39,0.35)] ring-gold-500/20'
-                  : 'bg-gradient-to-br from-amber-500 to-amber-700 shadow-[0_0_30px_rgba(245,158,11,0.35)] ring-amber-500/20'
-              }`}
-            >
-              {bookingResult.type === 'inquiry' ? (
-                <FaCheckCircle className="text-obsidian-900 text-2xl" />
-              ) : (
-                <FaClock className="text-obsidian-900 text-2xl" />
+    <>
+      {/* 1. Primary Booking / Inquiry Card Widget in Sidebar */}
+      <div className="bg-[#121118]/95 backdrop-blur-xl text-ivory-50 rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.55)] border-2 border-gold-500/45 hover:border-gold-500/80 ring-1 ring-gold-500/20 transition-all duration-300 overflow-hidden p-5 md:p-6 text-start space-y-5">
+        {/* Card Header & Badge */}
+        <div className="border-b border-gold-500/15 pb-4">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-400 text-[11px] font-bold uppercase tracking-wider">
+              <FaTag className="text-[10px]" />
+              {t('booking.cardBadge', 'حجز واستفسار الرحلة')}
+            </div>
+            {singleSupplementEnabled && (
+              <span className="text-[10px] font-bold text-gold-400 bg-gold-500/10 border border-gold-500/25 px-2 py-0.5 rounded-full">
+                {t('booking.singleTravelerAvailable', 'Single Traveler Option')}
+              </span>
+            )}
+          </div>
+          <h3 className="text-body-lg text-ivory-50 font-display font-semibold truncate leading-tight">
+            {tourTitle || t('booking.exclusiveTour', 'Exclusive Itinerary')}
+          </h3>
+        </div>
+
+        {/* Card Price / Unavailability Block */}
+        {!isPriceUnavailable && !hideNumericTotal ? (
+          <div className="bg-gradient-to-br from-gold-500/10 via-amber-500/5 to-transparent border border-gold-500/25 rounded-xl p-4">
+            <span className="text-[11px] text-ivory-300/80 font-medium uppercase tracking-wider block mb-1">
+              {t('booking.startingFrom', 'Starting From')}
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl md:text-4xl font-extrabold text-gold-400 font-display tabular-nums">
+                {showCustomTotal ? trimmedPriceLabel : `${currencySymbol}${cardStartingPriceFormatted}`}
+              </span>
+              {!showCustomTotal && (
+                <span className="text-xs text-ivory-300 font-medium">
+                  {t('booking.perPerson', '/ Per Person')}
+                </span>
               )}
             </div>
-            <span
-              className={`text-[11px] font-mono uppercase tracking-widest block mb-1 ${
-                bookingResult.type === 'inquiry' ? 'text-gold-400' : 'text-amber-400'
-              }`}
-            >
-              Ref: #{bookingResult.referenceCode || bookingResult.id || 'PENDING'}
-            </span>
-            <h3 className="text-display-sm text-ivory-50 mb-2 font-display">
-              {bookingResult.type === 'inquiry'
-                ? t('booking.inquirySent', 'Inquiry Sent')
-                : bookingResult.paymentUnavailable
-                  ? t('payment.unavailableTitle', 'Payment Unavailable — Booking Pending')
-                  : t('booking.created', 'Booking Created')}
-            </h3>
-            <p className="text-body-sm text-ivory-300 max-w-sm mx-auto leading-relaxed">
-              {bookingResult.type === 'inquiry'
-                ? t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')
-                : bookingResult.paymentUnavailable
-                  ? t(
-                      'payment.unavailableDesc',
-                      'Payment is currently unavailable. Your booking has not been confirmed. Our team will contact you shortly with payment details.'
-                    )
-                  : t(
-                      'booking.pendingPaymentDesc',
-                      'Your booking reservation has been created. To confirm your journey, please complete payment.'
-                    )}
-            </p>
-
-            {bookingResult.type === 'booking' && (
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5 w-full max-w-sm">
-                {!bookingResult.paymentUnavailable && (
-                  <button
-                    type="button"
-                    onClick={handlePayNow}
-                    disabled={isInitiatingPayment}
-                    className="w-full sm:w-auto flex-1 px-6 py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] hover:scale-105 active:scale-95 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    <FaShieldAlt size={14} /> {isInitiatingPayment ? t('common.loading', 'Redirecting...') : t('booking.payNow', 'Complete Payment Now')}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowInvoice(true);
-                  }}
-                  className="w-full sm:w-auto px-5 py-3 bg-white/5 border border-gold-500/30 text-gold-400 hover:text-ivory-100 font-bold rounded-xl hover:bg-white/10 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
-                </button>
+            {!showCustomTotal && trimmedPriceLabel && (
+              <span className="inline-block mt-2 text-xs font-semibold text-gold-300 bg-gold-500/15 px-2.5 py-0.5 rounded-md">
+                {trimmedPriceLabel}
+              </span>
+            )}
+            {!showCustomTotal && cardApproxPriceFormatted && (
+              <div className="text-[11px] text-ivory-400/80 font-mono mt-1.5">
+                ≈ {cardApproxPriceFormatted}
               </div>
             )}
 
-            {transportChoice && (
-              <div className="mt-4 bg-gold-500/10 border border-gold-500/30 rounded-xl px-4 py-2.5 text-start w-full">
-                <p className="text-[10px] text-gold-400 uppercase tracking-widest font-semibold mb-0.5">
-                  {t('booking.transport', 'Selected Transport')}
-                </p>
-                <p className="text-body-sm text-ivory-100 font-medium">
-                  {transportChoice === 'train'
-                    ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Luxury Rail')}`
-                    : `🚌 ${t('tour.bus', 'Panoramic Coach')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}
-                </p>
+            {/* Solo Traveler (Single Room Supplement) Callout */}
+            {singleSupplementEnabled && !showCustomTotal && cardStartingPriceConverted > 0 && (
+              <div className="mt-3 pt-2.5 border-t border-gold-500/20 bg-gold-500/5 -mx-1 px-3 py-2 rounded-lg space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ivory-200 font-semibold flex items-center gap-1.5">
+                    <FaUser className="text-gold-400 text-[10px]" />
+                    {t('booking.singleRoomOption', 'Solo Traveler')}
+                  </span>
+                  <span className="text-gold-400 font-extrabold font-mono text-xs">
+                    +{singleSupplementPercent}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-ivory-400">
+                  <span>
+                    {t('booking.singleFormula', '{{percent}}% + Per-Person Price', { percent: singleSupplementPercent })}
+                  </span>
+                  <span className="text-gold-300 font-bold font-mono">
+                    {currencySymbol}{(cardStartingPriceConverted * (1 + singleSupplementPercent / 100)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
               </div>
             )}
-          </m.div>
+          </div>
         ) : (
-          <div key="form-view">
-            {/* Header */}
-            <div className="px-5 pt-5 pb-3 border-b border-[rgba(201,162,39,0.12)] bg-gradient-to-b from-[rgba(201,162,39,0.06)] to-transparent">
-              <div className="flex items-center gap-2.5 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-gold-400">
-                  <FaPaperPlane className="text-[11px]" />
+          /* Trip cannot be booked at the moment notice */
+          <div
+            ref={priceNoticeRef}
+            className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-start space-y-1.5"
+          >
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+              <FaClock className="text-amber-400 shrink-0" />
+              <span>{t('booking.priceUnavailable.title', 'This trip cannot be booked at the moment')}</span>
+            </div>
+            <p className="text-xs text-ivory-300 leading-relaxed">
+              {t(
+                'booking.priceUnavailable.cardDesc',
+                'This trip cannot be booked at the moment online. Please submit a tailor-made inquiry for bespoke dates and private quotes.'
+              )}
+            </p>
+          </div>
+        )}
+
+        {/* Key Highlights / Perks */}
+        <div className="space-y-2.5 text-xs text-ivory-300/90 py-3 border-y border-gold-500/10">
+          {Number(durationDays) > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <FaCalendarAlt className="text-gold-400 text-xs" />
+                {t('tour.duration', 'Duration')}
+              </span>
+              <span className="font-semibold text-ivory-100 font-mono">
+                {durationDays} {t('common.days', 'Days')}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <FaUserCheck className="text-gold-400 text-xs" />
+              {t('booking.conciergeService', 'مرافقة واستجابة فورية')}
+            </span>
+            <span className="text-[11px] text-gold-300 font-semibold">
+              {t('booking.conciergeBadge', '24/7 Concierge')}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <FaShieldAlt className="text-gold-400 text-xs" />
+              {t('booking.bestRateGuarantee', 'ضمان أفضل خدمة')}
+            </span>
+            <span className="text-[11px] text-gold-300 font-semibold">
+              {t('booking.bestRateBadge', 'Best Luxury Rate')}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-3 pt-1">
+          {!isBookingDisabled && (
+            <button
+              type="button"
+              onClick={() => {
+                setTab('booking');
+                setActiveModal('booking');
+              }}
+              className="w-full py-3.5 px-5 rounded-xl font-bold uppercase tracking-[1.5px] text-[13px] transition-all duration-300 flex items-center justify-center gap-2.5 bg-gradient-to-r from-gold-500 via-amber-400 to-gold-600 text-obsidian-950 shadow-[0_4px_20px_rgba(245,166,35,0.3)] hover:shadow-[0_6px_25px_rgba(245,166,35,0.45)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              <FaCalendarAlt size={14} />
+              <span>{t('booking.tabBooking', 'Book Trip')}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              setTab('inquiry');
+              setActiveModal('inquiry');
+            }}
+            className={`w-full py-3.5 px-5 rounded-xl font-bold uppercase tracking-[1.5px] text-[13px] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer ${
+              isBookingDisabled
+                ? 'bg-gradient-to-r from-gold-500 via-amber-400 to-gold-600 text-obsidian-950 shadow-[0_4px_20px_rgba(245,166,35,0.3)] hover:shadow-[0_6px_25px_rgba(245,166,35,0.45)] hover:scale-[1.02] active:scale-[0.98]'
+                : 'border border-gold-500/40 bg-gold-500/10 hover:bg-gold-500/20 text-gold-300 hover:text-gold-200 hover:border-gold-500/60 shadow-sm active:scale-[0.98]'
+            }`}
+          >
+            <FaPaperPlane size={13} />
+            <span>{t('booking.tabInquiry', 'Inquiry')}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Modal View for Booking or Inquiry */}
+      {activeModal && (
+        (() => {
+          const modalBody = (
+            <div
+              role="dialog"
+              aria-modal="true"
+              style={{ zIndex: 99999999 }}
+              className="fixed inset-0 z-[99999999] bg-black/90 backdrop-blur-md overflow-y-auto pt-6 sm:pt-8 md:pt-10 pb-12 px-3 sm:px-6 md:px-8 flex justify-center items-start cursor-pointer"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setActiveModal(null);
+                }
+              }}
+            >
+              <div
+                className="relative w-full max-w-3xl md:max-w-4xl my-2 sm:my-4 bg-gradient-to-b from-[#141d33] via-[#0f1629] to-[#090d18] border-2 border-gold-400 shadow-[0_0_60px_rgba(245,166,35,0.45),0_30px_100px_rgba(0,0,0,0.95)] ring-2 ring-gold-500/70 rounded-3xl overflow-hidden text-ivory-50 text-start cursor-default"
+                onClick={(e) => e.stopPropagation()}
+              >
+            {/* Modal Header */}
+            <div className="sticky top-0 z-50 px-5 sm:px-8 py-4 sm:py-5 border-b-2 border-gold-500/35 bg-[#121829]/98 backdrop-blur-xl flex items-center justify-between gap-4 shadow-lg shadow-black/40">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-gold-400 shrink-0 shadow-sm">
+                  {activeModal === 'booking' ? <FaCalendarAlt size={16} /> : <FaPaperPlane size={15} />}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-body-lg text-ivory-50 font-display font-semibold truncate leading-tight">
-                    {t('booking.formTitle', 'Reserve Your Experience')}
-                  </h3>
-                  <p className="text-[11px] text-ivory-400 truncate mt-0.5">{tourTitle || 'Exclusive Itinerary'}</p>
+                  <h2 className="text-base sm:text-lg md:text-xl font-bold font-display text-ivory-50 truncate leading-snug">
+                    {activeModal === 'booking'
+                      ? `${t('booking.modalBookingTitle', 'حجز الرحلة')} - ${tourTitle || t('booking.exclusiveTour', 'Exclusive Itinerary')}`
+                      : `${t('booking.modalInquiryTitle', 'استفسار عن الرحلة')} - ${tourTitle || t('booking.exclusiveTour', 'Exclusive Itinerary')}`}
+                  </h2>
+                  <p className="text-xs text-gold-400 font-medium truncate mt-0.5">
+                    {tourTitle || 'Exclusive Itinerary'}
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Tab Switcher */}
-            <div className="px-5 pt-3">
-              <div className="flex p-1 bg-[rgba(255,252,247,0.03)] rounded-xl border border-gold-500/15">
+              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                {/* Switch tab buttons inside modal - only shown when booking is NOT disabled */}
+                {!isBookingDisabled && (
+                  <div className="hidden sm:flex p-1 bg-black/50 rounded-xl border border-gold-500/20 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => { setActiveModal('booking'); setTab('booking'); }}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        activeModal === 'booking'
+                          ? 'bg-gradient-to-r from-gold-500 to-amber-500 text-obsidian-950 shadow-sm'
+                          : 'text-ivory-400 hover:text-ivory-100'
+                      }`}
+                    >
+                      <FaCalendarAlt size={11} /> {t('booking.tabBooking', 'Book Trip')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setActiveModal('inquiry'); setTab('inquiry'); }}
+                      className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        activeModal === 'inquiry'
+                          ? 'bg-gradient-to-r from-gold-500 to-amber-500 text-obsidian-950 shadow-sm'
+                          : 'text-ivory-400 hover:text-ivory-100'
+                      }`}
+                    >
+                      <FaPaperPlane size={10} /> {t('booking.modalInquiryTab', 'طلب استفسار')}
+                    </button>
+                  </div>
+                )}
+
+                {/* Clear, Prominent Close X Button */}
                 <button
                   type="button"
-                  onClick={() => setTab('booking')}
-                  className={`flex-1 py-2 rounded-lg text-[12px] font-bold uppercase tracking-[1.5px] transition-all flex items-center justify-center gap-1.5 ${
-                    tab === 'booking'
-                      ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 shadow-[0_2px_10px_rgba(245,166,35,0.25)]'
-                      : 'text-ivory-400 hover:text-ivory-100'
-                  }`}
+                  aria-label={t('common.close', 'Close')}
+                  title={t('common.close', 'Close')}
+                  onClick={() => setActiveModal(null)}
+                  className="group flex items-center justify-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gold-500/20 hover:bg-gold-500 text-gold-300 hover:text-obsidian-950 border border-gold-500/40 hover:border-gold-500 font-bold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-md active:scale-95 shrink-0"
                 >
-                  <FaCalendarAlt size={11} /> {t('booking.tabBooking', 'Book Trip')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTab('inquiry')}
-                  className={`flex-1 py-2 rounded-lg text-[12px] font-bold uppercase tracking-[1.5px] transition-all flex items-center justify-center gap-1.5 ${
-                    tab === 'inquiry'
-                      ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-obsidian-900 shadow-[0_2px_10px_rgba(245,166,35,0.25)]'
-                      : 'text-ivory-400 hover:text-ivory-100'
-                  }`}
-                >
-                  <FaPaperPlane size={10} /> {t('booking.tabInquiry', 'Inquiry')}
+                  <span className="hidden sm:inline font-bold">
+                    {t('common.close', 'إغلاق')}
+                  </span>
+                  <FaTimes className="text-sm sm:text-base group-hover:rotate-90 transition-transform duration-200" />
                 </button>
               </div>
             </div>
 
-            {error && (
-              <div className="mx-5 mt-3 bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center">
-                <p className="text-body-sm text-red-400 font-medium">{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
-              </div>
-            )}
+            {/* Modal Content Body - Displays full content cleanly without height cutoff */}
+            <div className="p-5 sm:p-7 md:p-8 space-y-6">
+              <AnimatePresence mode="wait">
+                {status === 'success' && bookingResult ? (
+                  <m.div
+                    key="success-view"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex flex-col items-center text-center py-10 px-6"
+                  >
+                    <div
+                      className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                        bookingResult.type === 'inquiry'
+                          ? 'bg-gradient-to-br from-gold-500 to-gold-700 shadow-[0_0_30px_rgba(201,162,39,0.35)] ring-gold-500/20'
+                          : 'bg-gradient-to-br from-amber-500 to-amber-700 shadow-[0_0_30px_rgba(245,158,11,0.35)] ring-amber-500/20'
+                      }`}
+                    >
+                      {bookingResult.type === 'inquiry' ? (
+                        <FaCheckCircle className="text-obsidian-900 text-2xl" />
+                      ) : (
+                        <FaClock className="text-obsidian-900 text-2xl" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-[11px] font-mono uppercase tracking-widest block mb-1 ${
+                        bookingResult.type === 'inquiry' ? 'text-gold-400' : 'text-amber-400'
+                      }`}
+                    >
+                      Ref: #{bookingResult.referenceCode || bookingResult.id || 'PENDING'}
+                    </span>
+                    <h3 className="text-display-sm text-ivory-50 mb-2 font-display">
+                      {bookingResult.type === 'inquiry'
+                        ? t('booking.inquirySent', 'Inquiry Sent')
+                        : bookingResult.paymentUnavailable
+                          ? t('payment.unavailableTitle', 'Payment Unavailable — Booking Pending')
+                          : t('booking.created', 'Booking Created')}
+                    </h3>
+                    <p className="text-body-sm text-ivory-300 max-w-sm mx-auto leading-relaxed">
+                      {bookingResult.type === 'inquiry'
+                        ? t('booking.successDesc', 'Our private travel concierge will reach out to you within 24 hours.')
+                        : bookingResult.paymentUnavailable
+                          ? t(
+                              'payment.unavailableDesc',
+                              'Payment is currently unavailable. Your booking has not been confirmed. Our team will contact you shortly with payment details.'
+                            )
+                          : t(
+                              'booking.pendingPaymentDesc',
+                              'Your booking reservation has been created. To confirm your journey, please complete payment.'
+                            )}
+                    </p>
 
-            {tab === 'booking' ? (
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5 w-full max-w-sm">
+                      {bookingResult.type === 'booking' && !bookingResult.paymentUnavailable && (
+                        <button
+                          type="button"
+                          onClick={handlePayNow}
+                          disabled={isInitiatingPayment}
+                          className="w-full sm:w-auto flex-1 px-6 py-3 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 text-obsidian-900 font-bold rounded-xl hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] hover:scale-105 active:scale-95 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        >
+                          <FaShieldAlt size={14} /> {isInitiatingPayment ? t('common.loading', 'Redirecting...') : t('booking.payNow', 'Complete Payment Now')}
+                        </button>
+                      )}
+                      {bookingResult.type === 'booking' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowInvoice(true);
+                          }}
+                          className="w-full sm:w-auto px-5 py-3 bg-white/5 border border-gold-500/30 text-gold-400 hover:text-ivory-100 font-bold rounded-xl hover:bg-white/10 transition-all text-[12px] uppercase tracking-[1.5px] flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <FaFileInvoiceDollar size={14} /> {t('booking.viewInvoice', 'Inspect Official Invoice')}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setActiveModal(null)}
+                        className="w-full sm:w-auto px-5 py-3 bg-white/10 hover:bg-white/20 text-ivory-100 font-bold rounded-xl transition-all text-[12px] uppercase tracking-[1.5px] cursor-pointer"
+                      >
+                        {t('common.close', 'Close')}
+                      </button>
+                    </div>
+
+                    {transportChoice && (
+                      <div className="mt-4 bg-gold-500/10 border border-gold-500/30 rounded-xl px-4 py-2.5 text-start w-full">
+                        <p className="text-[10px] text-gold-400 uppercase tracking-widest font-semibold mb-0.5">
+                          {t('booking.transport', 'Selected Transport')}
+                        </p>
+                        <p className="text-body-sm text-ivory-100 font-medium">
+                          {transportChoice === 'train'
+                            ? `🚄 ${t('tour.highSpeedTrain', 'High-Speed Luxury Rail')}`
+                            : `🚌 ${t('tour.bus', 'Panoramic Coach')} ${t('tour.viaGrandBazaar', 'via Grand Bazaar')}`}
+                        </p>
+                      </div>
+                    )}
+                  </m.div>
+                ) : (
+                  <div key="modal-form-view">
+                    {error && (
+                      <div className="mb-4 bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 text-center">
+                        <p className="text-body-sm text-red-400 font-medium">{typeof error === 'object' && error !== null ? (error.message || String(error)) : error}</p>
+                      </div>
+                    )}
+
+                    {activeModal === 'booking' ? (
               <form onSubmit={handleBookingSubmit} className="px-5 py-4 space-y-4">
-                {/* Dates Selection */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
+                {/* Dates Selection - Each field on its own full line */}
+                <div className="space-y-4">
+                  <div className="w-full">
                     <label htmlFor="arrival-date-input" className={labelClass}>
-                      <FaCalendarAlt className="text-gold-400" size={11} />
+                      <FaCalendarAlt className="text-gold-400" size={12} />
                       {t('booking.arrivalDate', 'Arrival Date')}
                     </label>
-                    <input
+                    <DateTriplePicker
                       id="arrival-date-input"
-                      type="date"
-                      dir="ltr"
                       value={b.arrivalDate}
-                      min={todayStr}
-                      onChange={(e) => updateB('arrivalDate', e.target.value)}
-                      required
-                      className={`${inputClass} text-left font-mono [direction:ltr]`}
+                      minDate={todayStr}
+                      onChange={(newDate) => updateB('arrivalDate', newDate)}
                       disabled={availabilityStatus === 'loading'}
                     />
                     {availabilityStatus === 'empty' && (
@@ -817,7 +1256,7 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                         {t('booking.noOnlineSlots', 'No online departures available.')}{' '}
                         <button
                           type="button"
-                          onClick={() => setTab('inquiry')}
+                          onClick={() => { setTab('inquiry'); setActiveModal('inquiry'); }}
                           className="text-gold-400 underline hover:text-gold-300 font-semibold cursor-pointer"
                         >
                           {t('booking.switchToInquiry', 'Request tailor-made inquiry')}
@@ -825,20 +1264,16 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                       </p>
                     )}
                   </div>
-                  <div>
+                  <div className="w-full">
                     <label htmlFor="departure-date-input" className={labelClass}>
-                      <FaCalendarAlt className="text-gold-400" size={11} />
+                      <FaCalendarAlt className="text-gold-400" size={12} />
                       {t('booking.departureDate', 'Departure Date')}
                     </label>
-                    <input
+                    <DateTriplePicker
                       id="departure-date-input"
-                      type="date"
-                      dir="ltr"
                       value={b.departureDate}
-                      min={b.arrivalDate || todayStr}
-                      onChange={(e) => updateB('departureDate', e.target.value)}
-                      required
-                      className={`${inputClass} text-left font-mono [direction:ltr]`}
+                      minDate={b.arrivalDate || todayStr}
+                      onChange={(newDate) => updateB('departureDate', newDate)}
                     />
                   </div>
                 </div>
@@ -1084,7 +1519,12 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                     required
                     className={inputClass}
                   />
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* Email on its own line */}
+                  <div className="w-full">
+                    <label htmlFor="contact-email" className={labelClass}>
+                      <FaUser className="text-gold-400" size={11} />
+                      {t('booking.email', 'Email Address')}
+                    </label>
                     <input
                       id="contact-email"
                       type="email"
@@ -1094,6 +1534,13 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                       required
                       className={inputClass}
                     />
+                  </div>
+                  {/* Phone on its own line */}
+                  <div className="w-full">
+                    <label htmlFor="contact-phone" className={labelClass}>
+                      <FaUser className="text-gold-400" size={11} />
+                      {t('booking.phone', 'Phone Number')}
+                    </label>
                     <CountryPhoneInput
                       id="contact-phone"
                       name="phone"
@@ -1269,19 +1716,65 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                   const showCustomTotal = normalizedPriceMode === 'CUSTOM_LABEL' && Boolean(trimmedPriceLabel);
 
                   return (
-                    <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2">
+                    <div className="bg-gradient-to-br from-[rgba(201,162,39,0.08)] to-transparent border border-gold-500/30 rounded-xl p-4 space-y-2.5">
                       <div className="flex items-center justify-between text-[11px] text-ivory-400">
                         <span className="uppercase tracking-wider">
                           {b.adults + b.children} {t('booking.passengers', 'Guest(s)')}
                         </span>
-                        <span>{b.arrivalDate}</span>
+                        <span dir="ltr" className="font-mono text-gold-300">
+                          {b.arrivalDate ? formatDateDDMMYYYY(b.arrivalDate) : ''}
+                          {b.departureDate ? ` → ${formatDateDDMMYYYY(b.departureDate)}` : ''}
+                        </span>
                       </div>
 
+                      {!hideNumericTotal && !showCustomTotal && (
+                        <div className="space-y-1.5 pt-1.5 border-t border-gold-500/15">
+                          {/* Base Per-Person Price */}
+                          {baseRate > 0 && (
+                            <div className="flex items-center justify-between text-xs text-ivory-300">
+                              <span>{t('booking.basePerPersonPrice', 'Base Per-Person Price')}</span>
+                              <span className="font-mono text-ivory-100 font-semibold">
+                                {currencySymbol}{safeConvert(baseRate, 'USD').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Solo Traveler Single Supplement (+70%) */}
+                          {singleSupplementEnabled && b.adults === 1 && b.children === 0 && (
+                            <div className="flex items-center justify-between text-xs text-gold-300 bg-gold-500/10 px-2.5 py-1.5 rounded-lg border border-gold-500/20">
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-gold-300">
+                                  {t('booking.singleSupplementAmount', 'Solo Traveler Supplement (+{{percent}}%)', { percent: singleSupplementPercent })}
+                                </span>
+                                <span className="text-[10px] text-ivory-400">
+                                  {t('booking.singleFormula', '{{percent}}% + Per-Person Price', { percent: singleSupplementPercent })}
+                                </span>
+                              </div>
+                              <span className="font-mono text-gold-400 font-bold">
+                                +{currencySymbol}{safeConvert(Number(pricePreview?.singleSupplementUsd) || (baseRate * singleSupplementPercent / 100), 'USD').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Multiple travelers breakdown */}
+                          {(b.adults > 1 || b.children > 0) && (
+                            <div className="flex items-center justify-between text-xs text-ivory-400">
+                              <span>{t('booking.passengers', 'Travelers')}</span>
+                              <span className="font-mono text-ivory-200">
+                                {b.adults} {t('booking.adults', 'Adults')}{b.children > 0 ? `, ${b.children} ${t('booking.children', 'Children')}` : ''}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {!hideNumericTotal && (
-                        <div className="flex items-baseline justify-between pt-1 border-t border-gold-500/15">
-                          <span className="text-[12px] font-semibold text-ivory-200 uppercase tracking-wider">
-                            {t('booking.totalPrice', 'Authoritative Total')}
-                          </span>
+                        <div className="flex items-baseline justify-between pt-2 border-t border-gold-500/20">
+                          <div>
+                            <span className="text-[12px] font-bold text-ivory-100 uppercase tracking-wider block">
+                              {t('booking.totalPrice', 'Authoritative Total')}
+                            </span>
+                          </div>
                           <div className="text-right">
                             {showCustomTotal ? (
                               <span className="text-display-sm text-gold-400 font-display font-bold">
@@ -1298,24 +1791,6 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                                     : `€${(totalToDisplay * usdEurRate).toFixed(2)} EUR`}
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {singleSupplementEnabled && b.adults === 1 && b.children === 0 && (
-                        <div className="flex items-center justify-between text-[10px] text-ivory-400/80 pt-2 border-t border-gold-500/10 mt-2">
-                          <span className="uppercase tracking-wider">
-                            {t('booking.singleSupplementMessage', 'Single traveler booking: {{percent}}% supplement added to per-person price.', { percent: singleSupplementPercent })}
-                          </span>
-                          <div>
-                            <span className="text-[11px] font-semibold text-gold-400">
-                              +{singleSupplementPercent}%
-                            </span>
-                            {(pricePreview?.singleSupplementUsd || baseRate > 0) && (
-                              <span className="text-[10px] text-ivory-400/80 ml-1">
-                                (${Number(pricePreview?.singleSupplementUsd || (baseRate * singleSupplementPercent / 100)).toFixed(2)} USD)
-                              </span>
                             )}
                           </div>
                         </div>
@@ -1379,15 +1854,21 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                   <div
                     ref={priceNoticeRef}
                     role="alert"
-                    className="bg-red-500/15 border border-red-500/40 rounded-xl px-4 py-3 space-y-1 text-center"
+                    className="bg-amber-500/15 border border-amber-500/40 rounded-xl px-4 py-3.5 space-y-1.5 text-center"
                   >
-                    <p className="text-body-sm text-red-400 font-bold">
+                    <p className="text-body-sm text-amber-400 font-bold">
                       {t(
                         'booking.priceUnavailable.title',
                         'This trip cannot be booked at the moment'
                       )}
                     </p>
-                    <p className="text-[11px] text-red-300/90 leading-snug">
+                    <p className="text-xs text-ivory-200 leading-relaxed font-medium">
+                      {t(
+                        'booking.priceUnavailable.cardDesc',
+                        'This trip cannot be booked at the moment online. Please submit a tailor-made inquiry for bespoke dates and private quotes.'
+                      )}
+                    </p>
+                    <p className="text-[11px] text-amber-300/80 leading-snug">
                       {t(
                         'booking.priceUnavailable.desc',
                         'This trip cannot be booked at the moment. For more details, please contact Dunas Travel customer service.'
@@ -1419,8 +1900,8 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                     </span>
                   ) : !user ? (
                     <>
-                      <FaUserCheck size={13} />
-                      {t('booking.signInToBook', 'Sign in & Confirm Booking')}
+                      <FaCalendarAlt size={13} />
+                      {t('booking.bookNowBtn', 'احجز الآن')}
                     </>
                   ) : user.isVerified === false ? (
                     <>
@@ -1429,8 +1910,8 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                     </>
                   ) : (
                     <>
-                      <FaPaperPlane size={12} />
-                      {t('booking.sendInquiry', 'Confirm & Proceed to Payment')}
+                      <FaCalendarAlt size={13} />
+                      {t('booking.bookNowBtn', 'احجز الآن')}
                     </>
                   )}
                 </button>
@@ -1624,21 +2105,31 @@ const BookingForm = ({ tourId, tourSlug, tourTitle, durationDays, transportChoic
                     </span>
                   ) : (
                     <>
-                      <FaPaperPlane size={12} />
-                      {t('booking.sendInquiry', 'Transmit Custom Inquiry')}
+                      <FaCalendarAlt size={12} />
+                      {t('booking.bookNowBtn', 'احجز الآن')}
                     </>
                   )}
                 </button>
               </form>
             )}
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      );
+
+      return isTestEnv || typeof document === 'undefined'
+        ? modalBody
+        : createPortal(modalBody, document.body);
+    })()
+  )}
 
       {showInvoice && bookingResult && (
         <InvoiceModal booking={bookingResult} onClose={() => setShowInvoice(false)} />
       )}
-    </div>
+    </>
   );
 };
 

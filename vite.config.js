@@ -134,6 +134,81 @@ function devLoggerPlugin() {
   };
 }
 
+// Dev-only: inject the same per-tour <title>/canonical that the production
+// prerender script writes into dist/tours/<slug>/index.html, so Ctrl+U works
+// identically on the local dev server (`npm run dev`).
+function devTourSeoPlugin() {
+  const cataloguePath = path.resolve(process.cwd(), 'src/data/database/unified_52_tours.json');
+  let titleMap = null;
+
+  const getTitleMap = () => {
+    if (!titleMap) {
+      titleMap = new Map();
+      try {
+        const data = JSON.parse(fs.readFileSync(cataloguePath, 'utf8'));
+        for (const tour of data.tours || []) {
+          if (!tour?.slug) continue;
+          const raw = tour.title;
+          const title = typeof raw === 'object'
+            ? (raw.en || raw.ar || Object.values(raw)[0])
+            : raw;
+          titleMap.set(tour.slug, title || tour.slug);
+        }
+      } catch {
+        // Catalogue is optional — fall back to a prettified slug.
+      }
+    }
+    return titleMap;
+  };
+
+  const escapeHtml = (value) => String(value || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const injectTourSeo = (html, slug) => {
+    const title = getTitleMap().get(slug)
+      || slug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+    const canonical = `https://dunas-travel.com/tours/${slug}`;
+
+    return html
+      .replace(/<link[^>]*rel="canonical"[^>]*>/gi, '')
+      .replace(/<title>[\s\S]*?<\/title>/i,
+        `<title>${escapeHtml(title)} | Dunas Travel</title>\n    <link rel="canonical" href="${canonical}" />`)
+      .replace(/<meta property="og:url"[^>]*>/i,
+        `<meta property="og:url" content="${canonical}" />`);
+  };
+
+  return {
+    name: 'dev-tour-seo',
+    apply: 'serve',
+    configureServer(server) {
+      const htmlPath = path.resolve(process.cwd(), 'index.html');
+      server.middlewares.use(async (req, res, next) => {
+        const originalUrl = req.originalUrl || req.url || '';
+        const pathname = originalUrl.split('?')[0];
+        const match = pathname.match(/^\/tours\/([^/]+)\/?$/);
+        if (!match) return next();
+
+        let slug = match[1];
+        try { slug = decodeURIComponent(slug); } catch { /* keep raw */ }
+        if (!/^[a-z0-9-]+$/i.test(slug)) return next();
+
+        try {
+          const rawHtml = fs.readFileSync(htmlPath, 'utf8');
+          const withSeo = injectTourSeo(rawHtml, slug);
+          const finalHtml = await server.transformIndexHtml(originalUrl, withSeo, originalUrl);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          res.end(finalHtml);
+        } catch (error) {
+          next(error);
+        }
+        return undefined;
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const envDir = path.resolve(process.cwd());
@@ -149,6 +224,7 @@ export default defineConfig(({ mode }) => {
       asyncCssPlugin(),
       isolateSourceMapsPlugin(),
       devLoggerPlugin(),
+      devTourSeoPlugin(),
       visualizer({
         filename: 'stats.html',
         open: false,
