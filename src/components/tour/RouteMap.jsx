@@ -502,8 +502,10 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
           coords: coords,
           daysVisited: daysArr,
           descriptions: [localizedDesc],
+          description: localizedDesc,
           dayLabel: dayLabelText,
           displayIndex: index + 1,
+          stepIndex: index + 1,
         };
       });
     }
@@ -699,9 +701,9 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
 
     const markers = [];
     locations.forEach((loc, idx) => {
-      // Create custom blue badge icon with Day & City Name clearly visible on the map
-      const customBlueIcon = L.divIcon({
-        className: 'custom-blue-city-marker',
+      // Clean, luxury circular number pin showing ONLY the stop number on the map
+      const customNumberIcon = L.divIcon({
+        className: 'custom-number-map-marker',
         html: `
           <div style="
             display: flex;
@@ -712,52 +714,38 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
             pointer-events: auto;
             white-space: nowrap;
             font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
-            filter: drop-shadow(0px 4px 12px rgba(15, 23, 42, 0.5));
+            filter: drop-shadow(0px 4px 10px rgba(15, 23, 42, 0.6));
             user-select: none;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
           ">
-            <!-- Blue Badge with Day & City Name -->
+            <!-- Circular Number Badge -->
             <div style="
-              background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%);
+              background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #1d4ed8 100%);
               color: #ffffff;
-              padding: 6px 14px;
-              border-radius: 22px;
-              font-size: 13px;
-              font-weight: 800;
-              letter-spacing: 0.3px;
-              border: 2px solid #93c5fd;
-              box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
+              width: 34px;
+              height: 34px;
+              border-radius: 50%;
+              font-size: 14px;
+              font-weight: 900;
               display: flex;
               align-items: center;
-              gap: 8px;
-              margin-bottom: 5px;
+              justify-content: center;
+              border: 2.5px solid #ffffff;
+              box-shadow: 0 4px 14px rgba(37, 99, 235, 0.6), inset 0 0 4px rgba(255,255,255,0.4);
+              letter-spacing: -0.5px;
             ">
-              <span style="
-                background: #ffffff;
-                color: #1d4ed8;
-                border-radius: 50%;
-                width: 22px;
-                height: 22px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 11px;
-                font-weight: 900;
-                box-shadow: inset 0 0 2px rgba(0,0,0,0.25);
-              ">${idx + 1}</span>
-              <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25;">
-                ${loc.dayLabel ? `<span style="font-size: 10px; font-weight: 900; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.5px;">${loc.dayLabel}</span>` : ''}
-                <span style="text-shadow: 0 1px 2px rgba(0,0,0,0.3); font-size: 14px; font-weight: 800;">${loc.name}</span>
-              </div>
+              ${idx + 1}
             </div>
             
-            <!-- Pin Pointer -->
+            <!-- Pin Pointer Tip -->
             <div style="
-              width: 14px;
-              height: 14px;
-              background: #2563eb;
-              border: 3px solid #ffffff;
-              border-radius: 50%;
-              box-shadow: 0 0 12px #3b82f6, inset 0 0 4px rgba(0,0,0,0.3);
+              width: 0;
+              height: 0;
+              border-left: 6px solid transparent;
+              border-right: 6px solid transparent;
+              border-top: 7px solid #1d4ed8;
+              margin-top: -2px;
+              filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
             "></div>
           </div>
         `,
@@ -765,7 +753,7 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
         iconAnchor: [0, 0],
       });
 
-      const marker = L.marker(loc.coords, { icon: customBlueIcon })
+      const marker = L.marker(loc.coords, { icon: customNumberIcon })
         .addTo(map)
         .bindPopup(`
           <div style="font-family: 'Cairo', 'Inter', sans-serif; padding: 6px 4px; min-width: 190px;">
@@ -1083,6 +1071,48 @@ const RouteMap = ({ itinerary, highlights, tourTitle, routeMap }) => {
               );
             })}
           </div>
+
+          {/* Active Station Name & Description Card (أسماء المحطات والوصف أسفل الخريطة) */}
+          {currentLocation && (
+            <div className="mt-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-800/80 dark:bg-slate-800/80 border border-slate-700/80 shadow-inner text-slate-100 transition-all duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white font-black text-sm sm:text-base flex items-center justify-center border-2 border-blue-400 shadow-md shrink-0">
+                    {activeLocationIndex + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] sm:text-xs font-black uppercase text-gold-500 tracking-wider block">
+                      {`${t('tour.stop', 'Stop')} ${activeLocationIndex + 1}${currentLocation.dayLabel ? ` · ${currentLocation.dayLabel}` : ''}`}
+                    </span>
+                    <h4 className="text-base sm:text-lg md:text-xl font-black text-white flex items-center gap-1.5 truncate">
+                      {`📍 ${currentLocation.name}`}
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectLocation(currentLocation, activeLocationIndex)}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 border border-blue-500/40 text-blue-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    title={t('tour.viewOnMap', 'Focus on Map')}
+                  >
+                    <span>🎯</span>
+                    <span>{t('tour.viewOnMap', 'عرض على الخريطة')}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Station Description (rendered if meaningful and not just echoing the title) */}
+              {currentLocation.description && currentLocation.description !== currentLocation.name && (
+                <div className="pt-3 text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+                  <p className="whitespace-pre-line">
+                    {String(currentLocation.description).replace(/<br\s*\/?>/gi, '\n')}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </m.div>

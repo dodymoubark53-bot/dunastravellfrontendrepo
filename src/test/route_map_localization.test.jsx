@@ -74,4 +74,29 @@ describe('RouteMap section heading localization', () => {
     expect(screen.getByRole('heading', { name: 'خريطة رحلتي الخاصة' })).toBeDefined();
     expect(screen.getByText('وصف خاص بالرحلة')).toBeDefined();
   });
+
+  it('renders station names and descriptions in the journey route section below the map', () => {
+    const routeMap = {
+      titleJsonb: { ar: 'خريطة خط سير الرحلة' },
+      subtitleJsonb: { ar: 'استكشف المسار' },
+      locations: [
+        {
+          id: 'loc-1',
+          dbKey: 'cairo',
+          nameJsonb: { ar: 'القاهرة وأهرامات الجيزة' },
+          descriptionJsonb: { ar: 'جولة خاصة لزيارة الأهرامات وأبو الهول والمتحف المصري الكبير' },
+          lat: 30.0444,
+          lng: 31.2357,
+          daysVisited: [1, 2],
+        },
+      ],
+    };
+
+    render(<RouteMap itinerary={[]} highlights={[]} routeMap={routeMap} />);
+
+    // Station name appears in the timeline stop button
+    expect(screen.getByText('القاهرة وأهرامات الجيزة')).toBeDefined();
+    // Station description appears in the active station details card below the map
+    expect(screen.getByText('جولة خاصة لزيارة الأهرامات وأبو الهول والمتحف المصري الكبير')).toBeDefined();
+  });
 });
