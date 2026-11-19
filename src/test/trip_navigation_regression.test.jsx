@@ -132,6 +132,52 @@ const MOCK_TOURS_BY_SLUG = {
     excludedServices: ['Visa Fees'],
     highlights: ['Giza & Petra in One Trip'],
   },
+  'hurghada-4d3n': {
+    id: 'tour-hurghada-extension',
+    slug: 'hurghada-4d3n',
+    title: 'Hurghada Red Sea Extension',
+    overview: 'Backend-managed Red Sea extension with an all-inclusive resort stay.',
+    destination: 'egypt',
+    country: 'Egypt',
+    category: 'Extension',
+    duration: '4 Days / 3 Nights',
+    durationDays: 4,
+    basePriceUsd: 0,
+    price: 0,
+    currency: 'USD',
+    priceDisplayMode: 'HIDDEN',
+    heroImage: 'https://example.com/hurghada.jpg',
+    images: ['https://example.com/hurghada.jpg'],
+    itinerary: [
+      { day: 1, title: 'Backend Hurghada Arrival', description: 'Transfer from Cairo Airport to the resort.' },
+    ],
+    includedServices: ['All-Inclusive Resort'],
+    excludedServices: ['International Flights'],
+    highlights: ['Red Sea Beachfront'],
+  },
+  'honeymoon-egypt': {
+    id: 'tour-honeymoon-egypt',
+    slug: 'honeymoon-egypt',
+    title: 'Honeymoon in Egypt',
+    overview: 'Backend-managed romantic journey through Cairo, the Nile and Hurghada.',
+    destination: 'egypt',
+    country: 'Egypt',
+    category: 'Honeymoon',
+    duration: '10 Days / 9 Nights',
+    durationDays: 10,
+    basePriceUsd: 2400,
+    price: 2400,
+    currency: 'USD',
+    priceDisplayMode: 'HIDDEN',
+    heroImage: 'https://example.com/honeymoon.jpg',
+    images: ['https://example.com/honeymoon.jpg'],
+    itinerary: [
+      { day: 1, title: 'Backend Romantic Cairo Arrival', description: 'Private VIP transfer to your hotel.' },
+    ],
+    includedServices: ['Nile Cruise', 'Private Transfers'],
+    excludedServices: ['International Flights'],
+    highlights: ['Romantic Nile Sunset Cruise'],
+  },
 };
 
 const ALL_MOCK_TOURS = Object.values(MOCK_TOURS_BY_SLUG);
@@ -395,8 +441,7 @@ describe('Trip Details Client-Side Navigation & Routing Regression Suite', () =>
       expect(screen.getByTestId('current-pathname').textContent).toBe('/programs/extension/hurghada-4d3n');
     });
 
-    const day1Elements = await screen.findAllByText(/trip\.hurghada\.day1\.title/i);
-    expect(day1Elements[0]).toBeInTheDocument();
+    expect((await screen.findAllByText(/Backend Hurghada Arrival/i)).length).toBeGreaterThan(0);
   });
 
   it('Clicking a Honeymoon card on /programs/honeymooners opens HoneymoonersDetails smoothly', async () => {
@@ -419,6 +464,6 @@ describe('Trip Details Client-Side Navigation & Routing Regression Suite', () =>
       expect(screen.getByTestId('current-pathname').textContent).toBe('/programs/honeymooners/honeymoon-egypt');
     });
 
-    expect(await screen.findAllByText(/Honeymoon in Egypt/i)).toBeTruthy();
+    expect((await screen.findAllByText(/Backend Romantic Cairo Arrival/i)).length).toBeGreaterThan(0);
   });
 });

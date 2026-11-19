@@ -11,20 +11,6 @@ import DurationSortFilter from '../../components/common/DurationSortFilter';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import { useTours } from '../../hooks/useTours';
 
-export const HONEYMOON_PACKAGES = [
-  {
-    id: 'honeymoon-egypt',
-    titleKey: 'honeymooners.egyptTitle',
-    titleDefault: 'Honeymoon in Egypt',
-    duration: '10 Days / 9 Nights',
-    destinations: 'Cairo • Nile Cruise • Hurghada',
-    img: 'https://hl-tourism.com/media/typecms/Honeymoon_Planning_Guide_2025_Complete_Resource.webp',
-    taglineKey: 'honeymooners.egyptTagline',
-    taglineDefault: 'A perfect trip to celebrate love, combining history, culture, romance, and unforgettable moments on the Red Sea.',
-    priceDisplayMode: 'HIDDEN',
-  }
-];
-
 export default function Honeymooners() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
@@ -32,27 +18,10 @@ export default function Honeymooners() {
   const [displayTours, setDisplayTours] = React.useState([]);
 
   const adaptedTours = React.useMemo(() => {
-    if (liveTours && liveTours.length > 0) {
-      return liveTours.map((tour) => ({
-        ...tour,
-        badge: tour.badge || t('honeymooners.featured', 'Featured'),
-        minPax: tour.minPax || '2+',
-      }));
-    }
-    return HONEYMOON_PACKAGES.map((pkg) => ({
-      id: pkg.id,
-      slug: pkg.id,
-      title: t(pkg.titleKey, pkg.titleDefault),
-      overview: t(pkg.taglineKey, pkg.taglineDefault),
-      destination: pkg.destinations,
-      duration: pkg.duration,
-      price: null,
-      priceDisplayMode: pkg.priceDisplayMode || 'HIDDEN',
-      rating: 5.0,
-      minPax: '2+',
-      badge: t('honeymooners.featured', 'Featured'),
-      heroImage: pkg.img,
-      images: [pkg.img],
+    return (Array.isArray(liveTours) ? liveTours : []).map((tour) => ({
+      ...tour,
+      badge: tour.badge || t('honeymooners.featured', 'Featured'),
+      minPax: tour.minPax || '2+',
     }));
   }, [liveTours, t]);
 

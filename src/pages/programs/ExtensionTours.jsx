@@ -11,51 +11,6 @@ import DurationSortFilter from '../../components/common/DurationSortFilter';
 import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import { useTours } from '../../hooks/useTours';
 
-export const EXTENSION_PACKAGES = [
-  {
-    id: 'hurghada-4d3n',
-    titleKey: 'trip.hurghada.title',
-    titleDefault: 'Hurghada Red Sea Extension',
-    durationKey: 'trip.hurghada.duration',
-    durationDefault: '04 Days / 03 Nights',
-    destinationsKey: 'trip.hurghada.title',
-    destinationsDefault: 'Hurghada',
-    img: 'https://1.bp.blogspot.com/-HqmKDzZ73hY/XgSOtrhSAOI/AAAAAAAARdc/cxtywSwZxLIaZPfw98FzQHYtiPblmzg2gCLcBGAsYHQ/w1200-h630-p-k-no-nu/%D8%A3%D9%81%D8%B6%D9%84-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%D8%A9-%D9%81%D9%89-%D8%A7%D9%84%D8%BA%D8%B1%D8%AF%D9%82%D8%A9-825x510.jpg',
-    descKey: 'trip.hurghada.day1.desc',
-    descDefault: 'Transfer to Cairo Airport and board flight to Hurghada. Enjoy 3 nights all-inclusive resort stay.',
-    price: null,
-    priceDisplayMode: 'HIDDEN'
-  },
-  {
-    id: 'sharm-4d3n',
-    titleKey: 'trip.sharm.title',
-    titleDefault: 'Sharm El Sheikh VIP Extension',
-    durationKey: 'trip.sharm.duration',
-    durationDefault: '04 Days / 03 Nights',
-    destinationsKey: 'trip.sharm.title',
-    destinationsDefault: 'Sharm El Sheikh',
-    img: 'https://nileholiday.com/wp-content/uploads/2019/10/sharm-el-sheikh-top-attractions-1-1920x750.jpg',
-    descKey: 'trip.sharm.day1.desc',
-    descDefault: 'Transfer to Cairo Airport and board flight to Sharm El Sheikh. 3 nights all-inclusive stay & Sinai desert safari options.',
-    price: null,
-    priceDisplayMode: 'HIDDEN'
-  },
-  {
-    id: 'siwa-oasis-alexandria',
-    titleKey: 'tour_siwa_title',
-    titleDefault: 'Siwa Oasis & Alexandria Expedition',
-    durationKey: 'tour_siwa_duration',
-    durationDefault: '05 Days / 04 Nights',
-    destinationsKey: 'tour_siwa_destination',
-    destinationsDefault: 'Siwa Oasis & Alexandria',
-    img: '/imgs/services/service-317.webp',
-    descKey: 'tour_siwa_summary',
-    descDefault: 'Cairo → Wadi El Natroun → Marsa Matruh → Siwa → Alexandria → Cairo',
-    price: null,
-    priceDisplayMode: 'HIDDEN'
-  }
-];
-
 export default function ExtensionTours() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
@@ -63,27 +18,10 @@ export default function ExtensionTours() {
   const [displayTours, setDisplayTours] = React.useState([]);
 
   const adaptedTours = React.useMemo(() => {
-    if (liveTours && liveTours.length > 0) {
-      return liveTours.map((tour) => ({
-        ...tour,
-        badge: tour.badge || t('extensions.addOnAvailable', 'Add-on'),
-        minPax: tour.minPax || '2+',
-      }));
-    }
-    return EXTENSION_PACKAGES.map((pkg) => ({
-      id: pkg.id,
-      slug: pkg.id,
-      title: t(pkg.titleKey, pkg.titleDefault),
-      overview: t(pkg.descKey, pkg.descDefault),
-      destination: t(pkg.destinationsKey, pkg.destinationsDefault),
-      duration: t(pkg.durationKey, pkg.durationDefault),
-      price: null,
-      priceDisplayMode: pkg.priceDisplayMode || 'HIDDEN',
-      rating: 5.0,
-      minPax: '2+',
-      badge: t('extensions.addOnAvailable', 'Add-on'),
-      heroImage: pkg.img,
-      images: [pkg.img],
+    return (Array.isArray(liveTours) ? liveTours : []).map((tour) => ({
+      ...tour,
+      badge: tour.badge || t('extensions.addOnAvailable', 'Add-on'),
+      minPax: tour.minPax || '2+',
     }));
   }, [liveTours, t]);
 
