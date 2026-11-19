@@ -395,7 +395,8 @@ describe('Trip Details Client-Side Navigation & Routing Regression Suite', () =>
       expect(screen.getByTestId('current-pathname').textContent).toBe('/programs/extension/hurghada-4d3n');
     });
 
-    expect(await screen.findByText(/trip\.hurghada\.day1\.title/i)).toBeInTheDocument();
+    const day1Elements = await screen.findAllByText(/trip\.hurghada\.day1\.title/i);
+    expect(day1Elements[0]).toBeInTheDocument();
   });
 
   it('Clicking a Honeymoon card on /programs/honeymooners opens HoneymoonersDetails smoothly', async () => {

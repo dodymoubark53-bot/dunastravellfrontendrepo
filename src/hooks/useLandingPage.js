@@ -30,7 +30,7 @@ function normalizeLandingPage(value) {
     description: typeof value.description === 'string' ? value.description : '',
     brief: typeof value.brief === 'string' ? value.brief : '',
     type: value.type || 'DESTINATION',
-    sections: Array.isArray(value.sections) ? value.sections : [],
+    sections: value.sections || value.sectionsJsonb || {},
     tours: rawTours.map((tour, idx) => {
       const tourId = tour?.id || tour?.slug || `tour-${idx}`;
       const tourSlug = tour?.slug || tourId;
