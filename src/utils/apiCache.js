@@ -38,6 +38,9 @@ export const CACHE_POLICIES = {
   
   // Blog posts & FAQ articles: 15m stale, 1h maxAge
   CMS_CONTENT: { staleTime: 15 * 60 * 1000, ttl: 60 * 60 * 1000 },
+
+  // Dashboard-editable hero widgets: short-lived so CMS edits appear quickly.
+  HERO_CONFIG: { staleTime: 60 * 1000, ttl: 5 * 60 * 1000 },
   
   // Reviews: 3m stale, 15m maxAge
   REVIEWS: { staleTime: 3 * 60 * 1000, ttl: 15 * 60 * 1000 },

@@ -1,9 +1,40 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { m, AnimatePresence, useAnimationControls } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaCompass, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { useHeroWidgets } from '../../hooks/useHeroWidgets';
 
 const FALLBACK_HERO_IMAGE = 'https://res.cloudinary.com/degbrq3ck/image/upload/f_auto,q_auto,w_1920/v1783026771/8_mpyvu4.jpg';
+
+// Route aliases are stored under one canonical key in the dashboard so the
+// widget keeps working when a visitor uses an alternative URL.
+const HERO_WIDGET_PAGE_ALIASES = {
+  '/programs/multi_country': '/programs/multi-country',
+  '/programs/extensions': '/programs/extension',
+  '/destinations/egito': '/destinations/egypt',
+  '/destinations/egipto': '/destinations/egypt',
+};
+
+function normalizeWidgetPageKey(pathname) {
+  if (typeof pathname !== 'string' || !pathname) return '/';
+  const withoutQuery = pathname.split(/[?#]/)[0];
+  const trailingSlashRemoved =
+    withoutQuery.length > 1 ? withoutQuery.replace(/\/+$/, '') : withoutQuery;
+  return HERO_WIDGET_PAGE_ALIASES[trailingSlashRemoved] || trailingSlashRemoved;
+}
+
+// CMS content keys must start with a letter, so page paths are stored as
+// safe tokens (e.g. /programs/multi-country -> p_programs_multi_country).
+function heroWidgetStorageKey(pageKey) {
+  const normalized = normalizeWidgetPageKey(pageKey);
+  if (normalized === '*') return 'p_global';
+  const suffix = normalized
+    .replace(/^\/+/, '')
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase();
+  return `p_${suffix || 'root'}`;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -39,9 +70,59 @@ export default function LuxuryHeroSection({
   onImageClick = null,
   zoomDuration = 12,
   zoomScale = 1.15,
-  ease = 'easeOut'
+  ease = 'easeOut',
+  // Dashboard-managed hero widgets. Every page gets its own path by default;
+  // pass widgetPageKey to reuse one config on several pages.
+  widgetPageKey = null,
+  enableCmsWidgets = true
 }) {
   const isRtl = document.dir === 'rtl' || true;
+  const location = useLocation();
+  const heroWidgets = useHeroWidgets();
+
+  const resolvedWidgetPageKey = normalizeWidgetPageKey(
+    widgetPageKey || location?.pathname || '/'
+  );
+
+  // `*` is a site-wide default; a page-specific entry overrides it entirely.
+  const widgetConfig = useMemo(() => {
+    if (!enableCmsWidgets || !heroWidgets || typeof heroWidgets !== 'object') return null;
+    const pages = heroWidgets.pages;
+    if (!pages || typeof pages !== 'object') return null;
+    const globalConfig = pages.p_global && typeof pages.p_global === 'object' ? pages.p_global : null;
+    const storageKey = heroWidgetStorageKey(resolvedWidgetPageKey);
+    const pageConfig =
+      pages[storageKey] && typeof pages[storageKey] === 'object'
+        ? pages[storageKey]
+        : null;
+    if (!globalConfig && !pageConfig) return null;
+    return { ...globalConfig, ...pageConfig };
+  }, [enableCmsWidgets, heroWidgets, resolvedWidgetPageKey]);
+
+  const resolvedBadge = useMemo(() => {
+    if (widgetConfig?.showBadge === false) return '';
+    if (widgetConfig && Object.prototype.hasOwnProperty.call(widgetConfig, 'badge')) {
+      return widgetConfig.badge;
+    }
+    return badge;
+  }, [widgetConfig, badge]);
+
+  const resolvedBadgeIcon = widgetConfig?.badgeIcon || '';
+
+  const resolvedHighlights = useMemo(() => {
+    if (widgetConfig?.showHighlights === false) return [];
+    if (!widgetConfig || !Array.isArray(widgetConfig.highlights)) return highlights;
+    return widgetConfig.highlights
+      .map((item) => {
+        if (item && typeof item === 'object') {
+          const icon = typeof item.icon === 'string' ? item.icon.trim() : '';
+          const text = typeof item.text === 'string' ? item.text.trim() : '';
+          return icon && text ? `${icon} ${text}` : icon || text;
+        }
+        return item;
+      })
+      .filter((item) => typeof item === 'string' && item.trim().length > 0);
+  }, [widgetConfig, highlights]);
 
   // ---- Hero background rotation (optional) -------------------------------
   // Callers may pass `bgImages` (e.g. the tour gallery) to cycle the hero
@@ -219,16 +300,22 @@ export default function LuxuryHeroSection({
           </m.div>
         )}
 
-        {/* Eyebrow Glass Badge */}
-        {badge && (
+        {/* Eyebrow Glass Badge (text + icon editable from the dashboard) */}
+        {resolvedBadge && (
           <m.div variants={itemVariants} className="inline-block max-w-full mb-4 sm:mb-6 px-2">
             <div
               className="inline-flex items-center justify-center gap-2 sm:gap-2.5 max-w-[94vw] sm:max-w-max px-3.5 py-2 xs:px-4.5 xs:py-2.5 sm:px-6 sm:py-3 rounded-full border border-[#F5A623]/60 backdrop-blur-xl shadow-xl shadow-black/50 text-center transition-all duration-300"
               style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
             >
-              <FaCompass className="text-[#F5A623] text-xs sm:text-base animate-pulse shrink-0" />
+              {resolvedBadgeIcon ? (
+                <span aria-hidden="true" className="text-xs sm:text-base leading-none shrink-0">
+                  {resolvedBadgeIcon}
+                </span>
+              ) : (
+                <FaCompass className="text-[#F5A623] text-xs sm:text-base animate-pulse shrink-0" />
+              )}
               <span className="text-[11px] xs:text-xs sm:text-base font-extrabold tracking-wider text-[#F5A623] uppercase drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] leading-snug sm:leading-normal">
-                {badge}
+                {resolvedBadge}
               </span>
             </div>
           </m.div>
@@ -261,13 +348,13 @@ export default function LuxuryHeroSection({
           </m.p>
         )}
 
-        {/* Highlight Tags / Quick Badges */}
-        {highlights && highlights.length > 0 && (
+        {/* Highlight Tags / Quick Badges (icon + text, dashboard editable) */}
+        {resolvedHighlights && resolvedHighlights.length > 0 && (
           <m.div
             variants={itemVariants}
             className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-3 mb-6 sm:mb-10 max-w-4xl mx-auto"
           >
-            {highlights.map((tag, idx) => (
+            {resolvedHighlights.map((tag, idx) => (
               <span
                 key={idx}
                 className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-obsidian-950/60 backdrop-blur-md text-ivory-100 text-[11px] sm:text-sm font-medium border border-white/20 hover:border-gold-500/50 hover:bg-gold-500/20 transition-all duration-300 shadow-md"
