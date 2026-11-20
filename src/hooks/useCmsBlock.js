@@ -4,13 +4,33 @@ import api from '../utils/api';
 import { supportedLocale } from '../utils/locale';
 import { fetchWithSmartCache, getCachedEntry, abortQuery, CACHE_POLICIES } from '../utils/apiCache';
 
+const CMS_LOCALES = ['en', 'ar', 'es', 'pt', 'it'];
+
+export function deepLocalizeCms(data, lang) {
+  if (!data || typeof data !== 'object') return data;
+  if (Array.isArray(data)) {
+    return data.map((item) => deepLocalizeCms(item, lang));
+  }
+  const keys = Object.keys(data);
+  const isLocaleObject = keys.length > 0 && keys.every((k) => CMS_LOCALES.includes(k));
+  if (isLocaleObject) {
+    const cleanLang = String(lang || 'en').split('-')[0].toLowerCase();
+    return data[cleanLang] ?? data.en ?? data.ar ?? data.es ?? data.pt ?? data.it ?? Object.values(data)[0] ?? '';
+  }
+  const result = {};
+  for (const [k, v] of Object.entries(data)) {
+    result[k] = deepLocalizeCms(v, lang);
+  }
+  return result;
+}
+
 export function useCmsBlock(key) {
   const { i18n } = useTranslation();
   const lang = supportedLocale(i18n.language);
   const queryKey = key ? ['cms', key, lang] : null;
 
   const cached = queryKey ? getCachedEntry(queryKey) : null;
-  const [data, setData] = useState(cached ? cached.data : null);
+  const [data, setData] = useState(cached ? deepLocalizeCms(cached.data, lang) : null);
   const [loading, setLoading] = useState(queryKey ? !cached : false);
   const [error, setError] = useState(null);
 
@@ -36,7 +56,7 @@ export function useCmsBlock(key) {
         );
 
         if (isMounted && res) {
-          setData(res);
+          setData(deepLocalizeCms(res, lang));
         }
       } catch (err) {
         if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;

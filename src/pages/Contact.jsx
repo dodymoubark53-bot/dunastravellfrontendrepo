@@ -497,33 +497,57 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Embedded Google Map */}
-            <div className="block w-full h-[240px] rounded-2xl overflow-hidden border border-gold-500/40 shadow-xl relative group mt-4">
-              <ConsentGate category="marketing" providerName="Google Maps" height="240px">
+            {/* Embedded Google Map with Visible Landmarks & Interactivity */}
+            <div className="w-full rounded-2xl overflow-hidden border border-gold-500/40 shadow-xl relative mt-4 bg-slate-950 flex flex-col">
+              <div className="relative w-full h-[320px]">
+                <ConsentGate category="marketing" providerName="Google Maps" height="320px">
+                  <iframe
+                    src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7500!2d31.135099!3d29.986334!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145845d1ed0ce4a9%3A0xb5b8259e0559e80f!2sDunas%20Travel!5e0!3m2!1s${['ar', 'en', 'es', 'pt', 'it'].includes(i18n?.language?.split('-')[0]) ? i18n.language.split('-')[0] : 'ar'}!2seg!4v1716300000000`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={t('contact.mapTitle', 'موقع ديوناس ترافيل ومعالم الجيزة')}
+                    className="w-full h-full"
+                  ></iframe>
+
+                  {/* Floating Action Badge - Top Corner (doesn't obstruct map landmarks) */}
+                  <a
+                    href="https://maps.app.goo.gl/hr4pd5kARWvnRB5N8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-3 left-3 rtl:left-auto rtl:right-3 z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 hover:bg-gold-500 hover:text-slate-950 text-gold-300 text-xs font-bold border border-gold-500/50 shadow-xl backdrop-blur-md transition-all duration-200 group"
+                    title={t('contact.openMaps', 'Open location in Google Maps')}
+                  >
+                    <span className="text-sm">📍</span>
+                    <span>{t('contact.openGoogleMaps', 'فتح في خرائط Google')}</span>
+                    <span className="opacity-70 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform">↗</span>
+                  </a>
+                </ConsentGate>
+              </div>
+
+              {/* Landmarks Info Strip */}
+              <div className="p-3.5 bg-slate-900/95 border-t border-gold-500/25 flex flex-wrap items-center justify-between text-xs gap-2">
+                <div className="flex items-center gap-2 text-ivory-100 font-medium">
+                  <span className="text-gold-400 text-sm">🏛️</span>
+                  <span>
+                    {t(
+                      'contact.landmarksNote',
+                      'أبرز المعالم المجاورة: أهرامات الجيزة وأبو الهول • المتحف المصري الكبير (GEM) • حدائق الأهرام'
+                    )}
+                  </span>
+                </div>
                 <a
                   href="https://maps.app.goo.gl/hr4pd5kARWvnRB5N8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full h-full relative cursor-pointer"
-                  title={t('contact.openMaps', 'Open location in Google Maps')}
+                  className="text-gold-300 hover:text-gold-100 font-bold underline transition-colors whitespace-nowrap"
                 >
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.026723223011!2d31.2052!3d30.0076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAwJzI3LjQiTiAzMcKwMTInMTg3LjJF!5e0!3m2!1sen!2seg!4v1680000000000"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0, pointerEvents: 'none' }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  ></iframe>
-                  <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-all duration-300 flex items-center justify-center">
-                    <span className="bg-slate-900/95 backdrop-blur-md text-gold-300 font-bold px-5 py-2.5 rounded-full border border-gold-500/60 text-xs shadow-2xl group-hover:scale-105 transition-all flex items-center gap-2">
-                      <span>📍</span>
-                      <span>{t('contact.openGoogleMaps', 'فتح الموقع على خرائط جوجل مباشرة')}</span>
-                    </span>
-                  </div>
+                  {t('contact.getDirections', 'احصل على الاتجاهات')} ↗
                 </a>
-              </ConsentGate>
+              </div>
             </div>
           </div>
 

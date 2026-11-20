@@ -5,11 +5,34 @@ import { m, AnimatePresence } from 'framer-motion';
 import { FaChevronDown } from 'react-icons/fa';
 import { staggerContainer, fadeInUp, accordionContent } from '../animations/variants';
 import { useCmsBlock } from '../hooks/useCmsBlock';
+import { supportedLocale } from '../utils/locale';
 
 const FAQ = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = supportedLocale(i18n?.language);
   const [openId, setOpenId] = useState(null);
   const { data: cmsData } = useCmsBlock('faq_page');
+
+  const resolveText = (val, fallback = '') => {
+    if (!val) return fallback;
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object' && !Array.isArray(val)) {
+      return (
+        val[lang] ||
+        val.en ||
+        val.ar ||
+        val.es ||
+        val.pt ||
+        val.it ||
+        Object.values(val).find((v) => typeof v === 'string') ||
+        fallback
+      );
+    }
+    return String(val);
+  };
+
+  const headingText = resolveText(cmsData?.heading, t('faq.heading', 'Frequently Asked Questions'));
+  const helpCenterText = resolveText(cmsData?.helpCenter, t('faq.helpCenter', 'HELP CENTER'));
 
   const categories = [
     { id: 'general', title: t('faq.cat.general', 'General Reservations'), count: 10 },
@@ -38,13 +61,31 @@ const FAQ = () => {
         items.push({ id: `${catId}-${i}`, question: q, answer: a, catId });
       }
     }
+    if (Array.isArray(cmsData?.items)) {
+      const cmsItems = cmsData.items.filter((ci) => {
+        const cCat = String(ci.category || '').toLowerCase();
+        return (
+          cCat === catId ||
+          (catId === 'general' && cCat === 'bookings') ||
+          (catId === 'transportation' && cCat === 'transport') ||
+          (catId === 'changes' && cCat === 'cancellations')
+        );
+      });
+      for (const ci of cmsItems) {
+        const q = resolveText(ci.question, '');
+        const a = resolveText(ci.answer, '');
+        if (q && a && !items.some((it) => it.id === ci.id)) {
+          items.push({ id: ci.id || `cms-${catId}-${items.length + 1}`, question: q, answer: a, catId });
+        }
+      }
+    }
     return items;
   };
 
   return (
     <div className="w-full min-h-screen bg-ivory-50 pb-24 font-body">
       <SEOHead
-        title={cmsData?.heading || t('faq.heading', 'Frequently Asked Questions')}
+        title={headingText}
         description={t('faq.metaDesc', 'Find clear answers about private reservations, pricing, cancellation policies, visa requirements, luxury Nile cruises, and packing tips with Dunas Travel.')}
         canonical="https://dunas-travel.com/faq"
         schema={{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I book a private luxury tour with Dunas Travel?","acceptedAnswer":{"@type":"Answer","text":"You can book directly through our website, request a bespoke itinerary via our Tailor-Made page, or contact our dedicated travel concierge team."}},{"@type":"Question","name":"What is included in Dunas Travel luxury packages?","acceptedAnswer":{"@type":"Answer","text":"Our packages typically include 5-star hotel accommodations, domestic flights, private air-conditioned transportation, certified private Egyptologist guides, VIP monument admissions, and 24/7 concierge support."}},{"@type":"Question","name":"Can itineraries be customized?","acceptedAnswer":{"@type":"Answer","text":"Yes, every Dunas Travel itinerary can be fully customized to match your travel dates, preferred pace, accommodation style, and special interests."}},{"@type":"Question","name":"Do you offer private Nile cruises?","acceptedAnswer":{"@type":"Answer","text":"We partner with the finest luxury dahabiyas and boutique Nile cruisers between Luxor and Aswan, offering private cabins, bespoke shore excursions, and fine dining."}}]}}
@@ -59,10 +100,10 @@ const FAQ = () => {
           className="relative z-10 text-center px-4"
         >
           <span className="text-gold-500 uppercase tracking-widest text-caption block mb-2">
-            {cmsData?.helpCenter || t('faq.helpCenter', 'HELP CENTER')}
+            {helpCenterText}
           </span>
           <h1 className="text-display-xl text-white font-display">
-            {cmsData?.heading || t('faq.heading', 'Frequently Asked Questions')}
+            {headingText}
           </h1>
         </m.div>
       </section>
