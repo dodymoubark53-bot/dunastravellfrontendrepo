@@ -85,8 +85,8 @@ export default function Egipto() {
     return list.length > 0 ? list : allLiveTours;
   }, [allLiveTours]);
 
-  // Define the 9 standalone base classic tours for Egypt top section
-  const BASE_CLASSIC_SLUGS = [
+  // Define the default 9 standalone base classic tours for Egypt top section
+  const DEFAULT_TOP_CLASSIC_SLUGS = [
     'cairo-express-4d',
     'cairo-express-alexandria-5d',
     'egito-classico-8d',
@@ -98,19 +98,40 @@ export default function Egipto() {
     'complete-egypt-8d'
   ];
 
+  const topSlugsConfig =
+    landingPage?.sections?.topTourSlugs ||
+    landingPage?.sectionsJsonb?.topTourSlugs ||
+    landingPage?.topTourSlugs;
+
   const baseClassic9Tours = useMemo(() => {
     const tourList = Array.isArray(liveTours) ? liveTours : [];
     if (tourList.length === 0) return [];
     const foundMap = new Map();
     tourList.forEach((t) => {
       if (t && t.slug) {
-        foundMap.set(t.slug, t);
+        foundMap.set(String(t.slug).toLowerCase(), t);
       }
     });
 
-    const result = BASE_CLASSIC_SLUGS.map((slug) => foundMap.get(slug)).filter(Boolean);
+    const activeSlugs =
+      Array.isArray(topSlugsConfig) && topSlugsConfig.length > 0
+        ? topSlugsConfig
+        : DEFAULT_TOP_CLASSIC_SLUGS;
+
+    const result = activeSlugs
+      .map((slug) => foundMap.get(String(slug).toLowerCase()))
+      .filter(Boolean);
+
+    // Also include any tour explicitly placed in egypt_main if not already present
+    tourList.forEach((t) => {
+      const cat = String(t.category || '').toLowerCase();
+      if ((cat === 'egypt_main' || cat === 'top_featured') && !result.some((r) => r.slug === t.slug)) {
+        result.push(t);
+      }
+    });
+
     return result.length > 0 ? result : tourList;
-  }, [liveTours]);
+  }, [liveTours, topSlugsConfig]);
 
   const dynamicHeroImage = landingPage?.heroImageUrl || 'https://res.cloudinary.com/nclvl0iu/image/upload/v1790131551/egyothero.webp';
   const heroTitle = landingPage?.title || t('dest.egypt.headline', 'مصر.. حيث يلتقي التاريخ الخالد برغد الرفاهية');
