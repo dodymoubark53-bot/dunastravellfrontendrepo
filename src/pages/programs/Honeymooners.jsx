@@ -50,7 +50,7 @@ export default function Honeymooners() {
           t('honeymooners.tag3', '🏨 ترقية الغرف والأجنحة (حسب الإمكانية)')
         ]}
         primaryCta={{
-          text: t('honeymooners.ctaPrimary', 'استكشف باقات شهر العسل ←'),
+          text: t('honeymooners.ctaPrimary', 'استكشف باقات شهر العسل'),
           link: '#packages-list'
         }}
         secondaryCta={{

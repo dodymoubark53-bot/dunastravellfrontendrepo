@@ -231,7 +231,7 @@ export default function Egipto() {
         highlights={heroHighlights}
         enableCmsWidgets={!heroBadgeFromSections && !heroHighlightsFromSections}
         primaryCta={{
-          text: t('dest.egypt.ctaPrimary', 'استكشف برامج مصر الفاخرة ←'),
+          text: t('dest.egypt.ctaPrimary', 'استكشف برامج مصر الفاخرة'),
           link: '#tours-grid'
         }}
         secondaryCta={{

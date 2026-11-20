@@ -50,7 +50,7 @@ export default function ExtensionTours() {
           t('extensions.tag3', '✈️ طيران داخلي مريح من وإلى القاهرة')
         ]}
         primaryCta={{
-          text: t('extensions.ctaPrimary', 'تصفّح باقات التمديد ←'),
+          text: t('extensions.ctaPrimary', 'تصفّح باقات التمديد'),
           link: '#extensions-list'
         }}
         secondaryCta={{
