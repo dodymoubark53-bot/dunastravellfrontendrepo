@@ -17,18 +17,20 @@ import useLandingPage from '../../hooks/useLandingPage';
 
 function resolvePackageTitle(pkg, t, lang) {
   if (!pkg) return '';
+  // 1. Dashboard-edited multilingual title
+  if (pkg.title && typeof pkg.title === 'object') {
+    const val = pkg.title[lang] || pkg.title.en || pkg.title.ar;
+    if (val && typeof val === 'string' && val.trim()) return val;
+  }
   const fallback =
     pkg.titleDefault ||
-    (pkg.title && typeof pkg.title === 'object'
-      ? (pkg.title.ar || pkg.title.en)
-      : pkg.title) ||
+    (lang === 'ar' ? pkg.titleAr : pkg.titleEn) ||
+    pkg.titleAr ||
+    pkg.titleEn ||
     '';
   if (pkg.titleKey && t) {
     const val = t(pkg.titleKey, fallback);
     if (val && val !== pkg.titleKey) return val;
-  }
-  if (typeof pkg.title === 'object' && pkg.title) {
-    return pkg.title[lang] || pkg.title.en || pkg.title.ar || fallback;
   }
   if (typeof pkg.title === 'string' && pkg.title.trim()) return pkg.title;
   return fallback;
@@ -36,18 +38,24 @@ function resolvePackageTitle(pkg, t, lang) {
 
 function resolvePackageDesc(pkg, t, lang) {
   if (!pkg) return '';
+  // 1. Dashboard-edited multilingual description (descriptionJsonb)
+  if (pkg.descriptionJsonb && typeof pkg.descriptionJsonb === 'object') {
+    const custom = pkg.descriptionJsonb[lang] || pkg.descriptionJsonb.en || pkg.descriptionJsonb.ar;
+    if (custom && typeof custom === 'string' && custom.trim()) return custom;
+  }
+  // 2. Multilingual description object
+  if (pkg.description && typeof pkg.description === 'object') {
+    const custom = pkg.description[lang] || pkg.description.en || pkg.description.ar;
+    if (custom && typeof custom === 'string' && custom.trim()) return custom;
+  }
+  // 3. Fallback translation key or default
   const fallback =
     pkg.descDefault ||
-    (pkg.description && typeof pkg.description === 'object'
-      ? (pkg.description.ar || pkg.description.en)
-      : pkg.description) ||
+    (typeof pkg.description === 'string' ? pkg.description : '') ||
     '';
   if (pkg.descKey && t) {
     const val = t(pkg.descKey, fallback);
     if (val && val !== pkg.descKey) return val;
-  }
-  if (typeof pkg.description === 'object' && pkg.description) {
-    return pkg.description[lang] || pkg.description.en || pkg.description.ar || fallback;
   }
   if (typeof pkg.description === 'string' && pkg.description.trim()) return pkg.description;
   return fallback;
