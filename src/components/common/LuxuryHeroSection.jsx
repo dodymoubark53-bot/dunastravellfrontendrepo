@@ -55,6 +55,7 @@ const itemVariants = {
 
 export default function LuxuryHeroSection({
   badge = 'تجارب سياحية فاخرة',
+  badgeIcon = '',
   title = 'اكتشف روعة السفر الملكي',
   subtitle = '',
   description = '',
@@ -107,21 +108,35 @@ export default function LuxuryHeroSection({
     return badge;
   }, [widgetConfig, badge]);
 
-  const resolvedBadgeIcon = widgetConfig?.badgeIcon || '';
+  const resolvedBadgeIcon = widgetConfig?.badgeIcon || badgeIcon || '';
 
   const resolvedHighlights = useMemo(() => {
     if (widgetConfig?.showHighlights === false) return [];
-    if (!widgetConfig || !Array.isArray(widgetConfig.highlights)) return highlights;
-    return widgetConfig.highlights
-      .map((item) => {
-        if (item && typeof item === 'object') {
-          const icon = typeof item.icon === 'string' ? item.icon.trim() : '';
-          const text = typeof item.text === 'string' ? item.text.trim() : '';
-          return icon && text ? `${icon} ${text}` : icon || text;
-        }
-        return item;
-      })
-      .filter((item) => typeof item === 'string' && item.trim().length > 0);
+    if (widgetConfig && Array.isArray(widgetConfig.highlights)) {
+      return widgetConfig.highlights
+        .map((item) => {
+          if (item && typeof item === 'object') {
+            const icon = typeof item.icon === 'string' ? item.icon.trim() : '';
+            const text = typeof item.text === 'string' ? item.text.trim() : '';
+            return icon && text ? `${icon} ${text}` : icon || text;
+          }
+          return item;
+        })
+        .filter((item) => typeof item === 'string' && item.trim().length > 0);
+    }
+    if (Array.isArray(highlights) && highlights.length > 0) {
+      return highlights
+        .map((item) => {
+          if (item && typeof item === 'object') {
+            const icon = typeof item.icon === 'string' ? item.icon.trim() : '';
+            const text = typeof item.text === 'string' ? item.text.trim() : '';
+            return icon && text ? `${icon} ${text}` : icon || text;
+          }
+          return item;
+        })
+        .filter((item) => typeof item === 'string' && item.trim().length > 0);
+    }
+    return [];
   }, [widgetConfig, highlights]);
 
   // ---- Hero background rotation (optional) -------------------------------
@@ -307,12 +322,11 @@ export default function LuxuryHeroSection({
               className="inline-flex items-center justify-center gap-2 sm:gap-2.5 max-w-[94vw] sm:max-w-max px-3.5 py-2 xs:px-4.5 xs:py-2.5 sm:px-6 sm:py-3 rounded-full border border-[#F5A623]/60 backdrop-blur-xl shadow-xl shadow-black/50 text-center transition-all duration-300"
               style={{ background: 'linear-gradient(135deg, rgb(4, 20, 70) 0%, rgb(6, 29, 93) 40%, rgb(10, 40, 120) 100%)' }}
             >
-              {resolvedBadgeIcon ? (
+              <FaCompass className="text-[#F5A623] text-xs sm:text-base animate-pulse shrink-0" />
+              {resolvedBadgeIcon && (
                 <span aria-hidden="true" className="text-xs sm:text-base leading-none shrink-0">
                   {resolvedBadgeIcon}
                 </span>
-              ) : (
-                <FaCompass className="text-[#F5A623] text-xs sm:text-base animate-pulse shrink-0" />
               )}
               <span className="text-[11px] xs:text-xs sm:text-base font-extrabold tracking-wider text-[#F5A623] uppercase drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] leading-snug sm:leading-normal">
                 {resolvedBadge}

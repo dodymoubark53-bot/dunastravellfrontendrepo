@@ -140,6 +140,45 @@ export default function Egipto() {
       .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
   }, [rawPackages]);
 
+  const currentLocale = (i18n.language || 'en').split('-')[0].toLowerCase();
+  const sectionsData = landingPage?.sections || landingPage?.sectionsJsonb || {};
+
+  const heroBadgeFromSections =
+    sectionsData?.heroBadge?.[currentLocale] ||
+    sectionsData?.heroBadge?.ar ||
+    sectionsData?.heroBadge?.en;
+
+  const heroBadgeIcon = sectionsData?.heroBadgeIcon || '👑';
+
+  const heroBadge =
+    heroBadgeFromSections ||
+    t('dest.egypt.badge', 'مهد الحضارات وعاصمة الفخامة التاريخية');
+
+  const heroHighlightsFromSections =
+    sectionsData?.heroHighlights?.[currentLocale] ||
+    sectionsData?.heroHighlights?.ar ||
+    sectionsData?.heroHighlights?.en;
+
+  const defaultHeroHighlights = [
+    t('dest.egypt.tag1', '🚢 رحلات نيلية 5 نجوم ديلوكس'),
+    t('dest.egypt.tag2', '👑 إرشاد سياحي خاص باللغات العالمية'),
+    t('dest.egypt.tag3', '🐪 تجارب سفاري وحصريات الصحراء'),
+  ];
+
+  const heroHighlights =
+    Array.isArray(heroHighlightsFromSections) && heroHighlightsFromSections.length > 0
+      ? heroHighlightsFromSections
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object') {
+              const icon = item.icon?.trim() ? `${item.icon.trim()} ` : '';
+              return `${icon}${item.text || ''}`.trim();
+            }
+            return '';
+          })
+          .filter(Boolean)
+      : defaultHeroHighlights;
+
   return (
     <div className="w-full min-h-screen bg-obsidian-50 dark:bg-[#0c0d19] pb-24 text-start">
       <SEOHead
@@ -163,15 +202,13 @@ export default function Egipto() {
 
       {/* Luxury Hero Section */}
       <LuxuryHeroSection
-        badge={t('dest.egypt.badge', '🏛️ أسرار 7000 عام من الحضارة')}
+        badge={heroBadge}
+        badgeIcon={heroBadgeIcon}
         title={heroTitle}
         subtitle={heroSubtitle}
         description={heroDesc}
-        highlights={[
-          t('dest.egypt.tag1', '🚢 رحلات نيلية 5 نجوم ديلوكس'),
-          t('dest.egypt.tag2', '👑 إرشاد سياحي خاص باللغات العالمية'),
-          t('dest.egypt.tag3', '🐫 تجارب سفاري وحصريات الصحراء')
-        ]}
+        highlights={heroHighlights}
+        enableCmsWidgets={!heroBadgeFromSections && !heroHighlightsFromSections}
         primaryCta={{
           text: t('dest.egypt.ctaPrimary', 'استكشف برامج مصر الفاخرة ←'),
           link: '#tours-grid'

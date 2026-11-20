@@ -202,7 +202,7 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
   const routeSlug = params.slug || params.programSlug || params.programId || params.id;
   const rawSlug = slugProp || routeSlug || (pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : undefined);
   const slug = (rawSlug || '').toLowerCase().trim();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { landingPage, loading, error, retry } = useLandingPage(slug, { destinationOnly });
   const hasEmbeddedTours = Array.isArray(landingPage?.tours) && landingPage.tours.length > 0;
   const needsFallbackTours = !loading && !hasEmbeddedTours && slug !== 'holy-land' && slug !== 'holyland';
@@ -348,13 +348,45 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
 
   const sections = readableSections(effectiveLandingPage.sections);
 
-  const heroBadge = config.badge ? t(config.badge, config.badgeDefault) : (effectiveLandingPage.type || 'LUXURY DESTINATION');
+  const currentLocale = (i18n.language || 'en').split('-')[0].toLowerCase();
+  const lpSections = effectiveLandingPage?.sections || effectiveLandingPage?.sectionsJsonb || {};
+
+  const heroBadgeFromSections =
+    lpSections?.heroBadge?.[currentLocale] ||
+    lpSections?.heroBadge?.ar ||
+    lpSections?.heroBadge?.en;
+
+  const heroBadgeIcon = lpSections?.heroBadgeIcon || '';
+
+  const heroBadge =
+    heroBadgeFromSections ||
+    (config.badge ? t(config.badge, config.badgeDefault) : (effectiveLandingPage.type || 'LUXURY DESTINATION'));
   const heroTitle = effectiveLandingPage.title || (config.headline ? t(config.headline, config.headlineDefault) : slug.toUpperCase());
   const heroSubtitle = effectiveLandingPage.subtitle || (config.subtitle ? t(config.subtitle, config.subtitleDefault) : '');
   const heroDesc = effectiveLandingPage.description || (config.desc ? t(config.desc, config.descDefault) : effectiveLandingPage.brief || '');
-  const heroHighlights = config.tags
+
+  const heroHighlightsFromSections =
+    lpSections?.heroHighlights?.[currentLocale] ||
+    lpSections?.heroHighlights?.ar ||
+    lpSections?.heroHighlights?.en;
+
+  const defaultHeroHighlights = config.tags
     ? config.tags.map((tagKey, idx) => t(tagKey, config.tagsDefault?.[idx] || ''))
     : [];
+
+  const heroHighlights =
+    Array.isArray(heroHighlightsFromSections) && heroHighlightsFromSections.length > 0
+      ? heroHighlightsFromSections
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object') {
+              const icon = item.icon?.trim() ? `${item.icon.trim()} ` : '';
+              return `${icon}${item.text || ''}`.trim();
+            }
+            return '';
+          })
+          .filter(Boolean)
+      : defaultHeroHighlights;
   const heroImage = landingPage?.heroImageUrl || effectiveLandingPage?.heroImageUrl || config.heroImage || '/imgs/destinations/egypt.webp';
 
   // Jordan specific matrices
@@ -419,10 +451,12 @@ export default function LandingPageDetails({ destinationOnly = false, slug: slug
       ) : (
         <LuxuryHeroSection
           badge={heroBadge}
+          badgeIcon={heroBadgeIcon}
           title={heroTitle}
           subtitle={heroSubtitle}
           description={heroDesc}
           highlights={heroHighlights.length > 0 ? heroHighlights : undefined}
+          enableCmsWidgets={!heroBadgeFromSections && !heroHighlightsFromSections}
           primaryCta={{
             text: t('destinations.exploreTours', 'Explore Tours & Packages ←'),
             link: '#tours-grid'
